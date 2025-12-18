@@ -1,0 +1,3 @@
+[submodule "external/angle"]
+	path = external/angle
+	url = https://chromium.googlesource.com/angle/angle.git
