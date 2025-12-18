@@ -1,0 +1,45 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(OS)' == 'Windows_NT' AND '$(Configuration)' == 'Debug'">
+    <AngleOutDir>$(MSBuildThisFileDirectory)..\..\external\angle\out\Debug</AngleOutDir>
+    <AngleBridgeBinDir>$(MSBuildThisFileDirectory)..\..\build\vs2022-debug\native\AngleBridge\Debug</AngleBridgeBinDir>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(OS)' == 'Windows_NT' AND '$(Configuration)' == 'Release'">
+    <AngleOutDir>$(MSBuildThisFileDirectory)..\..\external\angle\out\Release</AngleOutDir>
+    <AngleBridgeBinDir>$(MSBuildThisFileDirectory)..\..\build\vs2022-release\native\AngleBridge\Release</AngleBridgeBinDir>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(OS)' == 'Windows_NT'">
+    <NativeAngleBridge Include="$(AngleBridgeBinDir)\AngleBridge.dll" Condition="Exists('$(AngleBridgeBinDir)\AngleBridge.dll')" />
+    <NativeAngleBridge Include="$(AngleBridgeBinDir)\AngleBridge.pdb" Condition="Exists('$(AngleBridgeBinDir)\AngleBridge.pdb')" />
+    <NativeAngleRuntime Include="$(AngleOutDir)\*.dll" Condition="Exists('$(AngleOutDir)')" />
+  </ItemGroup>
+
+  <Target Name="CopyNativeRuntime" AfterTargets="Build" Condition="'$(OS)' == 'Windows_NT'">
+    <Warning Text="AngleBridge.dll not found at '$(AngleBridgeBinDir)\AngleBridge.dll'. Build it first (cmake --build --preset build-debug/build-release --target AngleBridge)."
+             Condition=" '$(AngleBridgeBinDir)' != '' AND !Exists('$(AngleBridgeBinDir)\AngleBridge.dll') " />
+
+    <Copy SourceFiles="@(NativeAngleBridge)"
+          DestinationFolder="$(OutDir)"
+          SkipUnchangedFiles="true"
+          Condition="'@(NativeAngleBridge)' != ''" />
+
+    <Copy SourceFiles="@(NativeAngleRuntime)"
+          DestinationFolder="$(OutDir)"
+          SkipUnchangedFiles="true"
+          Condition="'@(NativeAngleRuntime)' != ''" />
+  </Target>
+
+</Project>
