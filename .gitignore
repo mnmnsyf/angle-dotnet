@@ -1,0 +1,14 @@
+# build outputs
+/build*/
+out/
+**/bin/
+**/obj/
+
+# VS / VSCode
+.vscode/
+.vs/
+CMakeSettings.json
+
+# OS
+.DS_Store
+Thumbs.db
