@@ -1,0 +1,74 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net9.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\cs\AngleBridge.Managed\AngleBridge.Managed.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <PluginProjectDir>$(MSBuildThisFileDirectory)..\Demo3_Triangle.Plugin\</PluginProjectDir>
+    <PluginTargetFramework>net9.0</PluginTargetFramework>
+    <PluginOutputDir>$(PluginProjectDir)bin\$(Configuration)\$(PluginTargetFramework)\</PluginOutputDir>
+    <PluginDll>$(PluginOutputDir)Demo3_Triangle.Plugin.dll</PluginDll>
+    <PluginPdb>$(PluginOutputDir)Demo3_Triangle.Plugin.pdb</PluginPdb>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(OS)' == 'Windows_NT' AND '$(Configuration)' == 'Debug'">
+    <AngleOutDir>$(MSBuildThisFileDirectory)..\..\external\angle\out\Debug</AngleOutDir>
+    <AngleBridgeBinDir>$(MSBuildThisFileDirectory)..\..\build\vs2022-debug\native\AngleBridge\Debug</AngleBridgeBinDir>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(OS)' == 'Windows_NT' AND '$(Configuration)' == 'Release'">
+    <AngleOutDir>$(MSBuildThisFileDirectory)..\..\external\angle\out\Release</AngleOutDir>
+    <AngleBridgeBinDir>$(MSBuildThisFileDirectory)..\..\build\vs2022-release\native\AngleBridge\Release</AngleBridgeBinDir>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(OS)' == 'Windows_NT'">
+    <NativeAngleBridge Include="$(AngleBridgeBinDir)\AngleBridge.dll" Condition="Exists('$(AngleBridgeBinDir)\AngleBridge.dll')" />
+    <NativeAngleBridge Include="$(AngleBridgeBinDir)\AngleBridge.pdb" Condition="Exists('$(AngleBridgeBinDir)\AngleBridge.pdb')" />
+    <NativeAngleRuntime Include="$(AngleOutDir)\*.dll" Condition="Exists('$(AngleOutDir)')" />
+  </ItemGroup>
+
+  <Target Name="CopyNativeRuntime" AfterTargets="Build" Condition="'$(OS)' == 'Windows_NT'">
+    <Warning Text="AngleBridge.dll not found at '$(AngleBridgeBinDir)\AngleBridge.dll'. Build it first (cmake --build --preset build-debug/build-release --target AngleBridge)."
+             Condition=" '$(AngleBridgeBinDir)' != '' AND !Exists('$(AngleBridgeBinDir)\AngleBridge.dll') " />
+
+    <Copy SourceFiles="@(NativeAngleBridge)"
+          DestinationFolder="$(OutDir)"
+          SkipUnchangedFiles="true"
+          Condition="'@(NativeAngleBridge)' != ''" />
+
+    <Copy SourceFiles="@(NativeAngleRuntime)"
+          DestinationFolder="$(OutDir)"
+          SkipUnchangedFiles="true"
+          Condition="'@(NativeAngleRuntime)' != ''" />
+  </Target>
+
+  <Target Name="BuildAndCopyPlugin" AfterTargets="Build">
+    <MSBuild Projects="$(PluginProjectDir)Demo3_Triangle.Plugin.csproj"
+             Targets="Restore;Build"
+             Properties="Configuration=$(Configuration)" />
+
+    <ItemGroup>
+      <_PluginFiles Include="$(PluginDll)" Condition="Exists('$(PluginDll)')" />
+      <_PluginFiles Include="$(PluginPdb)" Condition="Exists('$(PluginPdb)')" />
+    </ItemGroup>
+
+    <Copy SourceFiles="@(_PluginFiles)"
+          DestinationFolder="$(OutDir)plugins"
+          SkipUnchangedFiles="true"
+          Condition="'@(_PluginFiles)' != ''" />
+  </Target>
+
+</Project>
