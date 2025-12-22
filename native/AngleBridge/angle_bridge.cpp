@@ -71,3 +71,44 @@ const char* AB_GetGLString(int name) {
   const GLubyte* s = glGetString((GLenum)name);
   return (const char*)s;
 }
+
+void* AB_GetProcAddress(const char* name) {
+  return reinterpret_cast<void*>(eglGetProcAddress(name));
+}
+
+AB_Handle AB_CreateWindowContext(void* nativeWindow, int glesMajor) {
+  auto* ctx = new AB_Ctx();
+  ctx->display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+  if (ctx->display == EGL_NO_DISPLAY) { delete ctx; return nullptr; }
+  if (!eglInitialize(ctx->display, nullptr, nullptr)) { delete ctx; return nullptr; }
+
+  if (!chooseConfig(ctx->display, glesMajor, &ctx->config)) {
+    eglTerminate(ctx->display); delete ctx; return nullptr;
+  }
+
+  // 上屏：window surface
+  ctx->surface = eglCreateWindowSurface(
+      ctx->display, ctx->config, (EGLNativeWindowType)nativeWindow, nullptr);
+  if (ctx->surface == EGL_NO_SURFACE) {
+    eglTerminate(ctx->display); delete ctx; return nullptr;
+  }
+
+  const EGLint ctxAttrs[] = { EGL_CONTEXT_CLIENT_VERSION, glesMajor, EGL_NONE };
+  ctx->context = eglCreateContext(ctx->display, ctx->config, EGL_NO_CONTEXT, ctxAttrs);
+  if (ctx->context == EGL_NO_CONTEXT) {
+    eglDestroySurface(ctx->display, ctx->surface);
+    eglTerminate(ctx->display); delete ctx; return nullptr;
+  }
+
+  if (!eglMakeCurrent(ctx->display, ctx->surface, ctx->surface, ctx->context)) {
+    eglDestroyContext(ctx->display, ctx->context);
+    eglDestroySurface(ctx->display, ctx->surface);
+    eglTerminate(ctx->display); delete ctx; return nullptr;
+  }
+  return (AB_Handle)ctx;
+}
+
+int AB_SwapBuffers(AB_Handle h) {
+  auto* ctx = (AB_Ctx*)h;
+  return eglSwapBuffers(ctx->display, ctx->surface) ? 1 : 0;
+}

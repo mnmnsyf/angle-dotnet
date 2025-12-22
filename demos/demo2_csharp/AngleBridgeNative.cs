@@ -11,4 +11,14 @@ internal static class AngleBridgeNative
 
     [DllImport("AngleBridge", CallingConvention = CallingConvention.Cdecl)]
     internal static extern IntPtr AB_GetGLString(int name);
+
+
+    [DllImport("AngleBridge", CallingConvention = CallingConvention.Cdecl)]
+    internal static extern IntPtr AB_CreateWindowContext(IntPtr nativeWindow, int glesMajor);
+
+    [DllImport("AngleBridge", CallingConvention = CallingConvention.Cdecl)]
+    internal static extern int AB_SwapBuffers(IntPtr ctx);
+
+    [DllImport("AngleBridge", CallingConvention = CallingConvention.Cdecl)]
+    internal static extern IntPtr AB_GetProcAddress([MarshalAs(UnmanagedType.LPStr)] string name);
 }
