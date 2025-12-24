@@ -1,7 +1,7 @@
-namespace AngleBridge.Managed.HotReload;
-
-public interface IRenderer : IDisposable
+namespace AngleBridge.Managed.HotReload
 {
-    void Draw(int width, int height);
+    public interface IRenderer : IDisposable
+    {
+        void Draw(int width, int height);
+    }
 }
-

@@ -20,6 +20,9 @@ AB_EXPORT const char* AB_GetGLString(int name);
 AB_EXPORT AB_Handle AB_CreateWindowContext(void* nativeWindow, int glesMajor);
 AB_EXPORT int      AB_SwapBuffers(AB_Handle h);
 AB_EXPORT void*    AB_GetProcAddress(const char* name);
+AB_EXPORT void     AB_NoOp();
+AB_EXPORT void     AB_NoOpN(int n);
+AB_EXPORT void     AB_GlCallBatch(int n);
 
 
 #ifdef __cplusplus

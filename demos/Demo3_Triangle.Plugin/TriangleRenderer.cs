@@ -1,64 +1,65 @@
-using AngleBridge.Managed.GLES;
-using AngleBridge.Managed.HotReload;
+using AngleBridge.Sdk.HotReload;
+using AngleBridge.Sdk.Interop;
+using AngleBridge.Sdk.Runtime;
 
-namespace Demo3_Triangle.Plugin;
-
-public sealed class TriangleRenderer : IRenderer
+namespace Demo3_Triangle.Plugin
 {
+    public sealed class TriangleRenderer : IRenderer
+    {
     private bool _initialized;
 
-    private uint _program;
-    private uint _vbo;
-    private uint _vao;
+    private AngleGl? _gl;
+
+    private AngleProgram? _program;
+    private AngleBuffer? _vbo;
+    private AngleVertexArray? _vao;
     private bool _useVao;
 
-    public void Draw(int width, int height)
+    public void Draw(AngleGl gl, int width, int height)
     {
-        if (!_initialized) Initialize();
+        if (gl == null) throw new ArgumentNullException(nameof(gl));
+        if (_gl == null)
+            _gl = gl;
+        else if (!ReferenceEquals(_gl, gl))
+            throw new InvalidOperationException("Renderer cannot be shared across different AngleGl instances.");
 
-        Gles.Viewport(0, 0, width, height);
-        Gles.ClearColor(0.08f, 0.08f, 0.10f, 1.0f);
-        Gles.Clear(Gles.GL_COLOR_BUFFER_BIT);
+        if (!_initialized) Initialize(gl);
 
-        Gles.UseProgram(_program);
+        gl.Viewport(0, 0, width, height);
+        gl.ClearColor(0.08f, 0.08f, 0.10f, 1.0f);
+        gl.Clear(ClearBufferMask.ColorBufferBit);
+
+        var program = _program ?? throw new InvalidOperationException("Program not initialized.");
+        gl.UseProgram(program);
 
         if (_useVao)
         {
-            Gles.BindVertexArray(_vao);
+            var vao = _vao ?? throw new InvalidOperationException("Vertex array not initialized.");
+            gl.BindVertexArray(vao);
         }
         else
         {
-            BindGeometry();
+            BindGeometry(gl);
         }
 
-        Gles.DrawArrays(Gles.GL_TRIANGLES, first: 0, count: 3);
+        gl.DrawArrays(PrimitiveType.Triangles, first: 0, count: 3);
     }
 
     public void Dispose()
     {
-        if (_vao != 0)
-        {
-            Gles.DeleteVertexArray(_vao);
-            _vao = 0;
-        }
+        if (_vao != null) _vao.Dispose();
+        if (_vbo != null) _vbo.Dispose();
+        if (_program != null) _program.Dispose();
 
-        if (_vbo != 0)
-        {
-            Gles.DeleteBuffer(_vbo);
-            _vbo = 0;
-        }
-
-        if (_program != 0)
-        {
-            Gles.DeleteProgram(_program);
-            _program = 0;
-        }
+        _vao = null;
+        _vbo = null;
+        _program = null;
 
         _initialized = false;
         _useVao = false;
     }
 
-    private void Initialize()
+    private void Initialize(AngleGl gl)
     {
         const string vs =
             "#version 300 es\n" +
@@ -74,16 +75,18 @@ public sealed class TriangleRenderer : IRenderer
             "void main() {\n" +
             "  FragColor = vec4(0.95, 0.25, 0.20, 1.0);\n" +
             "}\n";
-        //FragColor = vec4(0.95, 0.25, 0.20, 1.0);
+        //FragColor = vec4(0.1, 0.1, 0.1, 1.0);
 
-        var vert = CompileShader(Gles.GL_VERTEX_SHADER, vs);
-        var frag = CompileShader(Gles.GL_FRAGMENT_SHADER, fs);
+        var vert = CompileShader(gl, ShaderType.VertexShader, vs);
+        var frag = CompileShader(gl, ShaderType.FragmentShader, fs);
 
-        _program = LinkProgram(vert, frag);
-        Gles.DeleteShader(vert);
-        Gles.DeleteShader(frag);
+        var program = LinkProgram(gl, vert, frag);
+        vert.Dispose();
+        frag.Dispose();
 
-        _vbo = Gles.GenBuffer();
+        _program = program;
+
+        _vbo = gl.CreateBufferObject();
 
         var vertices = new[]
         {
@@ -92,61 +95,68 @@ public sealed class TriangleRenderer : IRenderer
              0.00f,  0.60f,
         };
 
-        Gles.BindBuffer(Gles.GL_ARRAY_BUFFER, _vbo);
-        Gles.BufferData(Gles.GL_ARRAY_BUFFER, vertices, Gles.GL_STATIC_DRAW);
+        gl.BindBuffer(BufferTarget.ArrayBuffer, _vbo);
+        gl.BufferData(BufferTarget.ArrayBuffer, vertices, BufferUsage.StaticDraw);
 
         try
         {
-            _vao = Gles.GenVertexArray();
+            _vao = gl.CreateVertexArrayObject();
             _useVao = true;
-            Gles.BindVertexArray(_vao);
-            BindGeometry();
+            gl.BindVertexArray(_vao);
+            BindGeometry(gl);
         }
         catch (NotSupportedException)
         {
             _useVao = false;
+            if (_vao != null)
+            {
+                _vao.Dispose();
+                _vao = null;
+            }
         }
 
         _initialized = true;
     }
 
-    private void BindGeometry()
+    private void BindGeometry(AngleGl gl)
     {
-        Gles.BindBuffer(Gles.GL_ARRAY_BUFFER, _vbo);
-        Gles.EnableVertexAttribArray(0);
-        Gles.VertexAttribPointer(index: 0, size: 2, type: Gles.GL_FLOAT, normalized: false, stride: 2 * sizeof(float), offsetBytes: 0);
+        var vbo = _vbo ?? throw new InvalidOperationException("Buffer not initialized.");
+        gl.BindBuffer(BufferTarget.ArrayBuffer, vbo);
+        gl.EnableVertexAttribArray(0);
+        gl.VertexAttribPointer(index: 0, size: 2, type: VertexAttribType.Float, normalized: false, stride: 2 * sizeof(float), offsetBytes: 0);
     }
 
-    private static uint CompileShader(uint type, string source)
+    private static AngleShader CompileShader(AngleGl gl, ShaderType type, string source)
     {
-        var shader = Gles.CreateShader(type);
-        Gles.ShaderSource(shader, source);
-        Gles.CompileShader(shader);
+        var shader = gl.CreateShaderObject(type);
+        gl.ShaderSource(shader, source);
+        gl.CompileShader(shader);
 
-        if (Gles.GetShaderInt(shader, Gles.GL_COMPILE_STATUS) == 0)
+        if (gl.GetShaderInt(shader, ShaderParameter.CompileStatus) == 0)
         {
-            var log = Gles.GetShaderInfoLog(shader);
-            Gles.DeleteShader(shader);
+            var log = gl.GetShaderInfoLog(shader);
+            shader.Dispose();
             throw new InvalidOperationException($"Shader compile failed:\n{log}");
         }
 
         return shader;
     }
 
-    private static uint LinkProgram(uint vert, uint frag)
+    private static AngleProgram LinkProgram(AngleGl gl, AngleShader vert, AngleShader frag)
     {
-        var program = Gles.CreateProgram();
-        Gles.AttachShader(program, vert);
-        Gles.AttachShader(program, frag);
-        Gles.LinkProgram(program);
+        var program = gl.CreateProgramObject();
+        gl.AttachShader(program, vert);
+        gl.AttachShader(program, frag);
+        gl.LinkProgram(program);
 
-        if (Gles.GetProgramInt(program, Gles.GL_LINK_STATUS) == 0)
+        if (gl.GetProgramInt(program, ProgramParameter.LinkStatus) == 0)
         {
-            var log = Gles.GetProgramInfoLog(program);
-            Gles.DeleteProgram(program);
+            var log = gl.GetProgramInfoLog(program);
+            program.Dispose();
             throw new InvalidOperationException($"Program link failed:\n{log}");
         }
 
         return program;
     }
+}
 }

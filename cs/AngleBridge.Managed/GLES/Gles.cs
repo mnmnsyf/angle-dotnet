@@ -2,10 +2,10 @@ using System;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace AngleBridge.Managed.GLES;
-
-public static class Gles
+namespace AngleBridge.Managed.GLES
 {
+    internal static class Gles
+    {
     public const uint GL_COLOR_BUFFER_BIT = 0x00004000;
     public const uint GL_TRIANGLES = 0x0004;
 
@@ -21,6 +21,10 @@ public static class Gles
     public const uint GL_COMPILE_STATUS = 0x8B81;
     public const uint GL_LINK_STATUS = 0x8B82;
     public const uint GL_INFO_LOG_LENGTH = 0x8B84;
+    public const uint GL_TIME_ELAPSED_EXT = 0x88BF;
+    public const uint GL_QUERY_RESULT_EXT = 0x8866;
+    public const uint GL_QUERY_RESULT_AVAILABLE_EXT = 0x8867;
+    public const uint GL_GPU_DISJOINT_EXT = 0x8FBB;
 
     internal static CallingConvention _platformCallingConvention;
 
@@ -63,6 +67,14 @@ public static class Gles
     internal static glGetError_t? _glGetError;
     internal static glReadPixels_t? _glReadPixels;
     internal static glFinish_t? _glFinish;
+    internal static glGetBooleanv_t? _glGetBooleanv;
+
+    internal static glGenQueriesEXT_t? _glGenQueriesEXT;
+    internal static glDeleteQueriesEXT_t? _glDeleteQueriesEXT;
+    internal static glBeginQueryEXT_t? _glBeginQueryEXT;
+    internal static glEndQueryEXT_t? _glEndQueryEXT;
+    internal static glGetQueryObjectuivEXT_t? _glGetQueryObjectuivEXT;
+    internal static glGetQueryObjectui64vEXT_t? _glGetQueryObjectui64vEXT;
 
     public static CallingConvention CallingConvention => _platformCallingConvention;
 
@@ -269,6 +281,81 @@ public static class Gles
     public static void Finish() =>
         (_glFinish ?? throw NotLoaded(nameof(_glFinish)))();
 
+    public static bool TryGetBoolean(uint pname, out bool value)
+    {
+        var glGetBooleanv = _glGetBooleanv;
+        if (glGetBooleanv is null)
+        {
+            value = false;
+            return false;
+        }
+
+        glGetBooleanv(pname, out var v);
+        value = v != 0;
+        return true;
+    }
+
+    public static bool IsDisjointTimerQueryAvailable =>
+        _glGenQueriesEXT != null &&
+        _glDeleteQueriesEXT != null &&
+        _glBeginQueryEXT != null &&
+        _glEndQueryEXT != null &&
+        _glGetQueryObjectuivEXT != null &&
+        _glGetQueryObjectui64vEXT != null;
+
+    public static uint GenQueryExt()
+    {
+        var glGenQueriesEXT = _glGenQueriesEXT ?? throw new NotSupportedException("EXT_disjoint_timer_query not available.");
+        glGenQueriesEXT(1, out var id);
+        return id;
+    }
+
+    public static void DeleteQueryExt(uint id)
+    {
+        if (id == 0) return;
+        var glDeleteQueriesEXT = _glDeleteQueriesEXT ?? throw new NotSupportedException("EXT_disjoint_timer_query not available.");
+        glDeleteQueriesEXT(1, ref id);
+    }
+
+    public static void BeginQueryExt(uint target, uint id)
+    {
+        var glBeginQueryEXT = _glBeginQueryEXT ?? throw new NotSupportedException("EXT_disjoint_timer_query not available.");
+        glBeginQueryEXT(target, id);
+    }
+
+    public static void EndQueryExt(uint target)
+    {
+        var glEndQueryEXT = _glEndQueryEXT ?? throw new NotSupportedException("EXT_disjoint_timer_query not available.");
+        glEndQueryEXT(target);
+    }
+
+    public static bool TryGetQueryResultAvailableExt(uint id, out bool available)
+    {
+        var glGetQueryObjectuivEXT = _glGetQueryObjectuivEXT;
+        if (glGetQueryObjectuivEXT is null)
+        {
+            available = false;
+            return false;
+        }
+
+        glGetQueryObjectuivEXT(id, GL_QUERY_RESULT_AVAILABLE_EXT, out var v);
+        available = v != 0;
+        return true;
+    }
+
+    public static bool TryGetQueryResultExt(uint id, out ulong result)
+    {
+        var glGetQueryObjectui64vEXT = _glGetQueryObjectui64vEXT;
+        if (glGetQueryObjectui64vEXT is null)
+        {
+            result = 0;
+            return false;
+        }
+
+        glGetQueryObjectui64vEXT(id, GL_QUERY_RESULT_EXT, out result);
+        return true;
+    }
+
     internal static Exception NotLoaded(string fieldName) =>
         new InvalidOperationException($"GL entrypoint not loaded: {fieldName}. Ensure an EGL context is current, then call {nameof(GlesLoader)}.{nameof(GlesLoader.Load)}().");
 
@@ -367,4 +454,26 @@ public static class Gles
 
     [UnmanagedFunctionPointer(CallingConvention.Winapi)]
     internal delegate void glFinish_t();
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void glGetBooleanv_t(uint pname, out byte data);
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void glGenQueriesEXT_t(int n, out uint ids);
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void glDeleteQueriesEXT_t(int n, ref uint ids);
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void glBeginQueryEXT_t(uint target, uint id);
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void glEndQueryEXT_t(uint target);
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void glGetQueryObjectuivEXT_t(uint id, uint pname, out uint paramsOut);
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void glGetQueryObjectui64vEXT_t(uint id, uint pname, out ulong paramsOut);
+    }
 }

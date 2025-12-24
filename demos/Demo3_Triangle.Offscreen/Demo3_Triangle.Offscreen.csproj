@@ -12,7 +12,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\cs\AngleBridge.Managed\AngleBridge.Managed.csproj" />
+    <ProjectReference Include="..\..\cs\AngleBridge.Sdk\AngleBridge.Sdk.csproj" />
     <ProjectReference Include="..\Demo3_Triangle.Plugin\Demo3_Triangle.Plugin.csproj" />
   </ItemGroup>
 
@@ -33,8 +33,14 @@
   </ItemGroup>
 
   <Target Name="CopyNativeRuntime" AfterTargets="Build" Condition="'$(OS)' == 'Windows_NT'">
-    <Warning Text="AngleBridge.dll not found at '$(AngleBridgeBinDir)\AngleBridge.dll'. Build it first (cmake --build --preset build-debug/build-release --target AngleBridge)."
-             Condition=" '$(AngleBridgeBinDir)' != '' AND !Exists('$(AngleBridgeBinDir)\AngleBridge.dll') " />
+    <Error Text="AngleBridge.dll not found at '$(AngleBridgeBinDir)\AngleBridge.dll'. Build it first: cmake --build --preset build-release --target AngleBridge (or build-debug)."
+           Condition=" '$(AngleBridgeBinDir)' != '' AND !Exists('$(AngleBridgeBinDir)\AngleBridge.dll') " />
+
+    <Error Text="ANGLE runtime not found at '$(AngleOutDir)'. Build it first (e.g. external/angle/out/Release: autoninja -C external/angle/out/Release libEGL libGLESv2)."
+           Condition=" '$(AngleOutDir)' != '' AND !Exists('$(AngleOutDir)') " />
+
+    <Error Text="ANGLE runtime missing 'libEGL.dll' or 'libGLESv2.dll' under '$(AngleOutDir)'. Build it first (autoninja -C $(AngleOutDir) libEGL libGLESv2)."
+           Condition=" Exists('$(AngleOutDir)') AND ( !Exists('$(AngleOutDir)\libEGL.dll') OR !Exists('$(AngleOutDir)\libGLESv2.dll') ) " />
 
     <Copy SourceFiles="@(NativeAngleBridge)"
           DestinationFolder="$(OutDir)"
@@ -48,4 +54,3 @@
   </Target>
 
 </Project>
-

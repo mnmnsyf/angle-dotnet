@@ -21,4 +21,13 @@ internal static class AngleBridgeNative
 
     [DllImport("AngleBridge", CallingConvention = CallingConvention.Cdecl)]
     internal static extern IntPtr AB_GetProcAddress([MarshalAs(UnmanagedType.LPStr)] string name);
+
+    [DllImport("AngleBridge", CallingConvention = CallingConvention.Cdecl)]
+    internal static extern void AB_NoOp();
+
+    [DllImport("AngleBridge", CallingConvention = CallingConvention.Cdecl)]
+    internal static extern void AB_NoOpN(int n);
+
+    [DllImport("AngleBridge", CallingConvention = CallingConvention.Cdecl)]
+    internal static extern void AB_GlCallBatch(int n);
 }

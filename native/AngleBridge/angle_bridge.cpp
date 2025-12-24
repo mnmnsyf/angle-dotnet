@@ -112,3 +112,22 @@ int AB_SwapBuffers(AB_Handle h) {
   auto* ctx = (AB_Ctx*)h;
   return eglSwapBuffers(ctx->display, ctx->surface) ? 1 : 0;
 }
+
+static volatile uint64_t g_noop_sink = 0;
+
+void AB_NoOp() {
+}
+
+void AB_NoOpN(int n) {
+  if (n <= 0) return;
+  for (int i = 0; i < n; ++i) {
+    g_noop_sink += static_cast<uint64_t>(i);
+  }
+}
+
+void AB_GlCallBatch(int n) {
+  if (n <= 0) return;
+  for (int i = 0; i < n; ++i) {
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+  }
+}
