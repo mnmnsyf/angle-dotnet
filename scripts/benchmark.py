@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 """
 Builds C++ and C# projects (Release), runs benchmarks, and generates a comparison CSV report.
-Usage: python scripts/benchmark.py [--work 100] [--frames 1000]
+Usage: python scripts/benchmark.py [--work 100] [--frames 1000] [--profile]
 """
 import argparse
 import csv
 import math
 import os
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -204,7 +205,8 @@ def main():
     parser.add_argument("--frames", type=int, default=1000)
     parser.add_argument("--warmup", type=int, default=200)
     parser.add_argument("--work", type=int, default=10, help="Draw calls per frame")
-    parser.add_argument("--out-dir", default="out/benchmark", help="Output directory for CSVs")
+    parser.add_argument("--out-dir", default="test/benchmark", help="Output directory for CSVs")
+    parser.add_argument("--profile", action="store_true", help="Profile managed code with dotnet-trace and speedscope format")
     args = parser.parse_args()
 
     root = Path(__file__).resolve().parent.parent
@@ -214,6 +216,7 @@ def main():
     out_dir.mkdir(exist_ok=True, parents=True)
 
     if not args.skip_build:
+        # Build Native (required for C# dependency)
         build_native(root)
         build_managed(root)
 
@@ -227,6 +230,60 @@ def main():
         else:
             print(f"Error: Native executable not found at {native_exe}")
             return 1
+
+    if args.profile:
+        # Check if dotnet-trace is installed
+        if shutil.which("dotnet-trace") is None:
+            print("\nError: 'dotnet-trace' not found.")
+            print("Please install it using: dotnet tool install --global dotnet-trace")
+            return 1
+            
+        trace_path = out_dir / "trace.speedscope.json"
+        print(f"\nProfiling Managed Code -> {trace_path}")
+        print("Note: This may take longer due to tracing overhead.")
+        
+        # Build command for dotnet-trace
+        profile_cmd = [
+            "dotnet-trace", "collect",
+            "--name", "dotnet", # trace the dotnet process we are about to launch? No, use 'collect -- <cmd>' syntax
+            "--format", "speedscope",
+            "--output", str(trace_path),
+            "--",
+            "dotnet", str(managed_dll),
+            "--perf",
+            "--csv", str(out_dir / "managed_profiled.csv"), # separate csv for profiled run
+            "--w", str(args.width),
+            "--h", str(args.height),
+            "--frames", str(args.frames),
+            "--warmup", str(args.warmup),
+            "--work", str(args.work)
+        ]
+        
+        # Note: 'dotnet-trace collect -- dotnet ...' requires dotnet-trace 5.0+
+        # If 'dotnet-trace' is just 'dotnet-trace', subprocess works fine.
+        # However, the syntax is: dotnet-trace collect --output <file> -- dotnet <app> <args>
+        
+        real_cmd = [
+            "dotnet-trace", "collect",
+            "--format", "speedscope",
+            "--output", str(trace_path),
+            "--",
+            "dotnet", str(managed_dll),
+            "--perf",
+            "--csv", str(out_dir / "managed_profiled.csv"),
+            "--w", str(args.width),
+            "--h", str(args.height),
+            "--frames", str(args.frames),
+            "--warmup", str(args.warmup),
+            "--work", str(args.work)
+        ]
+        
+        run_cmd(real_cmd, cwd=root)
+        
+        print("\nProfiling Complete!")
+        print(f"Trace file: {trace_path}")
+        print("View the flamegraph by uploading this file to: https://www.speedscope.app/")
+        return 0
 
     native_csv = out_dir / "native.csv"
     managed_csv = out_dir / "managed.csv"
