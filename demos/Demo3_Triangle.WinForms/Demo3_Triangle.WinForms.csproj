@@ -13,7 +13,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\cs\AngleBridge.Managed\AngleBridge.Managed.csproj" />
+    <ProjectReference Include="..\..\cs\AngleBridge.Sdk\AngleBridge.Sdk.csproj" />
   </ItemGroup>
 
   <PropertyGroup>
