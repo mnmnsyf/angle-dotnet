@@ -12,3 +12,10 @@ CMakeSettings.json
 # OS
 .DS_Store
 Thumbs.db
+
+# output files
+*.csv
+
+# agent
+.trae/
+AGENTS.md
