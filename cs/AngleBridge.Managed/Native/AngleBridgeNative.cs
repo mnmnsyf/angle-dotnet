@@ -7,6 +7,9 @@ internal static class AngleBridgeNative
     internal static extern IntPtr AB_CreateOffscreenContext(int glesMajor, int width, int height);
 
     [DllImport("AngleBridge", CallingConvention = CallingConvention.Cdecl)]
+    internal static extern IntPtr AB_CreateOffscreenContextEx(int glesMajor, int width, int height, int backend, int deviceType, int swapInterval);
+
+    [DllImport("AngleBridge", CallingConvention = CallingConvention.Cdecl)]
     internal static extern void AB_DestroyContext(IntPtr h);
 
     [DllImport("AngleBridge", CallingConvention = CallingConvention.Cdecl)]
@@ -15,6 +18,9 @@ internal static class AngleBridgeNative
 
     [DllImport("AngleBridge", CallingConvention = CallingConvention.Cdecl)]
     internal static extern IntPtr AB_CreateWindowContext(IntPtr nativeWindow, int glesMajor);
+
+    [DllImport("AngleBridge", CallingConvention = CallingConvention.Cdecl)]
+    internal static extern IntPtr AB_CreateWindowContextEx(IntPtr nativeWindow, int glesMajor, int backend, int deviceType, int swapInterval);
 
     [DllImport("AngleBridge", CallingConvention = CallingConvention.Cdecl)]
     internal static extern int AB_SwapBuffers(IntPtr ctx);

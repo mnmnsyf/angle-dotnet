@@ -19,15 +19,25 @@ namespace AngleBridge.Managed.Runtime
 
         public static AngleContext CreateOffscreen(int glesMajor, int width, int height)
         {
-            var h = global::AngleBridgeNative.AB_CreateOffscreenContext(glesMajor, width, height);
-            if (h == IntPtr.Zero) throw new InvalidOperationException("AB_CreateOffscreenContext failed.");
+            return CreateOffscreen(glesMajor, width, height, backend: 0, deviceType: 0, swapInterval: -1);
+        }
+
+        public static AngleContext CreateOffscreen(int glesMajor, int width, int height, int backend, int deviceType, int swapInterval)
+        {
+            var h = global::AngleBridgeNative.AB_CreateOffscreenContextEx(glesMajor, width, height, backend, deviceType, swapInterval);
+            if (h == IntPtr.Zero) throw new InvalidOperationException("AB_CreateOffscreenContextEx failed.");
             return new AngleContext(h, ownsHandle: true);
         }
 
         public static AngleContext CreateWindow(IntPtr nativeWindow, int glesMajor)
         {
-            var h = global::AngleBridgeNative.AB_CreateWindowContext(nativeWindow, glesMajor);
-            if (h == IntPtr.Zero) throw new InvalidOperationException("AB_CreateWindowContext failed.");
+            return CreateWindow(nativeWindow, glesMajor, backend: 0, deviceType: 0, swapInterval: -1);
+        }
+
+        public static AngleContext CreateWindow(IntPtr nativeWindow, int glesMajor, int backend, int deviceType, int swapInterval)
+        {
+            var h = global::AngleBridgeNative.AB_CreateWindowContextEx(nativeWindow, glesMajor, backend, deviceType, swapInterval);
+            if (h == IntPtr.Zero) throw new InvalidOperationException("AB_CreateWindowContextEx failed.");
             return new AngleContext(h, ownsHandle: true);
         }
 

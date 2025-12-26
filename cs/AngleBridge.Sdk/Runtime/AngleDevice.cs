@@ -2,6 +2,7 @@ using AngleBridge.Managed.GLES;
 using AngleBridge.Managed.Runtime;
 using AngleBridge.Sdk.Interop;
 using System;
+using System.Runtime.InteropServices;
 using System.Threading;
 
 namespace AngleBridge.Sdk.Runtime
@@ -11,6 +12,7 @@ namespace AngleBridge.Sdk.Runtime
         private readonly int _ownerThreadId;
         private AngleContext? _context;
         private readonly bool _isWindow;
+        private Gles.DebugProc? _debugCallback;
 
         private AngleDevice(AngleContext context, bool isWindow)
         {
@@ -29,7 +31,12 @@ namespace AngleBridge.Sdk.Runtime
             if (nativeWindow == IntPtr.Zero) throw new ArgumentException("Native window must be non-zero.", nameof(nativeWindow));
             if (options == null) throw new ArgumentNullException(nameof(options));
 
-            var ctx = AngleContext.CreateWindow(nativeWindow, options.GlesMajor);
+            var ctx = AngleContext.CreateWindow(
+                nativeWindow,
+                options.GlesMajor,
+                (int)options.Backend,
+                (int)options.DeviceType,
+                options.SwapInterval);
             return new AngleDevice(ctx, isWindow: true);
         }
 
@@ -39,7 +46,13 @@ namespace AngleBridge.Sdk.Runtime
             if (height <= 0) throw new ArgumentOutOfRangeException(nameof(height), "Height must be positive.");
             if (options == null) throw new ArgumentNullException(nameof(options));
 
-            var ctx = AngleContext.CreateOffscreen(options.GlesMajor, width, height);
+            var ctx = AngleContext.CreateOffscreen(
+                options.GlesMajor,
+                width,
+                height,
+                (int)options.Backend,
+                (int)options.DeviceType,
+                options.SwapInterval);
             return new AngleDevice(ctx, isWindow: false);
         }
 
@@ -132,6 +145,41 @@ namespace AngleBridge.Sdk.Runtime
         internal void ThrowIfDisposed()
         {
             if (_context == null) throw new ObjectDisposedException(nameof(AngleDevice));
+        }
+
+        public bool TryEnableDebugOutput(Action<string> logger, bool synchronous = true)
+        {
+            VerifyAccess();
+            ThrowIfDisposed();
+            if (logger == null) throw new ArgumentNullException(nameof(logger));
+            if (!Gles.IsDebugCallbackAvailable)
+                return false;
+
+            _debugCallback = (source, type, id, severity, length, message, userParam) =>
+            {
+                string text;
+                if (message == IntPtr.Zero)
+                {
+                    text = string.Empty;
+                }
+                else
+                {
+                    text = length > 0
+                        ? Marshal.PtrToStringUTF8(message, length) ?? string.Empty
+                        : Marshal.PtrToStringUTF8(message) ?? string.Empty;
+                }
+
+                logger(string.Format(
+                    "GL DEBUG: source=0x{0:X} type=0x{1:X} id={2} severity=0x{3:X} msg={4}",
+                    source, type, id, severity, text));
+            };
+
+            Gles.DebugMessageCallback(_debugCallback, IntPtr.Zero);
+            Gles.Enable(Gles.GL_DEBUG_OUTPUT);
+            if (synchronous)
+                Gles.Enable(Gles.GL_DEBUG_OUTPUT_SYNCHRONOUS);
+
+            return true;
         }
     }
 }
