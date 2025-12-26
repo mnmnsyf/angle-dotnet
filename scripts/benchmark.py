@@ -205,7 +205,7 @@ def main():
     parser.add_argument("--frames", type=int, default=1000)
     parser.add_argument("--warmup", type=int, default=200)
     parser.add_argument("--work", type=int, default=10, help="Draw calls per frame")
-    parser.add_argument("--out-dir", default="test/benchmark", help="Output directory for CSVs")
+    parser.add_argument("--out-dir", default="out/benchmark", help="Output directory for CSVs")
     parser.add_argument("--profile", action="store_true", help="Profile managed code with dotnet-trace and speedscope format")
     args = parser.parse_args()
 

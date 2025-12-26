@@ -52,6 +52,7 @@
       <_PluginProjects Include="$(MSBuildThisFileDirectory)..\Demo3_Triangle.Plugin\Demo3_Triangle.Plugin.csproj" />
       <_PluginProjects Include="$(MSBuildThisFileDirectory)..\Demo4_HelloTriangle.Plugin\Demo4_HelloTriangle.Plugin.csproj" />
       <_PluginProjects Include="$(MSBuildThisFileDirectory)..\Demo5_SimpleVertexShader.Plugin\Demo5_SimpleVertexShader.Plugin.csproj" />
+      <_PluginProjects Include="$(MSBuildThisFileDirectory)..\Demo6_StencilOperations.Plugin\Demo6_StencilOperations.Plugin.csproj" />
     </ItemGroup>
 
     <MSBuild Projects="@(_PluginProjects)"

@@ -51,8 +51,8 @@ namespace DemoHost.WinForms
         {
             Console.WriteLine("Usage: DemoHost.WinForms --demo=<demo> [options]");
             Console.WriteLine("   or: DemoHost.WinForms --plugin=<path> [options]");
-            Console.WriteLine("Demos: --demo=3 | --demo=4 | --demo=5");
-            Console.WriteLine("       --demo=triangle | --demo=hello_triangle | --demo=simple_vertex_shader");
+            Console.WriteLine("Demos: --demo=3 | --demo=4 | --demo=5 | --demo=6");
+            Console.WriteLine("       --demo=triangle | --demo=hello_triangle | --demo=simple_vertex_shader | --demo=stencil_operations");
             Console.WriteLine("       --list-demos");
             Console.WriteLine();
             WinFormsHostCli.PrintUsage("DemoHost.WinForms");
@@ -64,6 +64,7 @@ namespace DemoHost.WinForms
             Console.WriteLine("  3 / triangle              -> demos/Demo3_Triangle.Plugin");
             Console.WriteLine("  4 / hello_triangle        -> demos/Demo4_HelloTriangle.Plugin");
             Console.WriteLine("  5 / simple_vertex_shader  -> demos/Demo5_SimpleVertexShader.Plugin");
+            Console.WriteLine("  6 / stencil_operations    -> demos/Demo6_StencilOperations.Plugin");
         }
 
         private static WinFormsHostOptions CreateDefaults(string? demo)
@@ -107,6 +108,14 @@ namespace DemoHost.WinForms
                 return options;
             }
 
+            if (d == "6" || d == "stencil_operations" || d == "stencil" || d == "demo6")
+            {
+                options.Title = "StencilOperations";
+                options.GlesMajor = 3;
+                options.PluginPath = ResolvePluginPath("Demo6_StencilOperations.Plugin.dll", "Demo6_StencilOperations.Plugin");
+                return options;
+            }
+
             throw new ArgumentException("Unknown demo: " + demo);
         }
 
@@ -138,4 +147,3 @@ namespace DemoHost.WinForms
         }
     }
 }
-

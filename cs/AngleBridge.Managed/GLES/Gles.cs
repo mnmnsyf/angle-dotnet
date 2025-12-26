@@ -7,12 +7,15 @@ namespace AngleBridge.Managed.GLES
     internal static class Gles
     {
     public const uint GL_COLOR_BUFFER_BIT = 0x00004000;
+    public const uint GL_DEPTH_BUFFER_BIT = 0x00000100;
+    public const uint GL_STENCIL_BUFFER_BIT = 0x00000400;
     public const uint GL_TRIANGLES = 0x0004;
 
     public const uint GL_FLOAT = 0x1406;
     public const uint GL_UNSIGNED_BYTE = 0x1401;
     public const uint GL_UNSIGNED_SHORT = 0x1403;
     public const uint GL_RGBA = 0x1908;
+    public const uint GL_STENCIL_BITS = 0x0D57;
 
     public const uint GL_ARRAY_BUFFER = 0x8892;
     public const uint GL_ELEMENT_ARRAY_BUFFER = 0x8893;
@@ -30,7 +33,17 @@ namespace AngleBridge.Managed.GLES
     public const uint GL_DEBUG_OUTPUT = 0x92E0;
     public const uint GL_DEBUG_OUTPUT_SYNCHRONOUS = 0x8242;
     public const uint GL_CULL_FACE = 0x0B44;
+    public const uint GL_DEPTH_TEST = 0x0B71;
+    public const uint GL_STENCIL_TEST = 0x0B90;
     public const uint GL_BACK = 0x0405;
+    public const uint GL_LESS = 0x0201;
+    public const uint GL_EQUAL = 0x0202;
+    public const uint GL_GREATER = 0x0204;
+    public const uint GL_KEEP = 0x1E00;
+    public const uint GL_REPLACE = 0x1E01;
+    public const uint GL_INCR = 0x1E02;
+    public const uint GL_DECR = 0x1E03;
+    public const uint GL_INVERT = 0x150A;
     public const uint GL_TEXTURE_2D = 0x0DE1;
     public const uint GL_TEXTURE_CUBE_MAP = 0x8513;
     public const uint GL_TEXTURE_CUBE_MAP_POSITIVE_X = 0x8515;
@@ -47,7 +60,12 @@ namespace AngleBridge.Managed.GLES
     internal static glViewport_t? _glViewport;
     internal static glClearColor_t? _glClearColor;
     internal static glClear_t? _glClear;
+    internal static glClearStencil_t? _glClearStencil;
+    internal static glClearDepthf_t? _glClearDepthf;
     internal static glEnable_t? _glEnable;
+    internal static glStencilFunc_t? _glStencilFunc;
+    internal static glStencilOp_t? _glStencilOp;
+    internal static glStencilMask_t? _glStencilMask;
 
     internal static glCreateShader_t? _glCreateShader;
     internal static glShaderSource_t? _glShaderSource;
@@ -87,6 +105,7 @@ namespace AngleBridge.Managed.GLES
     internal static glReadPixels_t? _glReadPixels;
     internal static glFinish_t? _glFinish;
     internal static glGetBooleanv_t? _glGetBooleanv;
+    internal static glGetIntegerv_t? _glGetIntegerv;
 
     internal static glGenQueriesEXT_t? _glGenQueriesEXT;
     internal static glDeleteQueriesEXT_t? _glDeleteQueriesEXT;
@@ -118,8 +137,23 @@ namespace AngleBridge.Managed.GLES
     public static void Clear(uint mask) =>
         (_glClear ?? throw NotLoaded(nameof(_glClear)))(mask);
 
+    public static void ClearStencil(int s) =>
+        (_glClearStencil ?? throw NotLoaded(nameof(_glClearStencil)))(s);
+
+    public static void ClearDepthf(float depth) =>
+        (_glClearDepthf ?? throw NotLoaded(nameof(_glClearDepthf)))(depth);
+
     public static void Enable(uint cap) =>
         (_glEnable ?? throw NotLoaded(nameof(_glEnable)))(cap);
+
+    public static void StencilFunc(uint func, int @ref, uint mask) =>
+        (_glStencilFunc ?? throw NotLoaded(nameof(_glStencilFunc)))(func, @ref, mask);
+
+    public static void StencilOp(uint sfail, uint dpfail, uint dppass) =>
+        (_glStencilOp ?? throw NotLoaded(nameof(_glStencilOp)))(sfail, dpfail, dppass);
+
+    public static void StencilMask(uint mask) =>
+        (_glStencilMask ?? throw NotLoaded(nameof(_glStencilMask)))(mask);
 
     public static uint CreateShader(uint type) =>
         (_glCreateShader ?? throw NotLoaded(nameof(_glCreateShader)))(type);
@@ -400,6 +434,26 @@ namespace AngleBridge.Managed.GLES
     public static void Finish() =>
         (_glFinish ?? throw NotLoaded(nameof(_glFinish)))();
 
+    public static bool TryGetInteger(uint pname, out int value)
+    {
+        var glGetIntegerv = _glGetIntegerv;
+        if (glGetIntegerv is null)
+        {
+            value = 0;
+            return false;
+        }
+
+        glGetIntegerv(pname, out value);
+        return true;
+    }
+
+    public static int GetInteger(uint pname)
+    {
+        var glGetIntegerv = _glGetIntegerv ?? throw NotLoaded(nameof(_glGetIntegerv));
+        glGetIntegerv(pname, out var v);
+        return v;
+    }
+
     public static bool TryGetBoolean(uint pname, out bool value)
     {
         var glGetBooleanv = _glGetBooleanv;
@@ -504,7 +558,22 @@ namespace AngleBridge.Managed.GLES
     internal delegate void glClear_t(uint mask);
 
     [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void glClearStencil_t(int s);
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void glClearDepthf_t(float depth);
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
     internal delegate void glEnable_t(uint cap);
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void glStencilFunc_t(uint func, int @ref, uint mask);
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void glStencilOp_t(uint sfail, uint dpfail, uint dppass);
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void glStencilMask_t(uint mask);
 
     [UnmanagedFunctionPointer(CallingConvention.Winapi)]
     internal delegate uint glCreateShader_t(uint type);
@@ -625,6 +694,9 @@ namespace AngleBridge.Managed.GLES
 
     [UnmanagedFunctionPointer(CallingConvention.Winapi)]
     internal delegate void glGetBooleanv_t(uint pname, out byte data);
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void glGetIntegerv_t(uint pname, out int data);
 
     [UnmanagedFunctionPointer(CallingConvention.Winapi)]
     internal delegate void glGenQueriesEXT_t(int n, out uint ids);

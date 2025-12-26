@@ -1,71 +1,59 @@
 # angle-dotnet
 
-基于 **ANGLE** (EGL + GLES) 构建的轻量级 **.NET/C#** OpenGL ES 封装库。
+基于 **ANGLE**（EGL + GLES）构建的 **.NET/C# OpenGL ES SDK** 仓库，用于在 .NET 中创建并使用 OpenGL ES 上下文（上屏/离屏）。
 
 ## 目标
-- 提供可复用的 .NET 库，通过 ANGLE 创建 OpenGL ES 上下文
-- 保持跨平台兼容性
-- 通过 Demos 验证功能进展
+- 提供可复用的 .NET 库：通过 ANGLE 创建 OpenGL ES 上下文并进行渲染
+- 支持 **window surface（可 swap/present）** 与 **offscreen（可 readback）** 两条路径
+- 保持跨平台方向（取决于 ANGLE 支持的平台）
+- 以 demo 驱动：每个里程碑配套 demo/可对比输出用于验证行为
 
-## 架构分层
+## 托管层分层（建议用法）
 
-- **`cs/AngleBridge.Managed` (绑定层)**
-  - 负责 P/Invoke 调用 `AngleBridge.dll` 及动态加载 GLES 入口点。
-  - 属于内部实现细节。
+- `cs/AngleBridge.Managed`（绑定层）
+  - P/Invoke 调用 `AngleBridge.dll` + 动态加载 GLES 入口（`GlesLoader` + `Gles`）。
+  - 不以 CLS 友好为目标，视为内部实现细节。
+- `cs/AngleBridge.Sdk`（SDK 层，CLS 友好）
+  - `[assembly: CLSCompliant(true)]`
+  - `AngleDevice`：持有 ANGLE/EGL context + surface（window/offscreen），强制线程亲和性，提供 present/readback。
+  - `AngleGl`：上下文绑定的 GLES facade，使用 `enum : int` + `int` 句柄包装（避免在 public API 暴露 `uint`）。
+  - 资源对象：`AngleShader` / `AngleProgram` / `AngleBuffer` / `AngleVertexArray` / `AngleTexture`（均为 `IDisposable`，不暴露 raw handle）。
+- `cs/AngleBridge.Utilities`（可选）
+  - sample runner 框架（`SampleApplication`）+ 窗口/事件抽象（`ISampleWindow`）。
+  - TGA/纹理辅助工具（供 samples 复用）。
+- `cs/AngleBridge.Utilities/WinForms`（Windows 可选实现）
+  - `WinFormsSampleWindow`：`ISampleWindow` 的 WinForms 实现。
+  - `WinFormsHotReloadHost` + `WinFormsHostCli`：可复用 WinForms Host + CLI，用于加载可热重载的 renderer 插件。
 
-- **`cs/AngleBridge.Sdk` (SDK 层)**
-  - **推荐使用的公开 API**，符合 CLS 规范。
-  - `AngleDevice`: 管理 ANGLE/EGL 上下文及窗口/离屏表面，强制线程亲和性。
-  - `AngleGl`: 提供面向对象的 GLES 接口封装。
-  - 资源管理: `AngleShader`, `AngleProgram`, `AngleBuffer` 等实现了 `IDisposable`，自动管理 GPU 资源生命周期。
+## 线程模型
 
-## 快速上手 (离屏渲染)
+`AngleDevice` 是 **线程亲和** 的：所有 `AngleDevice`/`AngleGl` 调用必须发生在创建它的线程上（EGL context 规则）。
+
+## 快速上手（离屏）
 
 ```csharp
 using AngleBridge.Sdk.Runtime;
 
-// 创建离屏上下文 (256x256, GLES 3.0)
 using (var device = AngleDevice.CreateOffscreen(256, 256, new AngleDeviceOptions { GlesMajor = 3 }))
 {
     var gl = device.Gl;
-    
-    // 调用 GLES 绘制...
-    gl.ClearColor(1.0f, 0.0f, 0.0f, 1.0f);
-    gl.Clear(ClearBufferMask.ColorBufferBit);
-    
+    // 渲染...
     gl.Finish();
 
-    // 读取像素
     var rgba = new byte[256 * 256 * 4];
     device.ReadPixelsRgba(0, 0, 256, 256, rgba, 0);
 }
 ```
 
-## 性能基准测试与调试
+## 运行 Demo（WinForms Host）
 
-### 基准测试 (Benchmark)
-本项目包含自动化脚本，用于对比 Native C++ 实现与 Managed C# 封装的性能差异。
+```powershell
+# 启动 DemoHost（示例：Demo5 simple_vertex_shader）
+dotnet run -c Debug --project demos/DemoHost.WinForms/DemoHost.WinForms.csproj -- --demo=5 --show
 
-```bash
-python scripts/benchmark.py --work 100 --frames 1000
+# 选择 ANGLE 后端/设备/交换间隔（示例）
+dotnet run -c Debug --project demos/DemoHost.WinForms/DemoHost.WinForms.csproj -- --demo=5 --show --use-angle=d3d11 --swap-interval=0
 ```
 
-该命令将：
-1. 自动以 Release 模式构建 C++ 和 C# 项目。
-2. 运行基准测试并生成对比报告（CPU 提交耗时、帧耗时、GPU 耗时）。
-3. 结果输出至 `test/benchmark/summary.csv`。
-
-### 性能火焰图 (Profiling)
-支持使用 `dotnet-trace` 对 C# 封装层进行性能分析，并生成 Speedscope 格式的火焰图。
-
-1. 确保已安装工具：
-   ```bash
-   dotnet tool install --global dotnet-trace
-   ```
-2. 运行 Profiling 模式：
-   ```bash
-   python scripts/benchmark.py --profile
-   ```
-3. 分析结果：
-   - 脚本将生成 `test/benchmark/trace.speedscope.json`。
-   - 将该文件上传至 [speedscope.app](https://www.speedscope.app/) 即可查看交互式火焰图。
+## 性能分析
+- ETW（WPA/PerfView）：`docs/profiling_etw.md`

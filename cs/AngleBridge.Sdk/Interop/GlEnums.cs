@@ -4,6 +4,8 @@ namespace AngleBridge.Sdk.Interop
     public enum ClearBufferMask : int
     {
         ColorBufferBit = 0x00004000,
+        DepthBufferBit = 0x00000100,
+        StencilBufferBit = 0x00000400,
     }
 
     public enum PrimitiveType : int
@@ -30,6 +32,8 @@ namespace AngleBridge.Sdk.Interop
     public enum EnableCap : int
     {
         CullFace = 0x0B44,
+        DepthTest = 0x0B71,
+        StencilTest = 0x0B90,
     }
 
     public enum CullFaceMode : int
@@ -107,5 +111,33 @@ namespace AngleBridge.Sdk.Interop
     {
         LinkStatus = 0x8B82,
         InfoLogLength = 0x8B84,
+    }
+
+    public enum StencilFunction : int
+    {
+        Never = 0x0200,
+        Less = 0x0201,
+        Equal = 0x0202,
+        Lequal = 0x0203,
+        Greater = 0x0204,
+        Notequal = 0x0205,
+        Gequal = 0x0206,
+        Always = 0x0207,
+    }
+
+    public enum StencilOp : int
+    {
+        Keep = 0x1E00,
+        Replace = 0x1E01,
+        Incr = 0x1E02,
+        Decr = 0x1E03,
+        Invert = 0x150A,
+        IncrWrap = 0x8507,
+        DecrWrap = 0x8508,
+    }
+
+    public enum GetIntegerParameter : int
+    {
+        StencilBits = 0x0D57,
     }
 }

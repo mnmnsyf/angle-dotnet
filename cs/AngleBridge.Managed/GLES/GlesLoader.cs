@@ -35,7 +35,12 @@ namespace AngleBridge.Managed.GLES
                 Gles._glViewport = LoadFunction<Gles.glViewport_t>("glViewport");
                 Gles._glClearColor = LoadFunction<Gles.glClearColor_t>("glClearColor");
                 Gles._glClear = LoadFunction<Gles.glClear_t>("glClear");
+                Gles._glClearStencil = LoadFunction<Gles.glClearStencil_t>("glClearStencil");
+                Gles._glClearDepthf = LoadFunction<Gles.glClearDepthf_t>("glClearDepthf");
                 Gles._glEnable = LoadFunction<Gles.glEnable_t>("glEnable");
+                Gles._glStencilFunc = LoadFunction<Gles.glStencilFunc_t>("glStencilFunc");
+                Gles._glStencilOp = LoadFunction<Gles.glStencilOp_t>("glStencilOp");
+                Gles._glStencilMask = LoadFunction<Gles.glStencilMask_t>("glStencilMask");
 
                 Gles._glCreateShader = LoadFunction<Gles.glCreateShader_t>("glCreateShader");
                 Gles._glShaderSource = LoadFunction<Gles.glShaderSource_t>("glShaderSource");
@@ -75,6 +80,7 @@ namespace AngleBridge.Managed.GLES
                 Gles._glReadPixels = LoadFunction<Gles.glReadPixels_t>("glReadPixels");
                 Gles._glFinish = LoadFunction<Gles.glFinish_t>("glFinish");
                 Gles._glGetBooleanv = TryLoadFunction<Gles.glGetBooleanv_t>("glGetBooleanv");
+                Gles._glGetIntegerv = TryLoadFunction<Gles.glGetIntegerv_t>("glGetIntegerv");
 
                 Gles._glGenQueriesEXT = TryLoadFunction<Gles.glGenQueriesEXT_t>("glGenQueriesEXT");
                 Gles._glDeleteQueriesEXT = TryLoadFunction<Gles.glDeleteQueriesEXT_t>("glDeleteQueriesEXT");
