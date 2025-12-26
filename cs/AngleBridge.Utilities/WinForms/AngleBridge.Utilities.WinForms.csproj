@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AngleBridge.Utilities.csproj" />
+    <ProjectReference Include="..\..\AngleBridge.Sdk\AngleBridge.Sdk.csproj" />
+  </ItemGroup>
+
+</Project>
+
