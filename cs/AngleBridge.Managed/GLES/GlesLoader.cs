@@ -35,6 +35,7 @@ namespace AngleBridge.Managed.GLES
                 Gles._glViewport = LoadFunction<Gles.glViewport_t>("glViewport");
                 Gles._glClearColor = LoadFunction<Gles.glClearColor_t>("glClearColor");
                 Gles._glClear = LoadFunction<Gles.glClear_t>("glClear");
+                Gles._glEnable = LoadFunction<Gles.glEnable_t>("glEnable");
 
                 Gles._glCreateShader = LoadFunction<Gles.glCreateShader_t>("glCreateShader");
                 Gles._glShaderSource = LoadFunction<Gles.glShaderSource_t>("glShaderSource");
@@ -54,6 +55,7 @@ namespace AngleBridge.Managed.GLES
                 Gles._glGetAttribLocation = LoadFunction<Gles.glGetAttribLocation_t>("glGetAttribLocation");
                 Gles._glGetUniformLocation = LoadFunction<Gles.glGetUniformLocation_t>("glGetUniformLocation");
                 Gles._glUniform4f = LoadFunction<Gles.glUniform4f_t>("glUniform4f");
+                Gles._glUniformMatrix4fv = LoadFunction<Gles.glUniformMatrix4fv_t>("glUniformMatrix4fv");
 
                 Gles._glGenBuffers = LoadFunction<Gles.glGenBuffers_t>("glGenBuffers");
                 Gles._glBindBuffer = LoadFunction<Gles.glBindBuffer_t>("glBindBuffer");
@@ -63,6 +65,7 @@ namespace AngleBridge.Managed.GLES
                 Gles._glEnableVertexAttribArray = LoadFunction<Gles.glEnableVertexAttribArray_t>("glEnableVertexAttribArray");
                 Gles._glVertexAttribPointer = LoadFunction<Gles.glVertexAttribPointer_t>("glVertexAttribPointer");
                 Gles._glDrawArrays = LoadFunction<Gles.glDrawArrays_t>("glDrawArrays");
+                Gles._glDrawElements = LoadFunction<Gles.glDrawElements_t>("glDrawElements");
 
                 Gles._glGenVertexArrays = TryLoadFunction<Gles.glGenVertexArrays_t>("glGenVertexArrays");
                 Gles._glBindVertexArray = TryLoadFunction<Gles.glBindVertexArray_t>("glBindVertexArray");
@@ -79,6 +82,23 @@ namespace AngleBridge.Managed.GLES
                 Gles._glEndQueryEXT = TryLoadFunction<Gles.glEndQueryEXT_t>("glEndQueryEXT");
                 Gles._glGetQueryObjectuivEXT = TryLoadFunction<Gles.glGetQueryObjectuivEXT_t>("glGetQueryObjectuivEXT");
                 Gles._glGetQueryObjectui64vEXT = TryLoadFunction<Gles.glGetQueryObjectui64vEXT_t>("glGetQueryObjectui64vEXT");
+
+                Gles._glGenTextures = LoadFunction<Gles.glGenTextures_t>("glGenTextures");
+                Gles._glDeleteTextures = LoadFunction<Gles.glDeleteTextures_t>("glDeleteTextures");
+                Gles._glBindTexture = LoadFunction<Gles.glBindTexture_t>("glBindTexture");
+                Gles._glTexParameteri = LoadFunction<Gles.glTexParameteri_t>("glTexParameteri");
+                Gles._glTexImage2D = LoadFunction<Gles.glTexImage2D_t>("glTexImage2D");
+                Gles._glPixelStorei = LoadFunction<Gles.glPixelStorei_t>("glPixelStorei");
+                Gles._glGenerateMipmap = LoadFunction<Gles.glGenerateMipmap_t>("glGenerateMipmap");
+                Gles._glCullFace = LoadFunction<Gles.glCullFace_t>("glCullFace");
+
+                Gles._glDebugMessageCallback = TryLoadFunction<Gles.glDebugMessageCallback_t>("glDebugMessageCallback");
+                if (Gles._glDebugMessageCallback == null)
+                    Gles._glDebugMessageCallback = TryLoadFunction<Gles.glDebugMessageCallback_t>("glDebugMessageCallbackKHR");
+
+                Gles._glDebugMessageControl = TryLoadFunction<Gles.glDebugMessageControl_t>("glDebugMessageControl");
+                if (Gles._glDebugMessageControl == null)
+                    Gles._glDebugMessageControl = TryLoadFunction<Gles.glDebugMessageControl_t>("glDebugMessageControlKHR");
 
                 Volatile.Write(ref _loaded, 1);
             }

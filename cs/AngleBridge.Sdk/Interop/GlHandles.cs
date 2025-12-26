@@ -53,4 +53,17 @@ namespace AngleBridge.Sdk.Interop
         public static bool operator ==(GlVertexArrayHandle left, GlVertexArrayHandle right) { return left.Equals(right); }
         public static bool operator !=(GlVertexArrayHandle left, GlVertexArrayHandle right) { return !left.Equals(right); }
     }
+
+    public readonly struct GlTextureHandle : IEquatable<GlTextureHandle>
+    {
+        public GlTextureHandle(int value) { Value = value; }
+        public int Value { get; }
+        public bool IsNull { get { return Value == 0; } }
+        public bool Equals(GlTextureHandle other) { return Value == other.Value; }
+        public override bool Equals(object? obj) { return obj is GlTextureHandle other && Equals(other); }
+        public override int GetHashCode() { return Value; }
+        public override string ToString() { return Value.ToString(); }
+        public static bool operator ==(GlTextureHandle left, GlTextureHandle right) { return left.Equals(right); }
+        public static bool operator !=(GlTextureHandle left, GlTextureHandle right) { return !left.Equals(right); }
+    }
 }

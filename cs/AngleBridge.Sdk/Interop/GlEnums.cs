@@ -14,6 +14,7 @@ namespace AngleBridge.Sdk.Interop
     public enum BufferTarget : int
     {
         ArrayBuffer = 0x8892,
+        ElementArrayBuffer = 0x8893,
     }
 
     public enum BufferUsage : int
@@ -26,10 +27,74 @@ namespace AngleBridge.Sdk.Interop
         Float = 0x1406,
     }
 
+    public enum EnableCap : int
+    {
+        CullFace = 0x0B44,
+    }
+
+    public enum CullFaceMode : int
+    {
+        Back = 0x0405,
+    }
+
     public enum ShaderType : int
     {
         VertexShader = 0x8B31,
         FragmentShader = 0x8B30,
+    }
+
+    public enum TextureTarget : int
+    {
+        Texture2D = 0x0DE1,
+        TextureCubeMap = 0x8513,
+        TextureCubeMapPositiveX = 0x8515,
+    }
+
+    public enum TextureParameterName : int
+    {
+        TextureMinFilter = 0x2801,
+        TextureMagFilter = 0x2800,
+    }
+
+    public enum TextureMinFilter : int
+    {
+        Nearest = 0x2600,
+        Linear = 0x2601,
+        NearestMipmapNearest = 0x2700,
+        LinearMipmapLinear = 0x2703,
+    }
+
+    public enum TextureMagFilter : int
+    {
+        Nearest = 0x2600,
+        Linear = 0x2601,
+    }
+
+    public enum PixelStoreParameter : int
+    {
+        UnpackAlignment = 0x0CF5,
+    }
+
+    public enum PixelFormat : int
+    {
+        Rgb = 0x1907,
+        Rgba = 0x1908,
+    }
+
+    public enum PixelType : int
+    {
+        UnsignedByte = 0x1401,
+    }
+
+    public enum IndexElementType : int
+    {
+        UnsignedShort = 0x1403,
+    }
+
+    public enum TextureInternalFormat : int
+    {
+        Rgb = 0x1907,
+        Rgba = 0x1908,
     }
 
     public enum ShaderParameter : int
@@ -44,4 +109,3 @@ namespace AngleBridge.Sdk.Interop
         InfoLogLength = 0x8B84,
     }
 }
-

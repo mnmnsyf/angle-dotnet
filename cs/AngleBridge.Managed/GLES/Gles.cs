@@ -11,9 +11,11 @@ namespace AngleBridge.Managed.GLES
 
     public const uint GL_FLOAT = 0x1406;
     public const uint GL_UNSIGNED_BYTE = 0x1401;
+    public const uint GL_UNSIGNED_SHORT = 0x1403;
     public const uint GL_RGBA = 0x1908;
 
     public const uint GL_ARRAY_BUFFER = 0x8892;
+    public const uint GL_ELEMENT_ARRAY_BUFFER = 0x8893;
     public const uint GL_STATIC_DRAW = 0x88E4;
 
     public const uint GL_VERTEX_SHADER = 0x8B31;
@@ -25,12 +27,27 @@ namespace AngleBridge.Managed.GLES
     public const uint GL_QUERY_RESULT_EXT = 0x8866;
     public const uint GL_QUERY_RESULT_AVAILABLE_EXT = 0x8867;
     public const uint GL_GPU_DISJOINT_EXT = 0x8FBB;
+    public const uint GL_DEBUG_OUTPUT = 0x92E0;
+    public const uint GL_DEBUG_OUTPUT_SYNCHRONOUS = 0x8242;
+    public const uint GL_CULL_FACE = 0x0B44;
+    public const uint GL_BACK = 0x0405;
+    public const uint GL_TEXTURE_2D = 0x0DE1;
+    public const uint GL_TEXTURE_CUBE_MAP = 0x8513;
+    public const uint GL_TEXTURE_CUBE_MAP_POSITIVE_X = 0x8515;
+    public const uint GL_TEXTURE_MIN_FILTER = 0x2801;
+    public const uint GL_TEXTURE_MAG_FILTER = 0x2800;
+    public const uint GL_NEAREST = 0x2600;
+    public const uint GL_LINEAR = 0x2601;
+    public const uint GL_LINEAR_MIPMAP_LINEAR = 0x2703;
+    public const uint GL_NEAREST_MIPMAP_NEAREST = 0x2700;
+    public const uint GL_UNPACK_ALIGNMENT = 0x0CF5;
 
     internal static CallingConvention _platformCallingConvention;
 
     internal static glViewport_t? _glViewport;
     internal static glClearColor_t? _glClearColor;
     internal static glClear_t? _glClear;
+    internal static glEnable_t? _glEnable;
 
     internal static glCreateShader_t? _glCreateShader;
     internal static glShaderSource_t? _glShaderSource;
@@ -50,6 +67,7 @@ namespace AngleBridge.Managed.GLES
     internal static glGetAttribLocation_t? _glGetAttribLocation;
     internal static glGetUniformLocation_t? _glGetUniformLocation;
     internal static glUniform4f_t? _glUniform4f;
+    internal static glUniformMatrix4fv_t? _glUniformMatrix4fv;
 
     internal static glGenBuffers_t? _glGenBuffers;
     internal static glBindBuffer_t? _glBindBuffer;
@@ -59,6 +77,7 @@ namespace AngleBridge.Managed.GLES
     internal static glEnableVertexAttribArray_t? _glEnableVertexAttribArray;
     internal static glVertexAttribPointer_t? _glVertexAttribPointer;
     internal static glDrawArrays_t? _glDrawArrays;
+    internal static glDrawElements_t? _glDrawElements;
 
     internal static glGenVertexArrays_t? _glGenVertexArrays;
     internal static glBindVertexArray_t? _glBindVertexArray;
@@ -76,6 +95,18 @@ namespace AngleBridge.Managed.GLES
     internal static glGetQueryObjectuivEXT_t? _glGetQueryObjectuivEXT;
     internal static glGetQueryObjectui64vEXT_t? _glGetQueryObjectui64vEXT;
 
+    internal static glDebugMessageCallback_t? _glDebugMessageCallback;
+    internal static glDebugMessageControl_t? _glDebugMessageControl;
+
+    internal static glGenTextures_t? _glGenTextures;
+    internal static glDeleteTextures_t? _glDeleteTextures;
+    internal static glBindTexture_t? _glBindTexture;
+    internal static glTexParameteri_t? _glTexParameteri;
+    internal static glTexImage2D_t? _glTexImage2D;
+    internal static glPixelStorei_t? _glPixelStorei;
+    internal static glGenerateMipmap_t? _glGenerateMipmap;
+    internal static glCullFace_t? _glCullFace;
+
     public static CallingConvention CallingConvention => _platformCallingConvention;
 
     public static void Viewport(int x, int y, int width, int height) =>
@@ -86,6 +117,9 @@ namespace AngleBridge.Managed.GLES
 
     public static void Clear(uint mask) =>
         (_glClear ?? throw NotLoaded(nameof(_glClear)))(mask);
+
+    public static void Enable(uint cap) =>
+        (_glEnable ?? throw NotLoaded(nameof(_glEnable)))(cap);
 
     public static uint CreateShader(uint type) =>
         (_glCreateShader ?? throw NotLoaded(nameof(_glCreateShader)))(type);
@@ -195,6 +229,22 @@ namespace AngleBridge.Managed.GLES
     public static void Uniform4f(int location, float v0, float v1, float v2, float v3) =>
         (_glUniform4f ?? throw NotLoaded(nameof(_glUniform4f)))(location, v0, v1, v2, v3);
 
+    public static void UniformMatrix4fv(int location, bool transpose, float[] value)
+    {
+        if (value is null) throw new ArgumentNullException(nameof(value));
+        if (value.Length < 16) throw new ArgumentException("Matrix must have at least 16 elements.", nameof(value));
+        var glUniformMatrix4fv = _glUniformMatrix4fv ?? throw NotLoaded(nameof(_glUniformMatrix4fv));
+        var handle = GCHandle.Alloc(value, GCHandleType.Pinned);
+        try
+        {
+            glUniformMatrix4fv(location, 1, transpose ? (byte)1 : (byte)0, handle.AddrOfPinnedObject());
+        }
+        finally
+        {
+            handle.Free();
+        }
+    }
+
     public static uint GenBuffer()
     {
         var glGenBuffers = _glGenBuffers ?? throw NotLoaded(nameof(_glGenBuffers));
@@ -226,6 +276,20 @@ namespace AngleBridge.Managed.GLES
         }
     }
 
+    public static void BufferData(uint target, ushort[] data, uint usage)
+    {
+        var glBufferData = _glBufferData ?? throw NotLoaded(nameof(_glBufferData));
+        var handle = GCHandle.Alloc(data, GCHandleType.Pinned);
+        try
+        {
+            glBufferData(target, checked((nint)(data.Length * sizeof(ushort))), handle.AddrOfPinnedObject(), usage);
+        }
+        finally
+        {
+            handle.Free();
+        }
+    }
+
     public static void EnableVertexAttribArray(uint index) =>
         (_glEnableVertexAttribArray ?? throw NotLoaded(nameof(_glEnableVertexAttribArray)))(index);
 
@@ -237,6 +301,61 @@ namespace AngleBridge.Managed.GLES
 
     public static void DrawArrays(uint mode, int first, int count) =>
         (_glDrawArrays ?? throw NotLoaded(nameof(_glDrawArrays)))(mode, first, count);
+
+    public static void DrawElements(uint mode, int count, uint type, int offsetBytes)
+    {
+        var glDrawElements = _glDrawElements ?? throw NotLoaded(nameof(_glDrawElements));
+        glDrawElements(mode, count, type, (IntPtr)offsetBytes);
+    }
+
+    public static uint GenTexture()
+    {
+        var glGenTextures = _glGenTextures ?? throw NotLoaded(nameof(_glGenTextures));
+        glGenTextures(1, out var texture);
+        return texture;
+    }
+
+    public static void DeleteTexture(uint texture)
+    {
+        if (texture == 0) return;
+        var glDeleteTextures = _glDeleteTextures ?? throw NotLoaded(nameof(_glDeleteTextures));
+        glDeleteTextures(1, ref texture);
+    }
+
+    public static void BindTexture(uint target, uint texture) =>
+        (_glBindTexture ?? throw NotLoaded(nameof(_glBindTexture)))(target, texture);
+
+    public static void TexParameteri(uint target, uint pname, int param) =>
+        (_glTexParameteri ?? throw NotLoaded(nameof(_glTexParameteri)))(target, pname, param);
+
+    public static void TexImage2D(uint target, int level, int internalFormat, int width, int height, int border, uint format, uint type, byte[]? pixels)
+    {
+        var glTexImage2D = _glTexImage2D ?? throw NotLoaded(nameof(_glTexImage2D));
+        if (pixels == null || pixels.Length == 0)
+        {
+            glTexImage2D(target, level, internalFormat, width, height, border, format, type, IntPtr.Zero);
+            return;
+        }
+
+        var handle = GCHandle.Alloc(pixels, GCHandleType.Pinned);
+        try
+        {
+            glTexImage2D(target, level, internalFormat, width, height, border, format, type, handle.AddrOfPinnedObject());
+        }
+        finally
+        {
+            handle.Free();
+        }
+    }
+
+    public static void PixelStorei(uint pname, int param) =>
+        (_glPixelStorei ?? throw NotLoaded(nameof(_glPixelStorei)))(pname, param);
+
+    public static void GenerateMipmap(uint target) =>
+        (_glGenerateMipmap ?? throw NotLoaded(nameof(_glGenerateMipmap)))(target);
+
+    public static void CullFace(uint mode) =>
+        (_glCullFace ?? throw NotLoaded(nameof(_glCullFace)))(mode);
 
     public static uint GenVertexArray()
     {
@@ -356,6 +475,22 @@ namespace AngleBridge.Managed.GLES
         return true;
     }
 
+    public static bool IsDebugCallbackAvailable =>
+        _glDebugMessageCallback != null;
+
+    public static void DebugMessageCallback(DebugProc callback, IntPtr userParam)
+    {
+        if (callback is null) throw new ArgumentNullException(nameof(callback));
+        var glDebugMessageCallback = _glDebugMessageCallback ?? throw new NotSupportedException("GL_KHR_debug not available.");
+        glDebugMessageCallback(callback, userParam);
+    }
+
+    public static void DebugMessageControl(uint source, uint type, uint severity, int count, IntPtr ids, bool enabled)
+    {
+        var glDebugMessageControl = _glDebugMessageControl ?? throw new NotSupportedException("GL_KHR_debug not available.");
+        glDebugMessageControl(source, type, severity, count, ids, enabled ? (byte)1 : (byte)0);
+    }
+
     internal static Exception NotLoaded(string fieldName) =>
         new InvalidOperationException($"GL entrypoint not loaded: {fieldName}. Ensure an EGL context is current, then call {nameof(GlesLoader)}.{nameof(GlesLoader.Load)}().");
 
@@ -367,6 +502,9 @@ namespace AngleBridge.Managed.GLES
 
     [UnmanagedFunctionPointer(CallingConvention.Winapi)]
     internal delegate void glClear_t(uint mask);
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void glEnable_t(uint cap);
 
     [UnmanagedFunctionPointer(CallingConvention.Winapi)]
     internal delegate uint glCreateShader_t(uint type);
@@ -417,6 +555,9 @@ namespace AngleBridge.Managed.GLES
     internal delegate void glUniform4f_t(int location, float v0, float v1, float v2, float v3);
 
     [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void glUniformMatrix4fv_t(int location, int count, byte transpose, IntPtr value);
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
     internal delegate void glGenBuffers_t(int n, out uint buffers);
 
     [UnmanagedFunctionPointer(CallingConvention.Winapi)]
@@ -436,6 +577,33 @@ namespace AngleBridge.Managed.GLES
 
     [UnmanagedFunctionPointer(CallingConvention.Winapi)]
     internal delegate void glDrawArrays_t(uint mode, int first, int count);
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void glDrawElements_t(uint mode, int count, uint type, IntPtr indices);
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void glGenTextures_t(int n, out uint textures);
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void glDeleteTextures_t(int n, ref uint textures);
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void glBindTexture_t(uint target, uint texture);
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void glTexParameteri_t(uint target, uint pname, int param);
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void glTexImage2D_t(uint target, int level, int internalformat, int width, int height, int border, uint format, uint type, IntPtr pixels);
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void glPixelStorei_t(uint pname, int param);
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void glGenerateMipmap_t(uint target);
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void glCullFace_t(uint mode);
 
     [UnmanagedFunctionPointer(CallingConvention.Winapi)]
     internal delegate void glGenVertexArrays_t(int n, out uint arrays);
@@ -475,5 +643,14 @@ namespace AngleBridge.Managed.GLES
 
     [UnmanagedFunctionPointer(CallingConvention.Winapi)]
     internal delegate void glGetQueryObjectui64vEXT_t(uint id, uint pname, out ulong paramsOut);
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void glDebugMessageCallback_t(DebugProc callback, IntPtr userParam);
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void glDebugMessageControl_t(uint source, uint type, uint severity, int count, IntPtr ids, byte enabled);
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void DebugProc(uint source, uint type, uint id, uint severity, int length, IntPtr message, IntPtr userParam);
     }
 }
