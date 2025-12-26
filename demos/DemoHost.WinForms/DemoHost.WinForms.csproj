@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Exe</OutputType>
     <TargetFramework>net9.0-windows</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -13,16 +13,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\cs\AngleBridge.Sdk\AngleBridge.Sdk.csproj" />
+    <ProjectReference Include="..\..\cs\AngleBridge.Utilities\WinForms\AngleBridge.Utilities.WinForms.csproj" />
   </ItemGroup>
-
-  <PropertyGroup>
-    <PluginProjectDir>$(MSBuildThisFileDirectory)..\Demo3_Triangle.Plugin\</PluginProjectDir>
-    <PluginTargetFramework>net9.0</PluginTargetFramework>
-    <PluginOutputDir>$(PluginProjectDir)bin\$(Configuration)\$(PluginTargetFramework)\</PluginOutputDir>
-    <PluginDll>$(PluginOutputDir)Demo3_Triangle.Plugin.dll</PluginDll>
-    <PluginPdb>$(PluginOutputDir)Demo3_Triangle.Plugin.pdb</PluginPdb>
-  </PropertyGroup>
 
   <PropertyGroup Condition="'$(OS)' == 'Windows_NT' AND '$(Configuration)' == 'Debug'">
     <AngleOutDir>$(MSBuildThisFileDirectory)..\..\external\angle\out\Debug</AngleOutDir>
@@ -55,20 +47,16 @@
           Condition="'@(NativeAngleRuntime)' != ''" />
   </Target>
 
-  <Target Name="BuildAndCopyPlugin" AfterTargets="Build">
-    <MSBuild Projects="$(PluginProjectDir)Demo3_Triangle.Plugin.csproj"
-             Targets="Restore;Build"
-             Properties="Configuration=$(Configuration)" />
-
+  <Target Name="BuildDemoPlugins" AfterTargets="Build">
     <ItemGroup>
-      <_PluginFiles Include="$(PluginDll)" Condition="Exists('$(PluginDll)')" />
-      <_PluginFiles Include="$(PluginPdb)" Condition="Exists('$(PluginPdb)')" />
+      <_PluginProjects Include="$(MSBuildThisFileDirectory)..\Demo3_Triangle.Plugin\Demo3_Triangle.Plugin.csproj" />
+      <_PluginProjects Include="$(MSBuildThisFileDirectory)..\Demo4_HelloTriangle.Plugin\Demo4_HelloTriangle.Plugin.csproj" />
+      <_PluginProjects Include="$(MSBuildThisFileDirectory)..\Demo5_SimpleVertexShader.Plugin\Demo5_SimpleVertexShader.Plugin.csproj" />
     </ItemGroup>
 
-    <Copy SourceFiles="@(_PluginFiles)"
-          DestinationFolder="$(OutDir)plugins"
-          SkipUnchangedFiles="true"
-          Condition="'@(_PluginFiles)' != ''" />
+    <MSBuild Projects="@(_PluginProjects)"
+             Targets="Restore;Build"
+             Properties="Configuration=$(Configuration)" />
   </Target>
 
 </Project>
