@@ -42,6 +42,42 @@ namespace AngleBridge.Sdk.Runtime
             Gles.Clear(U32((int)mask));
         }
 
+        public void ClearStencil(int s)
+        {
+            Guard();
+            Gles.ClearStencil(s);
+        }
+
+        public void ClearDepth(float depth)
+        {
+            Guard();
+            Gles.ClearDepthf(depth);
+        }
+
+        public void Enable(EnableCap cap)
+        {
+            Guard();
+            Gles.Enable(U32((int)cap));
+        }
+
+        public void StencilFunc(StencilFunction func, int reference, int mask)
+        {
+            Guard();
+            Gles.StencilFunc(U32((int)func), reference, U32(mask));
+        }
+
+        public void StencilOp(StencilOp sfail, StencilOp dpfail, StencilOp dppass)
+        {
+            Guard();
+            Gles.StencilOp(U32((int)sfail), U32((int)dpfail), U32((int)dppass));
+        }
+
+        public void StencilMask(int mask)
+        {
+            Guard();
+            Gles.StencilMask(U32(mask));
+        }
+
         public GlShaderHandle CreateShader(ShaderType type)
         {
             Guard();
@@ -232,6 +268,15 @@ namespace AngleBridge.Sdk.Runtime
             Gles.Uniform4f(location, v0, v1, v2, v3);
         }
 
+        public void UniformMatrix4fv(int location, bool transpose, float[] value)
+        {
+            Guard();
+            if (value == null) throw new ArgumentNullException(nameof(value));
+            if (value.Length < 16)
+                throw new ArgumentException("Matrix4fv requires at least 16 floats.", nameof(value));
+            Gles.UniformMatrix4fv(location, transpose, value);
+        }
+
         public GlBufferHandle GenBuffer()
         {
             Guard();
@@ -271,6 +316,13 @@ namespace AngleBridge.Sdk.Runtime
             Gles.BufferData(U32((int)target), data, U32((int)usage));
         }
 
+        [CLSCompliant(false)]
+        public void BufferData(BufferTarget target, ushort[] data, BufferUsage usage)
+        {
+            Guard();
+            Gles.BufferData(U32((int)target), data, U32((int)usage));
+        }
+
         public void EnableVertexAttribArray(int index)
         {
             Guard();
@@ -289,6 +341,275 @@ namespace AngleBridge.Sdk.Runtime
         {
             Guard();
             Gles.DrawArrays(U32((int)mode), first, count);
+        }
+
+        public void DrawElements(PrimitiveType mode, int count, IndexElementType type, int offsetBytes)
+        {
+            Guard();
+            Gles.DrawElements(U32((int)mode), count, U32((int)type), offsetBytes);
+        }
+
+        public GlTextureHandle GenTexture()
+        {
+            Guard();
+            return new GlTextureHandle(I32(Gles.GenTexture()));
+        }
+
+        public AngleTexture CreateTextureObject()
+        {
+            Guard();
+            var handle = new GlTextureHandle(I32(Gles.GenTexture()));
+            return new AngleTexture(this, handle);
+        }
+
+        public void DeleteTexture(GlTextureHandle texture)
+        {
+            Guard();
+            if (texture.IsNull) return;
+            Gles.DeleteTexture(U32(texture.Value));
+        }
+
+        public void BindTexture(TextureTarget target, GlTextureHandle texture)
+        {
+            Guard();
+            Gles.BindTexture(U32((int)target), U32(texture.Value));
+        }
+
+        public void BindTexture(TextureTarget target, AngleTexture texture)
+        {
+            Guard();
+            ValidateTexture(texture);
+            Gles.BindTexture(U32((int)target), U32(texture.Handle.Value));
+        }
+
+        public void TexParameteri(TextureTarget target, TextureParameterName pname, int param)
+        {
+            Guard();
+            Gles.TexParameteri(U32((int)target), U32((int)pname), param);
+        }
+
+        public void PixelStore(PixelStoreParameter pname, int param)
+        {
+            Guard();
+            Gles.PixelStorei(U32((int)pname), param);
+        }
+
+        public void TexImage2D(TextureTarget target, int level, TextureInternalFormat internalFormat, int width, int height, int border, PixelFormat format, PixelType type, byte[]? pixels)
+        {
+            Guard();
+            Gles.TexImage2D(U32((int)target), level, (int)internalFormat, width, height, border, U32((int)format), U32((int)type), pixels);
+        }
+
+        public void CullFace(CullFaceMode mode)
+        {
+            Guard();
+            Gles.CullFace(U32((int)mode));
+        }
+
+        public void GenerateMipmap(TextureTarget target)
+        {
+            Guard();
+            Gles.GenerateMipmap(U32((int)target));
+        }
+
+        public GlFramebufferHandle GenFramebuffer()
+        {
+            Guard();
+            return new GlFramebufferHandle(I32(Gles.GenFramebuffer()));
+        }
+
+        public AngleFramebuffer CreateFramebufferObject()
+        {
+            Guard();
+            var handle = new GlFramebufferHandle(I32(Gles.GenFramebuffer()));
+            return new AngleFramebuffer(this, handle);
+        }
+
+        public void DeleteFramebuffer(GlFramebufferHandle framebuffer)
+        {
+            Guard();
+            if (framebuffer.IsNull) return;
+            Gles.DeleteFramebuffer(U32(framebuffer.Value));
+        }
+
+        public void DeleteFramebuffer(AngleFramebuffer framebuffer)
+        {
+            Guard();
+            ValidateFramebuffer(framebuffer);
+            Gles.DeleteFramebuffer(U32(framebuffer.Handle.Value));
+            framebuffer.Dispose();
+        }
+
+        public void BindFramebuffer(FramebufferTarget target, GlFramebufferHandle framebuffer)
+        {
+            Guard();
+            Gles.BindFramebuffer(U32((int)target), U32(framebuffer.Value));
+        }
+
+        public void BindFramebuffer(FramebufferTarget target, AngleFramebuffer framebuffer)
+        {
+            Guard();
+            ValidateFramebuffer(framebuffer);
+            Gles.BindFramebuffer(U32((int)target), U32(framebuffer.Handle.Value));
+        }
+
+        public void FramebufferTexture2D(FramebufferTarget target, FramebufferAttachment attachment, TextureTarget textarget, GlTextureHandle texture, int level)
+        {
+            Guard();
+            Gles.FramebufferTexture2D(U32((int)target), U32((int)attachment), U32((int)textarget), U32(texture.Value), level);
+        }
+
+        public void FramebufferTexture2D(FramebufferTarget target, FramebufferAttachment attachment, TextureTarget textarget, AngleTexture texture, int level)
+        {
+            Guard();
+            ValidateTexture(texture);
+            Gles.FramebufferTexture2D(U32((int)target), U32((int)attachment), U32((int)textarget), U32(texture.Handle.Value), level);
+        }
+
+        public void FramebufferRenderbuffer(FramebufferTarget target, FramebufferAttachment attachment, RenderbufferTarget renderbufferTarget, GlRenderbufferHandle renderbuffer)
+        {
+            Guard();
+            Gles.FramebufferRenderbuffer(U32((int)target), U32((int)attachment), U32((int)renderbufferTarget), U32(renderbuffer.Value));
+        }
+
+        public void FramebufferRenderbuffer(FramebufferTarget target, FramebufferAttachment attachment, RenderbufferTarget renderbufferTarget, AngleRenderbuffer renderbuffer)
+        {
+            Guard();
+            ValidateRenderbuffer(renderbuffer);
+            Gles.FramebufferRenderbuffer(U32((int)target), U32((int)attachment), U32((int)renderbufferTarget), U32(renderbuffer.Handle.Value));
+        }
+
+        public FramebufferStatus CheckFramebufferStatus(FramebufferTarget target)
+        {
+            Guard();
+            return (FramebufferStatus)I32(Gles.CheckFramebufferStatus(U32((int)target)));
+        }
+
+        public GlRenderbufferHandle GenRenderbuffer()
+        {
+            Guard();
+            return new GlRenderbufferHandle(I32(Gles.GenRenderbuffer()));
+        }
+
+        public AngleRenderbuffer CreateRenderbufferObject()
+        {
+            Guard();
+            var handle = new GlRenderbufferHandle(I32(Gles.GenRenderbuffer()));
+            return new AngleRenderbuffer(this, handle);
+        }
+
+        public void DeleteRenderbuffer(GlRenderbufferHandle renderbuffer)
+        {
+            Guard();
+            if (renderbuffer.IsNull) return;
+            Gles.DeleteRenderbuffer(U32(renderbuffer.Value));
+        }
+
+        public void DeleteRenderbuffer(AngleRenderbuffer renderbuffer)
+        {
+            Guard();
+            ValidateRenderbuffer(renderbuffer);
+            Gles.DeleteRenderbuffer(U32(renderbuffer.Handle.Value));
+            renderbuffer.Dispose();
+        }
+
+        public void BindRenderbuffer(RenderbufferTarget target, GlRenderbufferHandle renderbuffer)
+        {
+            Guard();
+            Gles.BindRenderbuffer(U32((int)target), U32(renderbuffer.Value));
+        }
+
+        public void BindRenderbuffer(RenderbufferTarget target, AngleRenderbuffer renderbuffer)
+        {
+            Guard();
+            ValidateRenderbuffer(renderbuffer);
+            Gles.BindRenderbuffer(U32((int)target), U32(renderbuffer.Handle.Value));
+        }
+
+        public void RenderbufferStorage(RenderbufferTarget target, RenderbufferInternalFormat internalFormat, int width, int height)
+        {
+            Guard();
+            if (width <= 0) throw new ArgumentOutOfRangeException(nameof(width));
+            if (height <= 0) throw new ArgumentOutOfRangeException(nameof(height));
+            Gles.RenderbufferStorage(U32((int)target), U32((int)internalFormat), width, height);
+        }
+
+        public void BlitFramebuffer(
+            int srcX0, int srcY0, int srcX1, int srcY1,
+            int dstX0, int dstY0, int dstX1, int dstY1,
+            ClearBufferMask mask, TextureMagFilter filter)
+        {
+            Guard();
+            Gles.BlitFramebuffer(srcX0, srcY0, srcX1, srcY1, dstX0, dstY0, dstX1, dstY1, U32((int)mask), U32((int)filter));
+        }
+
+        public GlSamplerHandle GenSampler()
+        {
+            Guard();
+            return new GlSamplerHandle(I32(Gles.GenSampler()));
+        }
+
+        public AngleSampler CreateSamplerObject()
+        {
+            Guard();
+            var handle = new GlSamplerHandle(I32(Gles.GenSampler()));
+            return new AngleSampler(this, handle);
+        }
+
+        public void DeleteSampler(GlSamplerHandle sampler)
+        {
+            Guard();
+            if (sampler.IsNull) return;
+            Gles.DeleteSampler(U32(sampler.Value));
+        }
+
+        public void DeleteSampler(AngleSampler sampler)
+        {
+            Guard();
+            ValidateSampler(sampler);
+            Gles.DeleteSampler(U32(sampler.Handle.Value));
+            sampler.Dispose();
+        }
+
+        public void BindSampler(int unit, GlSamplerHandle sampler)
+        {
+            Guard();
+            if (unit < 0) throw new ArgumentOutOfRangeException(nameof(unit));
+            Gles.BindSampler(U32(unit), U32(sampler.Value));
+        }
+
+        public void BindSampler(int unit, AngleSampler sampler)
+        {
+            Guard();
+            ValidateSampler(sampler);
+            if (unit < 0) throw new ArgumentOutOfRangeException(nameof(unit));
+            Gles.BindSampler(U32(unit), U32(sampler.Handle.Value));
+        }
+
+        public void SamplerParameteri(GlSamplerHandle sampler, TextureParameterName pname, int param)
+        {
+            Guard();
+            Gles.SamplerParameteri(U32(sampler.Value), U32((int)pname), param);
+        }
+
+        public void SamplerParameteri(AngleSampler sampler, TextureParameterName pname, int param)
+        {
+            Guard();
+            ValidateSampler(sampler);
+            Gles.SamplerParameteri(U32(sampler.Handle.Value), U32((int)pname), param);
+        }
+
+        public void SamplerParameterf(GlSamplerHandle sampler, TextureParameterName pname, float param)
+        {
+            Guard();
+            Gles.SamplerParameterf(U32(sampler.Value), U32((int)pname), param);
+        }
+
+        public void SamplerParameterf(AngleSampler sampler, TextureParameterName pname, float param)
+        {
+            Guard();
+            ValidateSampler(sampler);
+            Gles.SamplerParameterf(U32(sampler.Handle.Value), U32((int)pname), param);
         }
 
         public GlVertexArrayHandle GenVertexArray()
@@ -335,50 +656,164 @@ namespace AngleBridge.Sdk.Runtime
             get
             {
                 Guard();
-                return Gles.IsDisjointTimerQueryAvailable;
+                return Gles.IsDisjointTimerQueryAvailable || Gles.TryGetInteger(Gles.GL_QUERY_RESULT_AVAILABLE, out _);
             }
+        }
+
+        public AngleQuery CreateQueryObject()
+        {
+            Guard();
+            var handle = new GlQueryHandle(I32(Gles.GenQuery()));
+            return new AngleQuery(this, handle);
+        }
+
+        public void DeleteQuery(GlQueryHandle query)
+        {
+            Guard();
+            if (query.IsNull) return;
+            Gles.DeleteQuery(U32(query.Value));
+        }
+
+        public void DeleteQuery(AngleQuery query)
+        {
+            Guard();
+            ValidateQuery(query);
+            Gles.DeleteQuery(U32(query.Handle.Value));
+            query.Dispose();
+        }
+
+        public void BeginQuery(QueryTarget target, AngleQuery query)
+        {
+            Guard();
+            ValidateQuery(query);
+            Gles.BeginQuery(U32((int)target), U32(query.Handle.Value));
+        }
+
+        public void EndQuery(QueryTarget target)
+        {
+            Guard();
+            Gles.EndQuery(U32((int)target));
+        }
+
+        public bool TryGetQueryResultAvailable(AngleQuery query, out bool available)
+        {
+            Guard();
+            ValidateQuery(query);
+            if (Gles.TryGetQueryObjectuiv(U32(query.Handle.Value), Gles.GL_QUERY_RESULT_AVAILABLE, out var val))
+            {
+                available = val != 0;
+                return true;
+            }
+            available = false;
+            return false;
+        }
+
+        [CLSCompliant(false)]
+        public bool TryGetQueryResult(AngleQuery query, out ulong result)
+        {
+            Guard();
+            ValidateQuery(query);
+            if (Gles.TryGetQueryObjectui64v(U32(query.Handle.Value), Gles.GL_QUERY_RESULT, out var val))
+            {
+                result = val;
+                return true;
+            }
+            result = 0;
+            return false;
+        }
+
+        public bool TryGetGpuDisjoint(out bool disjoint)
+        {
+            Guard();
+            return Gles.TryGetBoolean(Gles.GL_GPU_DISJOINT_EXT, out disjoint);
+        }
+
+        public AngleSync FenceSync(SyncCondition condition = SyncCondition.SyncGpuCommandsComplete, SyncFlags flags = SyncFlags.None)
+        {
+            Guard();
+            var sync = Gles.FenceSync(U32((int)condition), U32((int)flags));
+            if (sync == IntPtr.Zero)
+                throw new InvalidOperationException("glFenceSync returned NULL.");
+            return new AngleSync(this, new GlSyncHandle(sync));
+        }
+
+        public void DeleteSync(AngleSync sync)
+        {
+            Guard();
+            ValidateSync(sync);
+            Gles.DeleteSync(sync.Handle.Value);
+            sync.Dispose();
+        }
+
+        [CLSCompliant(false)]
+        public ClientWaitSyncResult ClientWaitSync(AngleSync sync, SyncFlags flags, ulong timeoutNanoseconds)
+        {
+            Guard();
+            ValidateSync(sync);
+            var result = Gles.ClientWaitSync(sync.Handle.Value, U32((int)flags), timeoutNanoseconds);
+            return (ClientWaitSyncResult)result;
+        }
+
+        [CLSCompliant(false)]
+        public void WaitSync(AngleSync sync, SyncFlags flags, ulong timeoutNanoseconds)
+        {
+            Guard();
+            ValidateSync(sync);
+            Gles.WaitSync(sync.Handle.Value, U32((int)flags), timeoutNanoseconds);
+        }
+
+        [CLSCompliant(false)]
+        public void DeleteSync(GlSyncHandle sync)
+        {
+            Guard();
+            if (sync.IsNull) return;
+            Gles.DeleteSync(sync.Value);
         }
 
         public int CreateTimerQuery()
         {
             Guard();
-            if (!Gles.IsDisjointTimerQueryAvailable)
-                throw new NotSupportedException("EXT_disjoint_timer_query not available.");
-            return I32(Gles.GenQueryExt());
+            return I32(Gles.GenQuery());
         }
 
         public void DeleteTimerQuery(int query)
         {
             Guard();
             if (query == 0) return;
-            Gles.DeleteQueryExt(U32(query));
+            Gles.DeleteQuery(U32(query));
         }
 
         public void BeginTimerQuery(int query)
         {
             Guard();
             if (query <= 0) throw new ArgumentOutOfRangeException(nameof(query), "Query id must be positive.");
-            Gles.BeginQueryExt(Gles.GL_TIME_ELAPSED_EXT, U32(query));
+            Gles.BeginQuery(Gles.GL_TIME_ELAPSED, U32(query));
         }
 
         public void EndTimerQuery()
         {
             Guard();
-            Gles.EndQueryExt(Gles.GL_TIME_ELAPSED_EXT);
+            Gles.EndQuery(Gles.GL_TIME_ELAPSED);
         }
 
         public bool TryGetTimerQueryResultAvailable(int query, out bool available)
         {
             Guard();
             if (query <= 0) throw new ArgumentOutOfRangeException(nameof(query), "Query id must be positive.");
-            return Gles.TryGetQueryResultAvailableExt(U32(query), out available);
+            if (Gles.TryGetQueryObjectuiv(U32(query), Gles.GL_QUERY_RESULT_AVAILABLE, out var val))
+            {
+                available = val != 0;
+                return true;
+            }
+            available = false;
+            return false;
         }
 
         public bool TryGetTimerQueryResult(int query, out long nanoseconds)
         {
             Guard();
             if (query <= 0) throw new ArgumentOutOfRangeException(nameof(query), "Query id must be positive.");
-            if (Gles.TryGetQueryResultExt(U32(query), out var ns))
+            if (Gles.TryGetQueryObjectui64v(U32(query), Gles.GL_QUERY_RESULT, out var ns))
             {
                 nanoseconds = ns > long.MaxValue ? long.MaxValue : (long)ns;
                 return true;
@@ -388,10 +823,128 @@ namespace AngleBridge.Sdk.Runtime
             return false;
         }
 
-        public bool TryGetGpuDisjoint(out bool disjoint)
+        public int GetInteger(GetIntegerParameter pname)
         {
             Guard();
-            return Gles.TryGetBoolean(Gles.GL_GPU_DISJOINT_EXT, out disjoint);
+            return Gles.GetInteger(U32((int)pname));
+        }
+
+        public bool TryGetInteger(GetIntegerParameter pname, out int value)
+        {
+            Guard();
+            return Gles.TryGetInteger(U32((int)pname), out value);
+        }
+
+        public AngleTransformFeedback CreateTransformFeedbackObject()
+        {
+            Guard();
+            var handle = new GlTransformFeedbackHandle(I32(Gles.GenTransformFeedback()));
+            return new AngleTransformFeedback(this, handle);
+        }
+
+        public GlTransformFeedbackHandle GenTransformFeedback()
+        {
+            Guard();
+            return new GlTransformFeedbackHandle(I32(Gles.GenTransformFeedback()));
+        }
+
+        public void DeleteTransformFeedback(GlTransformFeedbackHandle tf)
+        {
+            Guard();
+            if (tf.IsNull) return;
+            Gles.DeleteTransformFeedback(U32(tf.Value));
+        }
+
+        public void DeleteTransformFeedback(AngleTransformFeedback tf)
+        {
+            Guard();
+            ValidateTransformFeedback(tf);
+            Gles.DeleteTransformFeedback(U32(tf.Handle.Value));
+            tf.Dispose();
+        }
+
+        public void BindTransformFeedback(TransformFeedbackTarget target, GlTransformFeedbackHandle tf)
+        {
+            Guard();
+            Gles.BindTransformFeedback(U32((int)target), U32(tf.Value));
+        }
+
+        public void BindTransformFeedback(TransformFeedbackTarget target, AngleTransformFeedback tf)
+        {
+            Guard();
+            ValidateTransformFeedback(tf);
+            Gles.BindTransformFeedback(U32((int)target), U32(tf.Handle.Value));
+        }
+
+        public void BeginTransformFeedback(PrimitiveType primitiveMode)
+        {
+            Guard();
+            Gles.BeginTransformFeedback(U32((int)primitiveMode));
+        }
+
+        public void EndTransformFeedback()
+        {
+            Guard();
+            Gles.EndTransformFeedback();
+        }
+
+        public void PauseTransformFeedback()
+        {
+            Guard();
+            Gles.PauseTransformFeedback();
+        }
+
+        public void ResumeTransformFeedback()
+        {
+            Guard();
+            Gles.ResumeTransformFeedback();
+        }
+
+        public void TransformFeedbackVaryings(AngleProgram program, string[] varyings, TransformFeedbackBufferMode bufferMode)
+        {
+            Guard();
+            ValidateProgram(program);
+            if (varyings == null) throw new ArgumentNullException(nameof(varyings));
+            Gles.TransformFeedbackVaryings(U32(program.Handle.Value), varyings.Length, varyings, U32((int)bufferMode));
+        }
+
+        [CLSCompliant(false)]
+        public bool TryGetTransformFeedbackVarying(AngleProgram program, int index, byte[]? nameBufferUtf8, out int length, out int size, out uint type)
+        {
+            Guard();
+            ValidateProgram(program);
+            var bufSize = nameBufferUtf8?.Length ?? 0;
+            return Gles.TryGetTransformFeedbackVarying(U32(program.Handle.Value), U32(index), bufSize, out length, out size, out type, nameBufferUtf8);
+        }
+
+        [CLSCompliant(false)]
+        public void BindBufferBase(BufferTarget target, uint index, GlBufferHandle buffer)
+        {
+            Guard();
+            Gles.BindBufferBase(U32((int)target), index, U32(buffer.Value));
+        }
+
+        [CLSCompliant(false)]
+        public void BindBufferBase(BufferTarget target, uint index, AngleBuffer buffer)
+        {
+            Guard();
+            ValidateBuffer(buffer);
+            Gles.BindBufferBase(U32((int)target), index, U32(buffer.Handle.Value));
+        }
+
+        [CLSCompliant(false)]
+        public void BindBufferRange(BufferTarget target, uint index, GlBufferHandle buffer, nint offset, nint size)
+        {
+            Guard();
+            Gles.BindBufferRange(U32((int)target), index, U32(buffer.Value), offset, size);
+        }
+
+        [CLSCompliant(false)]
+        public void BindBufferRange(BufferTarget target, uint index, AngleBuffer buffer, nint offset, nint size)
+        {
+            Guard();
+            ValidateBuffer(buffer);
+            Gles.BindBufferRange(U32((int)target), index, U32(buffer.Handle.Value), offset, size);
         }
 
         private void ValidateShader(AngleShader shader)
@@ -424,6 +977,62 @@ namespace AngleBridge.Sdk.Runtime
             if (!ReferenceEquals(vao.Device, _device))
                 throw new InvalidOperationException("Vertex array does not belong to this device.");
             vao.ThrowIfDisposed();
+        }
+
+        private void ValidateTexture(AngleTexture texture)
+        {
+            if (texture == null) throw new ArgumentNullException(nameof(texture));
+            if (!ReferenceEquals(texture.Device, _device))
+                throw new InvalidOperationException("Texture does not belong to this device.");
+            texture.ThrowIfDisposed();
+        }
+
+        private void ValidateFramebuffer(AngleFramebuffer framebuffer)
+        {
+            if (framebuffer == null) throw new ArgumentNullException(nameof(framebuffer));
+            if (!ReferenceEquals(framebuffer.Device, _device))
+                throw new InvalidOperationException("Framebuffer does not belong to this device.");
+            framebuffer.ThrowIfDisposed();
+        }
+
+        private void ValidateRenderbuffer(AngleRenderbuffer renderbuffer)
+        {
+            if (renderbuffer == null) throw new ArgumentNullException(nameof(renderbuffer));
+            if (!ReferenceEquals(renderbuffer.Device, _device))
+                throw new InvalidOperationException("Renderbuffer does not belong to this device.");
+            renderbuffer.ThrowIfDisposed();
+        }
+
+        private void ValidateSampler(AngleSampler sampler)
+        {
+            if (sampler == null) throw new ArgumentNullException(nameof(sampler));
+            if (!ReferenceEquals(sampler.Device, _device))
+                throw new InvalidOperationException("Sampler does not belong to this device.");
+            sampler.ThrowIfDisposed();
+        }
+
+        private void ValidateQuery(AngleQuery query)
+        {
+            if (query == null) throw new ArgumentNullException(nameof(query));
+            if (!ReferenceEquals(query.Device, _device))
+                throw new InvalidOperationException("Query does not belong to this device.");
+            query.ThrowIfDisposed();
+        }
+
+        private void ValidateSync(AngleSync sync)
+        {
+            if (sync == null) throw new ArgumentNullException(nameof(sync));
+            if (!ReferenceEquals(sync.Device, _device))
+                throw new InvalidOperationException("Sync does not belong to this device.");
+            sync.ThrowIfDisposed();
+        }
+
+        private void ValidateTransformFeedback(AngleTransformFeedback tf)
+        {
+            if (tf == null) throw new ArgumentNullException(nameof(tf));
+            if (!ReferenceEquals(tf.Device, _device))
+                throw new InvalidOperationException("Transform feedback does not belong to this device.");
+            tf.ThrowIfDisposed();
         }
     }
 }

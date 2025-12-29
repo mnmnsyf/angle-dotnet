@@ -44,6 +44,64 @@ namespace AngleBridge.Managed.GLES
     public const uint GL_INCR = 0x1E02;
     public const uint GL_DECR = 0x1E03;
     public const uint GL_INVERT = 0x150A;
+    public const uint GL_FRAMEBUFFER = 0x8D40;
+    public const uint GL_READ_FRAMEBUFFER = 0x8CA8;
+    public const uint GL_DRAW_FRAMEBUFFER = 0x8CA9;
+    public const uint GL_RENDERBUFFER = 0x8D41;
+    public const uint GL_COLOR_ATTACHMENT0 = 0x8CE0;
+    public const uint GL_DEPTH_ATTACHMENT = 0x8D00;
+    public const uint GL_STENCIL_ATTACHMENT = 0x8D20;
+    public const uint GL_DEPTH_STENCIL_ATTACHMENT = 0x821A;
+    public const uint GL_FRAMEBUFFER_COMPLETE = 0x8CD5;
+    public const uint GL_FRAMEBUFFER_UNSUPPORTED = 0x8CDD;
+    public const uint GL_RENDERBUFFER_WIDTH = 0x8D42;
+    public const uint GL_RENDERBUFFER_HEIGHT = 0x8D43;
+    public const uint GL_RENDERBUFFER_INTERNAL_FORMAT = 0x8D44;
+    public const uint GL_RENDERBUFFER_SAMPLES = 0x8CAB;
+    public const uint GL_FRAMEBUFFER_BINDING = 0x8CA6;
+    public const uint GL_READ_FRAMEBUFFER_BINDING = 0x8CAA;
+    public const uint GL_DRAW_FRAMEBUFFER_BINDING = 0x8CA6;
+    public const uint GL_RENDERBUFFER_BINDING = 0x8CA7;
+    public const uint GL_DEPTH_COMPONENT16 = 0x81A5;
+    public const uint GL_DEPTH_COMPONENT24 = 0x81A6;
+    public const uint GL_STENCIL_INDEX8 = 0x8D48;
+    public const uint GL_DEPTH24_STENCIL8 = 0x88F0;
+    public const uint GL_DEPTH_COMPONENT = 0x1902;
+    public const uint GL_STENCIL_INDEX = 0x1901;
+    public const uint GL_DEPTH_STENCIL = 0x84F9;
+    public const uint GL_UNSIGNED_INT_24_8 = 0x84FA;
+    public const uint GL_UNSIGNED_INT = 0x1405;
+    public const uint GL_SAMPLER_BINDING = 0x8919;
+    public const uint GL_TEXTURE_WRAP_S = 0x2802;
+    public const uint GL_TEXTURE_WRAP_T = 0x2803;
+    public const uint GL_TEXTURE_WRAP_R = 0x8072;
+    public const uint GL_CLAMP_TO_EDGE = 0x812F;
+    public const uint GL_MIRRORED_REPEAT = 0x8370;
+    public const uint GL_REPEAT = 0x2901;
+    public const uint GL_QUERY_RESULT = 0x8866;
+    public const uint GL_QUERY_RESULT_AVAILABLE = 0x8867;
+    public const uint GL_TIME_ELAPSED = 0x88BF;
+    public const uint GL_ANY_SAMPLES_PASSED = 0x8C2F;
+    public const uint GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN = 0x8C88;
+    public const uint GL_TRANSFORM_FEEDBACK = 0x8E22;
+    public const uint GL_TRANSFORM_FEEDBACK_BUFFER = 0x8C8E;
+    public const uint GL_TRANSFORM_FEEDBACK_BUFFER_BINDING = 0x8C8F;
+    public const uint GL_TRANSFORM_FEEDBACK_BUFFER_BASE = 0x8C8C;
+    public const uint GL_TRANSFORM_FEEDBACK_BUFFER_SIZE = 0x8C85;
+    public const uint GL_INTERLEAVED_ATTRIBS = 0x8C8C;
+    public const uint GL_SEPARATE_ATTRIBS = 0x8C8D;
+    public const uint GL_SYNC_GPU_COMMANDS_COMPLETE = 0x9117;
+    public const ulong GL_TIMEOUT_IGNORED = 0xFFFFFFFFFFFFFFFF;
+    public const uint GL_ALREADY_SIGNALED = 0x911A;
+    public const uint GL_TIMEOUT_EXPIRED = 0x911B;
+    public const uint GL_CONDITION_SATISFIED = 0x911C;
+    public const uint GL_WAIT_FAILED = 0x911D;
+    public const uint GL_SYNC_STATUS = 0x9114;
+    public const uint GL_OBJECT_TYPE = 0x9112;
+    public const uint GL_SYNC_CONDITION = 0x9113;
+    public const uint GL_SYNC_FLAGS = 0x9115;
+    public const uint GL_SYNC_FENCE = 0x9116;
+    public const uint GL_SYNC_FLUSH_COMMANDS_BIT = 0x00000001;
     public const uint GL_TEXTURE_2D = 0x0DE1;
     public const uint GL_TEXTURE_CUBE_MAP = 0x8513;
     public const uint GL_TEXTURE_CUBE_MAP_POSITIVE_X = 0x8515;
@@ -125,6 +183,45 @@ namespace AngleBridge.Managed.GLES
     internal static glPixelStorei_t? _glPixelStorei;
     internal static glGenerateMipmap_t? _glGenerateMipmap;
     internal static glCullFace_t? _glCullFace;
+    internal static glGenFramebuffers_t? _glGenFramebuffers;
+    internal static glDeleteFramebuffers_t? _glDeleteFramebuffers;
+    internal static glBindFramebuffer_t? _glBindFramebuffer;
+    internal static glFramebufferTexture2D_t? _glFramebufferTexture2D;
+    internal static glFramebufferRenderbuffer_t? _glFramebufferRenderbuffer;
+    internal static glCheckFramebufferStatus_t? _glCheckFramebufferStatus;
+    internal static glGenRenderbuffers_t? _glGenRenderbuffers;
+    internal static glDeleteRenderbuffers_t? _glDeleteRenderbuffers;
+    internal static glBindRenderbuffer_t? _glBindRenderbuffer;
+    internal static glRenderbufferStorage_t? _glRenderbufferStorage;
+    internal static glBlitFramebuffer_t? _glBlitFramebuffer;
+    internal static glGenSamplers_t? _glGenSamplers;
+    internal static glDeleteSamplers_t? _glDeleteSamplers;
+    internal static glBindSampler_t? _glBindSampler;
+    internal static glSamplerParameteri_t? _glSamplerParameteri;
+    internal static glSamplerParameterf_t? _glSamplerParameterf;
+    internal static glGenQueries_t? _glGenQueries;
+    internal static glDeleteQueries_t? _glDeleteQueries;
+    internal static glBeginQuery_t? _glBeginQuery;
+    internal static glEndQuery_t? _glEndQuery;
+    internal static glGetQueryObjectuiv_t? _glGetQueryObjectuiv;
+    internal static glGetQueryObjectui64v_t? _glGetQueryObjectui64v;
+    internal static glFenceSync_t? _glFenceSync;
+    internal static glDeleteSync_t? _glDeleteSync;
+    internal static glClientWaitSync_t? _glClientWaitSync;
+    internal static glWaitSync_t? _glWaitSync;
+    internal static glIsSync_t? _glIsSync;
+    internal static glGetSynciv_t? _glGetSynciv;
+    internal static glGenTransformFeedbacks_t? _glGenTransformFeedbacks;
+    internal static glDeleteTransformFeedbacks_t? _glDeleteTransformFeedbacks;
+    internal static glBindTransformFeedback_t? _glBindTransformFeedback;
+    internal static glBeginTransformFeedback_t? _glBeginTransformFeedback;
+    internal static glEndTransformFeedback_t? _glEndTransformFeedback;
+    internal static glPauseTransformFeedback_t? _glPauseTransformFeedback;
+    internal static glResumeTransformFeedback_t? _glResumeTransformFeedback;
+    internal static glTransformFeedbackVaryings_t? _glTransformFeedbackVaryings;
+    internal static glGetTransformFeedbackVarying_t? _glGetTransformFeedbackVarying;
+    internal static glBindBufferBase_t? _glBindBufferBase;
+    internal static glBindBufferRange_t? _glBindBufferRange;
 
     public static CallingConvention CallingConvention => _platformCallingConvention;
 
@@ -391,6 +488,359 @@ namespace AngleBridge.Managed.GLES
     public static void CullFace(uint mode) =>
         (_glCullFace ?? throw NotLoaded(nameof(_glCullFace)))(mode);
 
+    public static uint GenFramebuffer()
+    {
+        var glGenFramebuffers = _glGenFramebuffers ?? throw NotLoaded(nameof(_glGenFramebuffers));
+        glGenFramebuffers(1, out var id);
+        return id;
+    }
+
+    public static void DeleteFramebuffer(uint framebuffer)
+    {
+        if (framebuffer == 0) return;
+        var glDeleteFramebuffers = _glDeleteFramebuffers;
+        if (glDeleteFramebuffers is null) return;
+        glDeleteFramebuffers(1, ref framebuffer);
+    }
+
+    public static void BindFramebuffer(uint target, uint framebuffer) =>
+        (_glBindFramebuffer ?? throw NotLoaded(nameof(_glBindFramebuffer)))(target, framebuffer);
+
+    public static void FramebufferTexture2D(uint target, uint attachment, uint textarget, uint texture, int level) =>
+        (_glFramebufferTexture2D ?? throw NotLoaded(nameof(_glFramebufferTexture2D)))(target, attachment, textarget, texture, level);
+
+    public static void FramebufferRenderbuffer(uint target, uint attachment, uint renderbufferTarget, uint renderbuffer) =>
+        (_glFramebufferRenderbuffer ?? throw NotLoaded(nameof(_glFramebufferRenderbuffer)))(target, attachment, renderbufferTarget, renderbuffer);
+
+    public static uint CheckFramebufferStatus(uint target) =>
+        (_glCheckFramebufferStatus ?? throw NotLoaded(nameof(_glCheckFramebufferStatus)))(target);
+
+    public static uint GenRenderbuffer()
+    {
+        var glGenRenderbuffers = _glGenRenderbuffers ?? throw NotLoaded(nameof(_glGenRenderbuffers));
+        glGenRenderbuffers(1, out var id);
+        return id;
+    }
+
+    public static void DeleteRenderbuffer(uint renderbuffer)
+    {
+        if (renderbuffer == 0) return;
+        var glDeleteRenderbuffers = _glDeleteRenderbuffers;
+        if (glDeleteRenderbuffers is null) return;
+        glDeleteRenderbuffers(1, ref renderbuffer);
+    }
+
+    public static void BindRenderbuffer(uint target, uint renderbuffer) =>
+        (_glBindRenderbuffer ?? throw NotLoaded(nameof(_glBindRenderbuffer)))(target, renderbuffer);
+
+    public static void RenderbufferStorage(uint target, uint internalFormat, int width, int height) =>
+        (_glRenderbufferStorage ?? throw NotLoaded(nameof(_glRenderbufferStorage)))(target, internalFormat, width, height);
+
+    public static void BlitFramebuffer(
+        int srcX0, int srcY0, int srcX1, int srcY1,
+        int dstX0, int dstY0, int dstX1, int dstY1,
+        uint mask, uint filter) =>
+        (_glBlitFramebuffer ?? throw NotLoaded(nameof(_glBlitFramebuffer)))(srcX0, srcY0, srcX1, srcY1, dstX0, dstY0, dstX1, dstY1, mask, filter);
+
+    public static uint GenSampler()
+    {
+        var glGenSamplers = _glGenSamplers ?? throw NotSupported(nameof(_glGenSamplers), "Samplers require GLES3.");
+        glGenSamplers(1, out var id);
+        return id;
+    }
+
+    public static void DeleteSampler(uint sampler)
+    {
+        if (sampler == 0) return;
+        var glDeleteSamplers = _glDeleteSamplers;
+        if (glDeleteSamplers is null) return;
+        glDeleteSamplers(1, ref sampler);
+    }
+
+    public static void BindSampler(uint unit, uint sampler)
+    {
+        var glBindSampler = _glBindSampler ?? throw NotSupported(nameof(_glBindSampler), "Samplers require GLES3.");
+        glBindSampler(unit, sampler);
+    }
+
+    public static void SamplerParameteri(uint sampler, uint pname, int param)
+    {
+        var glSamplerParameteri = _glSamplerParameteri ?? throw NotSupported(nameof(_glSamplerParameteri), "Samplers require GLES3.");
+        glSamplerParameteri(sampler, pname, param);
+    }
+
+    public static void SamplerParameterf(uint sampler, uint pname, float param)
+    {
+        var glSamplerParameterf = _glSamplerParameterf ?? throw NotSupported(nameof(_glSamplerParameterf), "Samplers require GLES3.");
+        glSamplerParameterf(sampler, pname, param);
+    }
+
+    public static uint GenQuery()
+    {
+        if (_glGenQueries != null)
+        {
+            _glGenQueries(1, out var id);
+            return id;
+        }
+
+        var ext = _glGenQueriesEXT ?? throw NotSupported(nameof(_glGenQueries), "Queries not available.");
+        ext(1, out var idExt);
+        return idExt;
+    }
+
+    public static void DeleteQuery(uint query)
+    {
+        if (query == 0) return;
+        if (_glDeleteQueries != null)
+        {
+            _glDeleteQueries(1, ref query);
+            return;
+        }
+
+        var ext = _glDeleteQueriesEXT;
+        if (ext != null) ext(1, ref query);
+    }
+
+    public static void BeginQuery(uint target, uint id)
+    {
+        if (_glBeginQuery != null)
+        {
+            _glBeginQuery(target, id);
+            return;
+        }
+
+        var ext = _glBeginQueryEXT ?? throw NotSupported(nameof(_glBeginQuery), "Queries not available.");
+        ext(target, id);
+    }
+
+    public static void EndQuery(uint target)
+    {
+        if (_glEndQuery != null)
+        {
+            _glEndQuery(target);
+            return;
+        }
+
+        var ext = _glEndQueryEXT ?? throw NotSupported(nameof(_glEndQuery), "Queries not available.");
+        ext(target);
+    }
+
+    public static bool TryGetQueryObjectuiv(uint id, uint pname, out uint value)
+    {
+        if (_glGetQueryObjectuiv != null)
+        {
+            _glGetQueryObjectuiv(id, pname, out value);
+            return true;
+        }
+
+        var ext = _glGetQueryObjectuivEXT;
+        if (ext is null)
+        {
+            value = 0;
+            return false;
+        }
+        ext(id, pname, out value);
+        return true;
+    }
+
+    public static bool TryGetQueryObjectui64v(uint id, uint pname, out ulong value)
+    {
+        if (_glGetQueryObjectui64v != null)
+        {
+            _glGetQueryObjectui64v(id, pname, out value);
+            return true;
+        }
+
+        var ext = _glGetQueryObjectui64vEXT;
+        if (ext is null)
+        {
+            value = 0;
+            return false;
+        }
+        ext(id, pname, out value);
+        return true;
+    }
+
+    public static IntPtr FenceSync(uint condition, uint flags)
+    {
+        var glFenceSync = _glFenceSync ?? throw NotSupported(nameof(_glFenceSync), "Sync not available.");
+        return glFenceSync(condition, flags);
+    }
+
+    public static void DeleteSync(IntPtr sync)
+    {
+        if (sync == IntPtr.Zero) return;
+        var glDeleteSync = _glDeleteSync;
+        if (glDeleteSync is null) return;
+        glDeleteSync(sync);
+    }
+
+    public static uint ClientWaitSync(IntPtr sync, uint flags, ulong timeout)
+    {
+        var glClientWaitSync = _glClientWaitSync ?? throw NotSupported(nameof(_glClientWaitSync), "Sync not available.");
+        return glClientWaitSync(sync, flags, timeout);
+    }
+
+    public static void WaitSync(IntPtr sync, uint flags, ulong timeout)
+    {
+        var glWaitSync = _glWaitSync ?? throw NotSupported(nameof(_glWaitSync), "Sync not available.");
+        glWaitSync(sync, flags, timeout);
+    }
+
+    public static bool IsSync(IntPtr sync)
+    {
+        var glIsSync = _glIsSync ?? throw NotSupported(nameof(_glIsSync), "Sync not available.");
+        return glIsSync(sync) != 0;
+    }
+
+    public static bool TryGetSynciv(IntPtr sync, uint pname, int bufSize, int[] values, out int length)
+    {
+        var glGetSynciv = _glGetSynciv;
+        if (glGetSynciv is null)
+        {
+            length = 0;
+            return false;
+        }
+
+        if (values == null) throw new ArgumentNullException(nameof(values));
+        if (bufSize > values.Length) throw new ArgumentOutOfRangeException(nameof(bufSize), "bufSize exceeds array length.");
+
+        var handle = GCHandle.Alloc(values, GCHandleType.Pinned);
+        try
+        {
+            glGetSynciv(sync, pname, bufSize, out length, handle.AddrOfPinnedObject());
+        }
+        finally
+        {
+            handle.Free();
+        }
+
+        return true;
+    }
+
+    public static uint GenTransformFeedback()
+    {
+        var glGenTransformFeedbacks = _glGenTransformFeedbacks ?? throw NotSupported(nameof(_glGenTransformFeedbacks), "Transform feedback requires GLES3.");
+        glGenTransformFeedbacks(1, out var id);
+        return id;
+    }
+
+    public static void DeleteTransformFeedback(uint id)
+    {
+        if (id == 0) return;
+        var glDeleteTransformFeedbacks = _glDeleteTransformFeedbacks;
+        if (glDeleteTransformFeedbacks is null) return;
+        glDeleteTransformFeedbacks(1, ref id);
+    }
+
+    public static void BindTransformFeedback(uint target, uint id)
+    {
+        var glBindTransformFeedback = _glBindTransformFeedback ?? throw NotSupported(nameof(_glBindTransformFeedback), "Transform feedback requires GLES3.");
+        glBindTransformFeedback(target, id);
+    }
+
+    public static void BeginTransformFeedback(uint primitiveMode)
+    {
+        var glBeginTransformFeedback = _glBeginTransformFeedback ?? throw NotSupported(nameof(_glBeginTransformFeedback), "Transform feedback requires GLES3.");
+        glBeginTransformFeedback(primitiveMode);
+    }
+
+    public static void EndTransformFeedback()
+    {
+        var glEndTransformFeedback = _glEndTransformFeedback ?? throw NotSupported(nameof(_glEndTransformFeedback), "Transform feedback requires GLES3.");
+        glEndTransformFeedback();
+    }
+
+    public static void PauseTransformFeedback()
+    {
+        var glPauseTransformFeedback = _glPauseTransformFeedback ?? throw NotSupported(nameof(_glPauseTransformFeedback), "Transform feedback requires GLES3.");
+        glPauseTransformFeedback();
+    }
+
+    public static void ResumeTransformFeedback()
+    {
+        var glResumeTransformFeedback = _glResumeTransformFeedback ?? throw NotSupported(nameof(_glResumeTransformFeedback), "Transform feedback requires GLES3.");
+        glResumeTransformFeedback();
+    }
+
+    public static void TransformFeedbackVaryings(uint program, int count, string[] varyings, uint bufferMode)
+    {
+        var glTransformFeedbackVaryings = _glTransformFeedbackVaryings ?? throw NotSupported(nameof(_glTransformFeedbackVaryings), "Transform feedback requires GLES3.");
+        if (varyings == null) throw new ArgumentNullException(nameof(varyings));
+        if (count < 0 || count > varyings.Length) throw new ArgumentOutOfRangeException(nameof(count));
+
+        var ptrs = new IntPtr[count];
+        var handles = new GCHandle[count];
+        try
+        {
+            for (var i = 0; i < count; i++)
+            {
+                handles[i] = GCHandle.Alloc(Encoding.UTF8.GetBytes(varyings[i] + "\0"), GCHandleType.Pinned);
+                ptrs[i] = handles[i].AddrOfPinnedObject();
+            }
+
+            var ptrArray = GCHandle.Alloc(ptrs, GCHandleType.Pinned);
+            try
+            {
+                glTransformFeedbackVaryings(program, count, ptrArray.AddrOfPinnedObject(), bufferMode);
+            }
+            finally
+            {
+                ptrArray.Free();
+            }
+        }
+        finally
+        {
+            for (var i = 0; i < count; i++)
+            {
+                if (handles[i].IsAllocated) handles[i].Free();
+            }
+        }
+    }
+
+    public static bool TryGetTransformFeedbackVarying(uint program, uint index, int bufSize, out int length, out int size, out uint type, byte[]? nameUtf8)
+    {
+        var glGetTransformFeedbackVarying = _glGetTransformFeedbackVarying;
+        if (glGetTransformFeedbackVarying is null)
+        {
+            length = 0;
+            size = 0;
+            type = 0;
+            return false;
+        }
+
+        IntPtr namePtr = IntPtr.Zero;
+        GCHandle handle = default;
+        if (nameUtf8 != null && nameUtf8.Length > 0)
+        {
+            handle = GCHandle.Alloc(nameUtf8, GCHandleType.Pinned);
+            namePtr = handle.AddrOfPinnedObject();
+        }
+
+        try
+        {
+            glGetTransformFeedbackVarying(program, index, bufSize, out length, out size, out type, namePtr);
+        }
+        finally
+        {
+            if (handle.IsAllocated) handle.Free();
+        }
+
+        return true;
+    }
+
+    public static void BindBufferBase(uint target, uint index, uint buffer)
+    {
+        var glBindBufferBase = _glBindBufferBase ?? throw NotSupported(nameof(_glBindBufferBase), "BindBufferBase requires GLES3.");
+        glBindBufferBase(target, index, buffer);
+    }
+
+    public static void BindBufferRange(uint target, uint index, uint buffer, nint offset, nint size)
+    {
+        var glBindBufferRange = _glBindBufferRange ?? throw NotSupported(nameof(_glBindBufferRange), "BindBufferRange requires GLES3.");
+        glBindBufferRange(target, index, buffer, offset, size);
+    }
+
     public static uint GenVertexArray()
     {
         var glGenVertexArrays = _glGenVertexArrays ?? throw new NotSupportedException("glGenVertexArrays not available (need GLES3).");
@@ -547,6 +997,9 @@ namespace AngleBridge.Managed.GLES
 
     internal static Exception NotLoaded(string fieldName) =>
         new InvalidOperationException($"GL entrypoint not loaded: {fieldName}. Ensure an EGL context is current, then call {nameof(GlesLoader)}.{nameof(GlesLoader.Load)}().");
+
+    internal static Exception NotSupported(string fieldName, string reason) =>
+        new NotSupportedException($"{fieldName}: {reason}");
 
     [UnmanagedFunctionPointer(CallingConvention.Winapi)]
     internal delegate void glViewport_t(int x, int y, int width, int height);
@@ -715,6 +1168,123 @@ namespace AngleBridge.Managed.GLES
 
     [UnmanagedFunctionPointer(CallingConvention.Winapi)]
     internal delegate void glGetQueryObjectui64vEXT_t(uint id, uint pname, out ulong paramsOut);
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void glGenFramebuffers_t(int n, out uint ids);
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void glDeleteFramebuffers_t(int n, ref uint ids);
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void glBindFramebuffer_t(uint target, uint framebuffer);
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void glFramebufferTexture2D_t(uint target, uint attachment, uint textarget, uint texture, int level);
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void glFramebufferRenderbuffer_t(uint target, uint attachment, uint renderbufferTarget, uint renderbuffer);
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate uint glCheckFramebufferStatus_t(uint target);
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void glGenRenderbuffers_t(int n, out uint ids);
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void glDeleteRenderbuffers_t(int n, ref uint ids);
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void glBindRenderbuffer_t(uint target, uint renderbuffer);
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void glRenderbufferStorage_t(uint target, uint internalFormat, int width, int height);
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void glBlitFramebuffer_t(int srcX0, int srcY0, int srcX1, int srcY1, int dstX0, int dstY0, int dstX1, int dstY1, uint mask, uint filter);
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void glGenSamplers_t(int n, out uint samplers);
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void glDeleteSamplers_t(int n, ref uint samplers);
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void glBindSampler_t(uint unit, uint sampler);
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void glSamplerParameteri_t(uint sampler, uint pname, int param);
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void glSamplerParameterf_t(uint sampler, uint pname, float param);
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void glGenQueries_t(int n, out uint ids);
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void glDeleteQueries_t(int n, ref uint ids);
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void glBeginQuery_t(uint target, uint id);
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void glEndQuery_t(uint target);
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void glGetQueryObjectuiv_t(uint id, uint pname, out uint paramsOut);
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void glGetQueryObjectui64v_t(uint id, uint pname, out ulong paramsOut);
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate IntPtr glFenceSync_t(uint condition, uint flags);
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void glDeleteSync_t(IntPtr sync);
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate uint glClientWaitSync_t(IntPtr sync, uint flags, ulong timeout);
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void glWaitSync_t(IntPtr sync, uint flags, ulong timeout);
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate byte glIsSync_t(IntPtr sync);
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void glGetSynciv_t(IntPtr sync, uint pname, int bufSize, out int length, IntPtr values);
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void glGenTransformFeedbacks_t(int n, out uint ids);
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void glDeleteTransformFeedbacks_t(int n, ref uint ids);
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void glBindTransformFeedback_t(uint target, uint id);
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void glBeginTransformFeedback_t(uint primitiveMode);
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void glEndTransformFeedback_t();
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void glPauseTransformFeedback_t();
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void glResumeTransformFeedback_t();
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void glTransformFeedbackVaryings_t(uint program, int count, IntPtr varyings, uint bufferMode);
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void glGetTransformFeedbackVarying_t(uint program, uint index, int bufSize, out int length, out int size, out uint type, IntPtr name);
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void glBindBufferBase_t(uint target, uint index, uint buffer);
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void glBindBufferRange_t(uint target, uint index, uint buffer, nint offset, nint size);
 
     [UnmanagedFunctionPointer(CallingConvention.Winapi)]
     internal delegate void glDebugMessageCallback_t(DebugProc callback, IntPtr userParam);

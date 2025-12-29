@@ -17,6 +17,8 @@ namespace AngleBridge.Sdk.Interop
     {
         ArrayBuffer = 0x8892,
         ElementArrayBuffer = 0x8893,
+        TransformFeedbackBuffer = 0x8C8E,
+        UniformBuffer = 0x8A11,
     }
 
     public enum BufferUsage : int
@@ -74,6 +76,40 @@ namespace AngleBridge.Sdk.Interop
         Linear = 0x2601,
     }
 
+    public enum FramebufferTarget : int
+    {
+        Framebuffer = 0x8D40,
+        ReadFramebuffer = 0x8CA8,
+        DrawFramebuffer = 0x8CA9,
+    }
+
+    public enum FramebufferAttachment : int
+    {
+        ColorAttachment0 = 0x8CE0,
+        DepthAttachment = 0x8D00,
+        StencilAttachment = 0x8D20,
+        DepthStencilAttachment = 0x821A,
+    }
+
+    public enum FramebufferStatus : int
+    {
+        FramebufferComplete = 0x8CD5,
+        FramebufferUnsupported = 0x8CDD,
+    }
+
+    public enum RenderbufferTarget : int
+    {
+        Renderbuffer = 0x8D41,
+    }
+
+    public enum RenderbufferInternalFormat : int
+    {
+        DepthComponent16 = 0x81A5,
+        DepthComponent24 = 0x81A6,
+        Depth24Stencil8 = 0x88F0,
+        StencilIndex8 = 0x8D48,
+    }
+
     public enum PixelStoreParameter : int
     {
         UnpackAlignment = 0x0CF5,
@@ -99,6 +135,8 @@ namespace AngleBridge.Sdk.Interop
     {
         Rgb = 0x1907,
         Rgba = 0x1908,
+        DepthComponent = 0x1902,
+        DepthStencil = 0x84F9,
     }
 
     public enum ShaderParameter : int
@@ -111,6 +149,19 @@ namespace AngleBridge.Sdk.Interop
     {
         LinkStatus = 0x8B82,
         InfoLogLength = 0x8B84,
+    }
+
+    public enum QueryTarget : int
+    {
+        TimeElapsed = 0x88BF,
+        AnySamplesPassed = 0x8C2F,
+        TransformFeedbackPrimitivesWritten = 0x8C88,
+    }
+
+    public enum QueryParameter : int
+    {
+        QueryResult = 0x8866,
+        QueryResultAvailable = 0x8867,
     }
 
     public enum StencilFunction : int
@@ -139,5 +190,44 @@ namespace AngleBridge.Sdk.Interop
     public enum GetIntegerParameter : int
     {
         StencilBits = 0x0D57,
+    }
+
+    public enum SyncCondition : int
+    {
+        SyncGpuCommandsComplete = 0x9117,
+    }
+
+    [System.Flags]
+    public enum SyncFlags : int
+    {
+        None = 0,
+        FlushCommandsBit = 0x00000001,
+    }
+
+    public enum SyncParameterName : int
+    {
+        ObjectType = 0x9112,
+        SyncCondition = 0x9113,
+        SyncStatus = 0x9114,
+        SyncFlags = 0x9115,
+    }
+
+    public enum ClientWaitSyncResult : int
+    {
+        AlreadySignaled = 0x911A,
+        TimeoutExpired = 0x911B,
+        ConditionSatisfied = 0x911C,
+        WaitFailed = 0x911D,
+    }
+
+    public enum TransformFeedbackTarget : int
+    {
+        TransformFeedback = 0x8E22,
+    }
+
+    public enum TransformFeedbackBufferMode : int
+    {
+        InterleavedAttribs = 0x8C8C,
+        SeparateAttribs = 0x8C8D,
     }
 }
