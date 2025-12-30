@@ -60,6 +60,18 @@ namespace AngleBridge.Sdk.Runtime
             Gles.Enable(U32((int)cap));
         }
 
+        public void Disable(EnableCap cap)
+        {
+            Guard();
+            Gles.Disable(U32((int)cap));
+        }
+
+        public void BlendFunc(BlendFactor sfactor, BlendFactor dfactor)
+        {
+            Guard();
+            Gles.BlendFunc(U32((int)sfactor), U32((int)dfactor));
+        }
+
         public void StencilFunc(StencilFunction func, int reference, int mask)
         {
             Guard();
@@ -268,6 +280,18 @@ namespace AngleBridge.Sdk.Runtime
             Gles.Uniform1i(location, v0);
         }
 
+        public void Uniform1f(int location, float v0)
+        {
+            Guard();
+            Gles.Uniform1f(location, v0);
+        }
+
+        public void Uniform3f(int location, float v0, float v1, float v2)
+        {
+            Guard();
+            Gles.Uniform3f(location, v0, v1, v2);
+        }
+
         public void Uniform4f(int location, float v0, float v1, float v2, float v3)
         {
             Guard();
@@ -398,6 +422,12 @@ namespace AngleBridge.Sdk.Runtime
         {
             Guard();
             Gles.TexParameteri(U32((int)target), U32((int)pname), param);
+        }
+
+        public void TexParameterf(TextureTarget target, TextureParameterName pname, float param)
+        {
+            Guard();
+            Gles.TexParameterf(U32((int)target), U32((int)pname), param);
         }
 
         public void PixelStore(PixelStoreParameter pname, int param)
@@ -845,6 +875,18 @@ namespace AngleBridge.Sdk.Runtime
         {
             Guard();
             return Gles.TryGetInteger(U32((int)pname), out value);
+        }
+
+        public float GetFloat(GetFloatParameter pname)
+        {
+            Guard();
+            return Gles.GetFloat(U32((int)pname));
+        }
+
+        public bool TryGetFloat(GetFloatParameter pname, out float value)
+        {
+            Guard();
+            return Gles.TryGetFloat(U32((int)pname), out value);
         }
 
         public AngleTransformFeedback CreateTransformFeedbackObject()

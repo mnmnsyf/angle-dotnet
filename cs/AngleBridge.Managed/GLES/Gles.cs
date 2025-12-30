@@ -15,6 +15,9 @@ namespace AngleBridge.Managed.GLES
     public const uint GL_UNSIGNED_BYTE = 0x1401;
     public const uint GL_UNSIGNED_SHORT = 0x1403;
     public const uint GL_RGBA = 0x1908;
+    public const uint GL_SRC_ALPHA = 0x0302;
+    public const uint GL_ONE = 1;
+    public const uint GL_BLEND = 0x0BE2;
     public const uint GL_STENCIL_BITS = 0x0D57;
 
     public const uint GL_ARRAY_BUFFER = 0x8892;
@@ -78,6 +81,8 @@ namespace AngleBridge.Managed.GLES
     public const uint GL_CLAMP_TO_EDGE = 0x812F;
     public const uint GL_MIRRORED_REPEAT = 0x8370;
     public const uint GL_REPEAT = 0x2901;
+    public const uint GL_TEXTURE_MAX_ANISOTROPY_EXT = 0x84FE;
+    public const uint GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT = 0x84FF;
     public const uint GL_QUERY_RESULT = 0x8866;
     public const uint GL_QUERY_RESULT_AVAILABLE = 0x8867;
     public const uint GL_TIME_ELAPSED = 0x88BF;
@@ -122,6 +127,8 @@ namespace AngleBridge.Managed.GLES
     internal static glClearStencil_t? _glClearStencil;
     internal static glClearDepthf_t? _glClearDepthf;
     internal static glEnable_t? _glEnable;
+    internal static glDisable_t? _glDisable;
+    internal static glBlendFunc_t? _glBlendFunc;
     internal static glStencilFunc_t? _glStencilFunc;
     internal static glStencilOp_t? _glStencilOp;
     internal static glStencilMask_t? _glStencilMask;
@@ -144,6 +151,8 @@ namespace AngleBridge.Managed.GLES
 
     internal static glGetAttribLocation_t? _glGetAttribLocation;
     internal static glGetUniformLocation_t? _glGetUniformLocation;
+    internal static glUniform1f_t? _glUniform1f;
+    internal static glUniform3f_t? _glUniform3f;
     internal static glUniform4f_t? _glUniform4f;
     internal static glUniformMatrix4fv_t? _glUniformMatrix4fv;
 
@@ -165,6 +174,7 @@ namespace AngleBridge.Managed.GLES
     internal static glReadPixels_t? _glReadPixels;
     internal static glFinish_t? _glFinish;
     internal static glGetBooleanv_t? _glGetBooleanv;
+    internal static glGetFloatv_t? _glGetFloatv;
     internal static glGetIntegerv_t? _glGetIntegerv;
 
     internal static glGenQueriesEXT_t? _glGenQueriesEXT;
@@ -181,6 +191,7 @@ namespace AngleBridge.Managed.GLES
     internal static glDeleteTextures_t? _glDeleteTextures;
     internal static glBindTexture_t? _glBindTexture;
     internal static glTexParameteri_t? _glTexParameteri;
+    internal static glTexParameterf_t? _glTexParameterf;
     internal static glTexImage2D_t? _glTexImage2D;
     internal static glActiveTexture_t? _glActiveTexture;
     internal static glPixelStorei_t? _glPixelStorei;
@@ -245,6 +256,12 @@ namespace AngleBridge.Managed.GLES
 
     public static void Enable(uint cap) =>
         (_glEnable ?? throw NotLoaded(nameof(_glEnable)))(cap);
+
+    public static void Disable(uint cap) =>
+        (_glDisable ?? throw NotLoaded(nameof(_glDisable)))(cap);
+
+    public static void BlendFunc(uint sfactor, uint dfactor) =>
+        (_glBlendFunc ?? throw NotLoaded(nameof(_glBlendFunc)))(sfactor, dfactor);
 
     public static void StencilFunc(uint func, int @ref, uint mask) =>
         (_glStencilFunc ?? throw NotLoaded(nameof(_glStencilFunc)))(func, @ref, mask);
@@ -360,6 +377,12 @@ namespace AngleBridge.Managed.GLES
     public static int GetUniformLocation(uint program, string name) =>
         (_glGetUniformLocation ?? throw NotLoaded(nameof(_glGetUniformLocation)))(program, name);
 
+    public static void Uniform1f(int location, float v0) =>
+        (_glUniform1f ?? throw NotLoaded(nameof(_glUniform1f)))(location, v0);
+
+    public static void Uniform3f(int location, float v0, float v1, float v2) =>
+        (_glUniform3f ?? throw NotLoaded(nameof(_glUniform3f)))(location, v0, v1, v2);
+
     public static void Uniform1i(int location, int v0) =>
         (_glUniform1i ?? throw NotLoaded(nameof(_glUniform1i)))(location, v0);
 
@@ -467,6 +490,9 @@ namespace AngleBridge.Managed.GLES
 
     public static void TexParameteri(uint target, uint pname, int param) =>
         (_glTexParameteri ?? throw NotLoaded(nameof(_glTexParameteri)))(target, pname, param);
+
+    public static void TexParameterf(uint target, uint pname, float param) =>
+        (_glTexParameterf ?? throw NotLoaded(nameof(_glTexParameterf)))(target, pname, param);
 
     public static void TexImage2D(uint target, int level, int internalFormat, int width, int height, int border, uint format, uint type, byte[]? pixels)
     {
@@ -913,6 +939,26 @@ namespace AngleBridge.Managed.GLES
         return v;
     }
 
+    public static bool TryGetFloat(uint pname, out float value)
+    {
+        var glGetFloatv = _glGetFloatv;
+        if (glGetFloatv is null)
+        {
+            value = 0f;
+            return false;
+        }
+
+        glGetFloatv(pname, out value);
+        return true;
+    }
+
+    public static float GetFloat(uint pname)
+    {
+        var glGetFloatv = _glGetFloatv ?? throw NotLoaded(nameof(_glGetFloatv));
+        glGetFloatv(pname, out var v);
+        return v;
+    }
+
     public static bool TryGetBoolean(uint pname, out bool value)
     {
         var glGetBooleanv = _glGetBooleanv;
@@ -1029,6 +1075,12 @@ namespace AngleBridge.Managed.GLES
     internal delegate void glEnable_t(uint cap);
 
     [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void glDisable_t(uint cap);
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void glBlendFunc_t(uint sfactor, uint dfactor);
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
     internal delegate void glStencilFunc_t(uint func, int @ref, uint mask);
 
     [UnmanagedFunctionPointer(CallingConvention.Winapi)]
@@ -1083,6 +1135,12 @@ namespace AngleBridge.Managed.GLES
     internal delegate int glGetUniformLocation_t(uint program, [MarshalAs(UnmanagedType.LPUTF8Str)] string name);
 
     [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void glUniform1f_t(int location, float v0);
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void glUniform3f_t(int location, float v0, float v1, float v2);
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
     internal delegate void glUniform1i_t(int location, int v0);
 
     [UnmanagedFunctionPointer(CallingConvention.Winapi)]
@@ -1131,6 +1189,9 @@ namespace AngleBridge.Managed.GLES
     internal delegate void glTexParameteri_t(uint target, uint pname, int param);
 
     [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void glTexParameterf_t(uint target, uint pname, float param);
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
     internal delegate void glTexImage2D_t(uint target, int level, int internalformat, int width, int height, int border, uint format, uint type, IntPtr pixels);
 
     [UnmanagedFunctionPointer(CallingConvention.Winapi)]
@@ -1162,6 +1223,9 @@ namespace AngleBridge.Managed.GLES
 
     [UnmanagedFunctionPointer(CallingConvention.Winapi)]
     internal delegate void glGetBooleanv_t(uint pname, out byte data);
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void glGetFloatv_t(uint pname, out float data);
 
     [UnmanagedFunctionPointer(CallingConvention.Winapi)]
     internal delegate void glGetIntegerv_t(uint pname, out int data);

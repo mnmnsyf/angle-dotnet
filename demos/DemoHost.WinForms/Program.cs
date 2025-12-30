@@ -51,8 +51,8 @@ namespace DemoHost.WinForms
         {
             Console.WriteLine("Usage: DemoHost.WinForms --demo=<demo> [options]");
             Console.WriteLine("   or: DemoHost.WinForms --plugin=<path> [options]");
-            Console.WriteLine("Demos: --demo=3 | --demo=4 | --demo=5 | --demo=6 | --demo=7 | --demo=8 | --demo=9");
-            Console.WriteLine("       --demo=triangle | --demo=hello_triangle | --demo=simple_vertex_shader | --demo=stencil_operations | --demo=tri_fan_microbench | --demo=simple_texture_2d | --demo=multi_texture");
+            Console.WriteLine("Demos: --demo=3 | --demo=4 | --demo=5 | --demo=6 | --demo=7 | --demo=8 | --demo=9 | --demo=10 | --demo=11 | --demo=12");
+            Console.WriteLine("       --demo=triangle | --demo=hello_triangle | --demo=simple_vertex_shader | --demo=stencil_operations | --demo=tri_fan_microbench | --demo=simple_texture_2d | --demo=multi_texture | --demo=mip_map_2d | --demo=simple_texture_cubemap | --demo=particle_system");
             Console.WriteLine("       --list-demos");
             Console.WriteLine();
             WinFormsHostCli.PrintUsage("DemoHost.WinForms");
@@ -68,6 +68,9 @@ namespace DemoHost.WinForms
             Console.WriteLine("  7 / tri_fan_microbench    -> demos/Demo7_TriFanMicrobench.Plugin");
             Console.WriteLine("  8 / simple_texture_2d     -> demos/Demo8_SimpleTexture2D.Plugin");
             Console.WriteLine("  9 / multi_texture         -> demos/Demo9_MultiTexture.Plugin");
+            Console.WriteLine(" 10 / mip_map_2d            -> demos/Demo10_MipMap2D.Plugin");
+            Console.WriteLine(" 11 / simple_texture_cubemap-> demos/Demo11_SimpleTextureCubemap.Plugin");
+            Console.WriteLine(" 12 / particle_system       -> demos/Demo12_ParticleSystem.Plugin");
         }
 
         private static WinFormsHostOptions CreateDefaults(string? demo)
@@ -149,6 +152,39 @@ namespace DemoHost.WinForms
                 options.Visible = true;
                 options.GlesMajor = 3;
                 options.PluginPath = ResolvePluginPath("Demo9_MultiTexture.Plugin.dll", "Demo9_MultiTexture.Plugin");
+                return options;
+            }
+
+            if (d == "10" || d == "mip_map_2d" || d == "mipmap2d" || d == "demo10")
+            {
+                options.Title = "MipMap2D";
+                options.Width = 800;
+                options.Height = 600;
+                options.Visible = true;
+                options.GlesMajor = 3;
+                options.PluginPath = ResolvePluginPath("Demo10_MipMap2D.Plugin.dll", "Demo10_MipMap2D.Plugin");
+                return options;
+            }
+
+            if (d == "11" || d == "simple_texture_cubemap" || d == "cubemap" || d == "demo11")
+            {
+                options.Title = "SimpleTextureCubemap";
+                options.Width = 640;
+                options.Height = 480;
+                options.Visible = true;
+                options.GlesMajor = 2;
+                options.PluginPath = ResolvePluginPath("Demo11_SimpleTextureCubemap.Plugin.dll", "Demo11_SimpleTextureCubemap.Plugin");
+                return options;
+            }
+
+            if (d == "12" || d == "particle_system" || d == "particles" || d == "demo12")
+            {
+                options.Title = "ParticleSystem";
+                options.Width = 640;
+                options.Height = 480;
+                options.Visible = true;
+                options.GlesMajor = 2;
+                options.PluginPath = ResolvePluginPath("Demo12_ParticleSystem.Plugin.dll", "Demo12_ParticleSystem.Plugin");
                 return options;
             }
 
