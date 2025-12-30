@@ -262,6 +262,12 @@ namespace AngleBridge.Sdk.Runtime
             return Gles.GetUniformLocation(U32(program.Handle.Value), name);
         }
 
+        public void Uniform1i(int location, int v0)
+        {
+            Guard();
+            Gles.Uniform1i(location, v0);
+        }
+
         public void Uniform4f(int location, float v0, float v1, float v2, float v3)
         {
             Guard();
@@ -380,6 +386,12 @@ namespace AngleBridge.Sdk.Runtime
             Guard();
             ValidateTexture(texture);
             Gles.BindTexture(U32((int)target), U32(texture.Handle.Value));
+        }
+
+        public void ActiveTexture(TextureUnit texture)
+        {
+            Guard();
+            Gles.ActiveTexture(U32((int)texture));
         }
 
         public void TexParameteri(TextureTarget target, TextureParameterName pname, int param)

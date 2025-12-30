@@ -53,6 +53,9 @@
       <_PluginProjects Include="$(MSBuildThisFileDirectory)..\Demo4_HelloTriangle.Plugin\Demo4_HelloTriangle.Plugin.csproj" />
       <_PluginProjects Include="$(MSBuildThisFileDirectory)..\Demo5_SimpleVertexShader.Plugin\Demo5_SimpleVertexShader.Plugin.csproj" />
       <_PluginProjects Include="$(MSBuildThisFileDirectory)..\Demo6_StencilOperations.Plugin\Demo6_StencilOperations.Plugin.csproj" />
+      <_PluginProjects Include="$(MSBuildThisFileDirectory)..\Demo7_TriFanMicrobench.Plugin\Demo7_TriFanMicrobench.Plugin.csproj" />
+      <_PluginProjects Include="$(MSBuildThisFileDirectory)..\Demo8_SimpleTexture2D.Plugin\Demo8_SimpleTexture2D.Plugin.csproj" />
+      <_PluginProjects Include="$(MSBuildThisFileDirectory)..\Demo9_MultiTexture.Plugin\Demo9_MultiTexture.Plugin.csproj" />
     </ItemGroup>
 
     <MSBuild Projects="@(_PluginProjects)"

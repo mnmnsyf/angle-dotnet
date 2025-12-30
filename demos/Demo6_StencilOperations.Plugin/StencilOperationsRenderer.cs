@@ -2,13 +2,13 @@ using AngleBridge.Sdk.HotReload;
 using AngleBridge.Sdk.Interop;
 using AngleBridge.Sdk.Runtime;
 using System;
+using System.IO;
 
 namespace Demo6_StencilOperations.Plugin
 {
-    public sealed class StencilOperationsRenderer : IRenderer
+    public sealed class StencilOperationsRenderer : IRenderer, IRendererWithHostContext
     {
         private AngleGl? _gl;
-        private AngleProgram? _program;
         private AngleBuffer? _vertexBuffer;
         private AngleBuffer? _indexBuffer;
         private AngleVertexArray? _vao;
@@ -16,6 +16,8 @@ namespace Demo6_StencilOperations.Plugin
         private int _colorLoc;
         private bool _useVao;
         private bool _initialized;
+        private ShaderProgramReloader? _programReloader;
+        private Exception? _lastReloadError;
 
         private static readonly float[] s_vertices =
         {
@@ -82,11 +84,21 @@ namespace Demo6_StencilOperations.Plugin
             if (!_initialized)
                 Initialize(gl);
 
+            var programReloader = _programReloader ?? throw new InvalidOperationException("Program reloader not initialized.");
+            if (programReloader.TryReload(gl))
+                UpdateProgramBindings(gl, programReloader.Current);
+
+            var reloadError = programReloader.LastError;
+            if (reloadError != null && !ReferenceEquals(reloadError, _lastReloadError))
+            {
+                _lastReloadError = reloadError;
+                Console.Error.WriteLine(reloadError);
+            }
+
             gl.Viewport(0, 0, width, height);
             gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit | ClearBufferMask.StencilBufferBit);
 
-            var program = _program ?? throw new InvalidOperationException("Program not initialized.");
-            gl.UseProgram(program);
+            gl.UseProgram(programReloader.Current);
 
             if (_useVao)
             {
@@ -142,24 +154,24 @@ namespace Demo6_StencilOperations.Plugin
             if (_vao != null) _vao.Dispose();
             if (_indexBuffer != null) _indexBuffer.Dispose();
             if (_vertexBuffer != null) _vertexBuffer.Dispose();
-            if (_program != null) _program.Dispose();
+            if (_programReloader != null) _programReloader.Dispose();
 
             _vao = null;
             _indexBuffer = null;
             _vertexBuffer = null;
-            _program = null;
             _gl = null;
             _initialized = false;
             _useVao = false;
+            _programReloader = null;
+            _lastReloadError = null;
         }
 
         private void Initialize(AngleGl gl)
         {
-            _program = CreateProgram(gl, VertexShaderSource, FragmentShaderSource);
-            _positionLoc = gl.GetAttribLocation(_program, "a_position");
-            _colorLoc = gl.GetUniformLocation(_program, "u_color");
-            if (_positionLoc < 0 || _colorLoc < 0)
-                throw new InvalidOperationException("Failed to resolve shader bindings.");
+            EnsureProgramReloader();
+            var reloader = _programReloader ?? throw new InvalidOperationException("Program reloader not initialized.");
+            reloader.Load(gl);
+            UpdateProgramBindings(gl, reloader.Current);
 
             _vertexBuffer = gl.CreateBufferObject();
             gl.BindBuffer(BufferTarget.ArrayBuffer, _vertexBuffer);
@@ -191,6 +203,17 @@ namespace Demo6_StencilOperations.Plugin
             _initialized = true;
         }
 
+        private void UpdateProgramBindings(AngleGl gl, AngleProgram program)
+        {
+            _positionLoc = gl.GetAttribLocation(program, "a_position");
+            _colorLoc = gl.GetUniformLocation(program, "u_color");
+            if (_positionLoc < 0 || _colorLoc < 0)
+                throw new InvalidOperationException("Failed to resolve shader bindings.");
+
+            if (_vao != null)
+                BindGeometry(gl);
+        }
+
         private void BindGeometry(AngleGl gl)
         {
             gl.BindBuffer(BufferTarget.ArrayBuffer, _vertexBuffer ?? throw new InvalidOperationException("Vertex buffer not initialized."));
@@ -199,61 +222,72 @@ namespace Demo6_StencilOperations.Plugin
             gl.VertexAttribPointer(_positionLoc, 3, VertexAttribType.Float, normalized: false, stride: 3 * sizeof(float), offsetBytes: 0);
         }
 
-        private static AngleProgram CreateProgram(AngleGl gl, string vsSource, string fsSource)
+        public void SetHostContext(RendererHostContext context)
         {
-            var vert = CompileShader(gl, ShaderType.VertexShader, vsSource);
-            var frag = CompileShader(gl, ShaderType.FragmentShader, fsSource);
-
-            var program = gl.CreateProgramObject();
-            gl.AttachShader(program, vert);
-            gl.AttachShader(program, frag);
-            gl.LinkProgram(program);
-
-            vert.Dispose();
-            frag.Dispose();
-
-            if (gl.GetProgramInt(program, ProgramParameter.LinkStatus) == 0)
-            {
-                var log = gl.GetProgramInfoLog(program);
-                program.Dispose();
-                throw new InvalidOperationException("Program link failed: " + log);
-            }
-
-            return program;
+            if (context == null) throw new ArgumentNullException(nameof(context));
+            var roots = BuildShaderRoots(context, "Demo6_StencilOperations.Plugin.csproj");
+            _programReloader = new ShaderProgramReloader(
+                Path.Combine("Shaders", "StencilOperations.vert.glsl"),
+                Path.Combine("Shaders", "StencilOperations.frag.glsl"),
+                roots);
         }
 
-        private static AngleShader CompileShader(AngleGl gl, ShaderType type, string source)
+        private void EnsureProgramReloader()
         {
-            var shader = gl.CreateShaderObject(type);
-            gl.ShaderSource(shader, source);
-            gl.CompileShader(shader);
-
-            if (gl.GetShaderInt(shader, ShaderParameter.CompileStatus) == 0)
+            if (_programReloader != null) return;
+            var roots = new[]
             {
-                var log = gl.GetShaderInfoLog(shader);
-                shader.Dispose();
-                throw new InvalidOperationException("Shader compile failed: " + log);
-            }
-
-            return shader;
+                AppContext.BaseDirectory,
+                Directory.GetCurrentDirectory(),
+            };
+            _programReloader = new ShaderProgramReloader(
+                Path.Combine("Shaders", "StencilOperations.vert.glsl"),
+                Path.Combine("Shaders", "StencilOperations.frag.glsl"),
+                roots);
         }
 
-        private const string VertexShaderSource =
-@"#version 300 es
-layout(location = 0) in vec4 a_position;
-void main()
-{
-    gl_Position = a_position;
-}";
+        private static string[] BuildShaderRoots(RendererHostContext context, string projectFileName)
+        {
+            var roots = new[]
+            {
+                context.PluginDirectory,
+                AppContext.BaseDirectory,
+                Directory.GetCurrentDirectory(),
+            };
 
-        private const string FragmentShaderSource =
-@"#version 300 es
-precision mediump float;
-uniform vec4 u_color;
-out vec4 o_color;
-void main()
-{
-    o_color = u_color;
-}";
+            var projectRoot = TryGetProjectRootFromPluginOutput(context.PluginDirectory, projectFileName);
+            if (!string.IsNullOrWhiteSpace(projectRoot))
+            {
+                return new[]
+                {
+                    projectRoot,
+                    context.PluginDirectory,
+                    AppContext.BaseDirectory,
+                    Directory.GetCurrentDirectory(),
+                };
+            }
+
+            return roots;
+        }
+
+        private static string? TryGetProjectRootFromPluginOutput(string pluginDir, string projectFileName)
+        {
+            try
+            {
+                var di = new DirectoryInfo(pluginDir);
+                for (var i = 0; i < 5 && di != null; i++)
+                {
+                    var candidate = Path.Combine(di.FullName, projectFileName);
+                    if (File.Exists(candidate))
+                        return di.FullName;
+                    di = di.Parent;
+                }
+            }
+            catch
+            {
+            }
+
+            return null;
+        }
     }
 }

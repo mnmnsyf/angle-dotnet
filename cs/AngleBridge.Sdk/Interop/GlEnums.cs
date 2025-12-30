@@ -10,6 +10,7 @@ namespace AngleBridge.Sdk.Interop
 
     public enum PrimitiveType : int
     {
+        TriangleFan = 0x0006,
         Triangles = 0x0004,
     }
 
@@ -60,6 +61,8 @@ namespace AngleBridge.Sdk.Interop
     {
         TextureMinFilter = 0x2801,
         TextureMagFilter = 0x2800,
+        TextureWrapS = 0x2802,
+        TextureWrapT = 0x2803,
     }
 
     public enum TextureMinFilter : int
@@ -74,6 +77,20 @@ namespace AngleBridge.Sdk.Interop
     {
         Nearest = 0x2600,
         Linear = 0x2601,
+    }
+
+    public enum TextureWrapMode : int
+    {
+        Repeat = 0x2901,
+        ClampToEdge = 0x812F,
+        MirroredRepeat = 0x8370,
+    }
+
+    public enum TextureUnit : int
+    {
+        Texture0 = 0x84C0,
+        Texture1 = 0x84C1,
+        Texture2 = 0x84C2,
     }
 
     public enum FramebufferTarget : int

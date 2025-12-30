@@ -112,6 +112,7 @@ namespace AngleBridge.Managed.GLES
     public const uint GL_LINEAR_MIPMAP_LINEAR = 0x2703;
     public const uint GL_NEAREST_MIPMAP_NEAREST = 0x2700;
     public const uint GL_UNPACK_ALIGNMENT = 0x0CF5;
+    public const uint GL_TEXTURE0 = 0x84C0;
 
     internal static CallingConvention _platformCallingConvention;
 
@@ -138,6 +139,7 @@ namespace AngleBridge.Managed.GLES
     internal static glGetProgramiv_t? _glGetProgramiv;
     internal static glGetProgramInfoLog_t? _glGetProgramInfoLog;
     internal static glUseProgram_t? _glUseProgram;
+    internal static glUniform1i_t? _glUniform1i;
     internal static glDeleteProgram_t? _glDeleteProgram;
 
     internal static glGetAttribLocation_t? _glGetAttribLocation;
@@ -180,6 +182,7 @@ namespace AngleBridge.Managed.GLES
     internal static glBindTexture_t? _glBindTexture;
     internal static glTexParameteri_t? _glTexParameteri;
     internal static glTexImage2D_t? _glTexImage2D;
+    internal static glActiveTexture_t? _glActiveTexture;
     internal static glPixelStorei_t? _glPixelStorei;
     internal static glGenerateMipmap_t? _glGenerateMipmap;
     internal static glCullFace_t? _glCullFace;
@@ -357,6 +360,9 @@ namespace AngleBridge.Managed.GLES
     public static int GetUniformLocation(uint program, string name) =>
         (_glGetUniformLocation ?? throw NotLoaded(nameof(_glGetUniformLocation)))(program, name);
 
+    public static void Uniform1i(int location, int v0) =>
+        (_glUniform1i ?? throw NotLoaded(nameof(_glUniform1i)))(location, v0);
+
     public static void Uniform4f(int location, float v0, float v1, float v2, float v3) =>
         (_glUniform4f ?? throw NotLoaded(nameof(_glUniform4f)))(location, v0, v1, v2, v3);
 
@@ -455,6 +461,9 @@ namespace AngleBridge.Managed.GLES
 
     public static void BindTexture(uint target, uint texture) =>
         (_glBindTexture ?? throw NotLoaded(nameof(_glBindTexture)))(target, texture);
+
+    public static void ActiveTexture(uint texture) =>
+        (_glActiveTexture ?? throw NotLoaded(nameof(_glActiveTexture)))(texture);
 
     public static void TexParameteri(uint target, uint pname, int param) =>
         (_glTexParameteri ?? throw NotLoaded(nameof(_glTexParameteri)))(target, pname, param);
@@ -1074,6 +1083,9 @@ namespace AngleBridge.Managed.GLES
     internal delegate int glGetUniformLocation_t(uint program, [MarshalAs(UnmanagedType.LPUTF8Str)] string name);
 
     [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void glUniform1i_t(int location, int v0);
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
     internal delegate void glUniform4f_t(int location, float v0, float v1, float v2, float v3);
 
     [UnmanagedFunctionPointer(CallingConvention.Winapi)]
@@ -1111,6 +1123,9 @@ namespace AngleBridge.Managed.GLES
 
     [UnmanagedFunctionPointer(CallingConvention.Winapi)]
     internal delegate void glBindTexture_t(uint target, uint texture);
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void glActiveTexture_t(uint texture);
 
     [UnmanagedFunctionPointer(CallingConvention.Winapi)]
     internal delegate void glTexParameteri_t(uint target, uint pname, int param);

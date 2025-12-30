@@ -59,6 +59,7 @@ namespace AngleBridge.Managed.GLES
 
                 Gles._glGetAttribLocation = LoadFunction<Gles.glGetAttribLocation_t>("glGetAttribLocation");
                 Gles._glGetUniformLocation = LoadFunction<Gles.glGetUniformLocation_t>("glGetUniformLocation");
+                Gles._glUniform1i = LoadFunction<Gles.glUniform1i_t>("glUniform1i");
                 Gles._glUniform4f = LoadFunction<Gles.glUniform4f_t>("glUniform4f");
                 Gles._glUniformMatrix4fv = LoadFunction<Gles.glUniformMatrix4fv_t>("glUniformMatrix4fv");
 
@@ -92,6 +93,7 @@ namespace AngleBridge.Managed.GLES
                 Gles._glGenTextures = LoadFunction<Gles.glGenTextures_t>("glGenTextures");
                 Gles._glDeleteTextures = LoadFunction<Gles.glDeleteTextures_t>("glDeleteTextures");
                 Gles._glBindTexture = LoadFunction<Gles.glBindTexture_t>("glBindTexture");
+                Gles._glActiveTexture = LoadFunction<Gles.glActiveTexture_t>("glActiveTexture");
                 Gles._glTexParameteri = LoadFunction<Gles.glTexParameteri_t>("glTexParameteri");
                 Gles._glTexImage2D = LoadFunction<Gles.glTexImage2D_t>("glTexImage2D");
                 Gles._glPixelStorei = LoadFunction<Gles.glPixelStorei_t>("glPixelStorei");

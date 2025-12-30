@@ -96,6 +96,25 @@ namespace AngleBridge.Utilities.WinForms
                     continue;
                 }
 
+                // Demo-specific passthroughs (e.g., Demo8 texture options). We don't need to store them;
+                // plugins read Environment.GetCommandLineArgs. Accept here to avoid "Unknown argument" errors.
+                if (arg.StartsWith("--tex=", StringComparison.OrdinalIgnoreCase) ||
+                    arg.StartsWith("--tex-min=", StringComparison.OrdinalIgnoreCase) ||
+                    arg.StartsWith("--tex-mag=", StringComparison.OrdinalIgnoreCase) ||
+                    arg.StartsWith("--tex-wrap-s=", StringComparison.OrdinalIgnoreCase) ||
+                    arg.StartsWith("--tex-wrap-t=", StringComparison.OrdinalIgnoreCase) ||
+                    arg.StartsWith("--tex-wrap-preset=", StringComparison.OrdinalIgnoreCase) ||
+                    arg.StartsWith("--tex0=", StringComparison.OrdinalIgnoreCase) ||
+                    arg.StartsWith("--tex1=", StringComparison.OrdinalIgnoreCase) ||
+                    arg.StartsWith("--tex-base=", StringComparison.OrdinalIgnoreCase) ||
+                    arg.StartsWith("--tex-light=", StringComparison.OrdinalIgnoreCase) ||
+                    arg.Equals("--tex-mipmap", StringComparison.OrdinalIgnoreCase) ||
+                    arg.Equals("--tex-no-mipmap", StringComparison.OrdinalIgnoreCase) ||
+                    arg.Equals("--tex-wrap-uv", StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
                 if (arg.Equals("--use-gl=native", StringComparison.OrdinalIgnoreCase))
                 {
                     continue;
@@ -126,6 +145,7 @@ namespace AngleBridge.Utilities.WinForms
             Console.WriteLine("  --show                    Show window (default: hidden)");
             Console.WriteLine("  --debug                   Enable GL_KHR_debug output (synchronous)");
             Console.WriteLine("  --debug-async             Enable GL_KHR_debug output (async)");
+            Console.WriteLine("  [demo-specific passthroughs] --tex=... --tex0/--tex1=... --tex-min=... --tex-mag=... --tex-wrap-s/t=... --tex-wrap-preset=... --tex-wrap-uv --tex-mipmap/--tex-no-mipmap");
         }
 
         private static void ApplyUseAngle(WinFormsHostOptions options, string value)
