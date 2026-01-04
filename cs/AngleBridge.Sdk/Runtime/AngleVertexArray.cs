@@ -36,7 +36,7 @@ namespace AngleBridge.Sdk.Runtime
                 return;
             }
 
-            _gl.DeleteVertexArray(_handle);
+            _gl.VertexArrays.DeleteVertexArray(_handle);
             _handle = new GlVertexArrayHandle(0);
         }
     }

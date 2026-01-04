@@ -76,6 +76,22 @@ namespace AngleBridge.Sdk.Runtime
             ctx.Swap();
         }
 
+        public void PostSubBuffer(int x, int y, int width, int height)
+        {
+            VerifyAccess();
+            var ctx = _context;
+            if (ctx == null) throw new ObjectDisposedException(nameof(AngleDevice));
+
+            if (!_isWindow)
+                throw new InvalidOperationException("PostSubBuffer() is only valid for window surfaces.");
+            if (x < 0) throw new ArgumentOutOfRangeException(nameof(x), "X must be non-negative.");
+            if (y < 0) throw new ArgumentOutOfRangeException(nameof(y), "Y must be non-negative.");
+            if (width <= 0) throw new ArgumentOutOfRangeException(nameof(width), "Width must be positive.");
+            if (height <= 0) throw new ArgumentOutOfRangeException(nameof(height), "Height must be positive.");
+
+            ctx.PostSubBufferNV(x, y, width, height);
+        }
+
         public void ReadPixelsRgba(int x, int y, int width, int height, byte[] dst, int dstOffsetBytes)
         {
             VerifyAccess();

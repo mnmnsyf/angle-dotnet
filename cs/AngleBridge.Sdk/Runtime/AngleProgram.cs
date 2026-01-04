@@ -36,7 +36,7 @@ namespace AngleBridge.Sdk.Runtime
                 return;
             }
 
-            _gl.DeleteProgram(_handle);
+            _gl.Programs.DeleteProgram(_handle);
             _handle = new GlProgramHandle(0);
         }
     }

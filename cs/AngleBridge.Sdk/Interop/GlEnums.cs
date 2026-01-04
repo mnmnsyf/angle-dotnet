@@ -11,8 +11,12 @@ namespace AngleBridge.Sdk.Interop
     public enum PrimitiveType : int
     {
         Points = 0x0000,
-        TriangleFan = 0x0006,
+        Lines = 0x0001,
+        LineLoop = 0x0002,
+        LineStrip = 0x0003,
         Triangles = 0x0004,
+        TriangleStrip = 0x0005,
+        TriangleFan = 0x0006,
     }
 
     public enum BufferTarget : int
@@ -61,6 +65,7 @@ namespace AngleBridge.Sdk.Interop
     public enum TextureTarget : int
     {
         Texture2D = 0x0DE1,
+        Texture2DArray = 0x8C1A,
         TextureCubeMap = 0x8513,
         TextureCubeMapPositiveX = 0x8515,
         TextureCubeMapNegativeX = 0x8516,
@@ -117,9 +122,20 @@ namespace AngleBridge.Sdk.Interop
     public enum FramebufferAttachment : int
     {
         ColorAttachment0 = 0x8CE0,
+        ColorAttachment1 = 0x8CE1,
+        ColorAttachment2 = 0x8CE2,
+        ColorAttachment3 = 0x8CE3,
         DepthAttachment = 0x8D00,
         StencilAttachment = 0x8D20,
         DepthStencilAttachment = 0x821A,
+    }
+
+    public enum DrawBuffer : int
+    {
+        ColorAttachment0 = 0x8CE0,
+        ColorAttachment1 = 0x8CE1,
+        ColorAttachment2 = 0x8CE2,
+        ColorAttachment3 = 0x8CE3,
     }
 
     public enum FramebufferStatus : int
@@ -150,11 +166,14 @@ namespace AngleBridge.Sdk.Interop
     {
         Rgb = 0x1907,
         Rgba = 0x1908,
+        DepthComponent = 0x1902,
     }
 
     public enum PixelType : int
     {
         UnsignedByte = 0x1401,
+        UnsignedInt = 0x1405,
+        Float = 0x1406,
     }
 
     public enum IndexElementType : int
@@ -166,6 +185,8 @@ namespace AngleBridge.Sdk.Interop
     {
         Rgb = 0x1907,
         Rgba = 0x1908,
+        Rgba8 = 0x8058,
+        DepthComponent24 = 0x81A6,
         DepthComponent = 0x1902,
         DepthStencil = 0x84F9,
     }

@@ -21,7 +21,7 @@ namespace AngleBridge.Sdk.Runtime
             var h = _handle;
             if (h.IsNull) return;
             _handle = default;
-            _gl.DeleteTexture(h);
+            _gl.Textures.DeleteTexture(h);
         }
 
         internal void ThrowIfDisposed()

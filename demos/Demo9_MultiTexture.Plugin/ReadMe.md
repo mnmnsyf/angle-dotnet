@@ -13,5 +13,5 @@ dotnet build demos/Demo9_MultiTexture.Plugin/Demo9_MultiTexture.Plugin.csproj -c
 dotnet run -c Debug --project demos/DemoHost.WinForms/DemoHost.WinForms.csproj -- --demo=9 --show
 
 # 指定两张 TGA 纹理 + wrap/filter
-dotnet run -c Debug --project demos/DemoHost.WinForms/DemoHost.WinForms.csproj -- --demo=9 --show --tex0=path/to/basemap.tga --tex1=path/to/lightmap.tga --tex-wrap-preset=repeat --tex-min=linear_mipmap_linear --tex-mag=linear
+dotnet run -c Debug --project demos/DemoHost.WinForms/DemoHost.WinForms.csproj -- --demo=9 --show --tex0=demos/Demo9_MultiTexture.Plugin/basemap.tga --tex1=demos/Demo9_MultiTexture.Plugin/lightmap.tga --tex-wrap-preset=repeat --tex-min=linear_mipmap_linear --tex-mag=linear
 ```

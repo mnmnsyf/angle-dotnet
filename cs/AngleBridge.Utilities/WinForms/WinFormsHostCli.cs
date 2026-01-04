@@ -108,6 +108,7 @@ namespace AngleBridge.Utilities.WinForms
                     arg.StartsWith("--tex1=", StringComparison.OrdinalIgnoreCase) ||
                     arg.StartsWith("--tex-base=", StringComparison.OrdinalIgnoreCase) ||
                     arg.StartsWith("--tex-light=", StringComparison.OrdinalIgnoreCase) ||
+                    arg.StartsWith("--obj=", StringComparison.OrdinalIgnoreCase) ||
                     arg.Equals("--tex-mipmap", StringComparison.OrdinalIgnoreCase) ||
                     arg.Equals("--tex-no-mipmap", StringComparison.OrdinalIgnoreCase) ||
                     arg.Equals("--tex-wrap-uv", StringComparison.OrdinalIgnoreCase))
@@ -145,7 +146,7 @@ namespace AngleBridge.Utilities.WinForms
             Console.WriteLine("  --show                    Show window (default: hidden)");
             Console.WriteLine("  --debug                   Enable GL_KHR_debug output (synchronous)");
             Console.WriteLine("  --debug-async             Enable GL_KHR_debug output (async)");
-            Console.WriteLine("  [demo-specific passthroughs] --tex=... --tex0/--tex1=... --tex-min=... --tex-mag=... --tex-wrap-s/t=... --tex-wrap-preset=... --tex-wrap-uv --tex-mipmap/--tex-no-mipmap");
+            Console.WriteLine("  [demo-specific passthroughs] --tex=... --tex0/--tex1=... --tex-min=... --tex-mag=... --tex-wrap-s/t=... --tex-wrap-preset=... --tex-wrap-uv --tex-mipmap/--tex-no-mipmap --obj=...");
         }
 
         private static void ApplyUseAngle(WinFormsHostOptions options, string value)

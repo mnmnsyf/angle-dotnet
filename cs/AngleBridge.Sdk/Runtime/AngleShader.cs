@@ -36,7 +36,7 @@ namespace AngleBridge.Sdk.Runtime
                 return;
             }
 
-            _gl.DeleteShader(_handle);
+            _gl.Shaders.DeleteShader(_handle);
             _handle = new GlShaderHandle(0);
         }
     }

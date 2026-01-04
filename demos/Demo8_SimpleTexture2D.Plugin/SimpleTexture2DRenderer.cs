@@ -76,24 +76,24 @@ namespace Demo8_SimpleTexture2D.Plugin
                 Console.Error.WriteLine(reloadError);
             }
 
-            gl.Viewport(0, 0, width, height);
-            gl.Clear(ClearBufferMask.ColorBufferBit);
-            gl.UseProgram(programReloader.Current);
+            gl.State.Viewport(0, 0, width, height);
+            gl.State.Clear(ClearBufferMask.ColorBufferBit);
+            gl.Programs.UseProgram(programReloader.Current);
 
             if (_useVao)
             {
-                gl.BindVertexArray(_vao ?? throw new InvalidOperationException("Vertex array not initialized."));
+                gl.VertexArrays.BindVertexArray(_vao ?? throw new InvalidOperationException("Vertex array not initialized."));
             }
             else
             {
                 BindGeometry(gl);
             }
 
-            gl.ActiveTexture(TextureUnit.Texture0);
-            gl.BindTexture(TextureTarget.Texture2D, _texture ?? throw new InvalidOperationException("Texture not initialized."));
-            gl.Uniform1i(_samplerLoc, 0);
+            gl.Textures.ActiveTexture(TextureUnit.Texture0);
+            gl.Textures.BindTexture(TextureTarget.Texture2D, _texture ?? throw new InvalidOperationException("Texture not initialized."));
+            gl.Programs.Uniform1i(_samplerLoc, 0);
 
-            gl.DrawElements(PrimitiveType.Triangles, s_indices.Length, IndexElementType.UnsignedShort, 0);
+            gl.Draw.DrawElements(PrimitiveType.Triangles, s_indices.Length, IndexElementType.UnsignedShort, 0);
         }
 
         public void Dispose()
@@ -122,21 +122,21 @@ namespace Demo8_SimpleTexture2D.Plugin
             reloader.Load(gl);
             UpdateProgramBindings(gl, reloader.Current);
 
-            _vertexBuffer = gl.CreateBufferObject();
-            gl.BindBuffer(BufferTarget.ArrayBuffer, _vertexBuffer);
+            _vertexBuffer = gl.Buffers.CreateBufferObject();
+            gl.Buffers.BindBuffer(BufferTarget.ArrayBuffer, _vertexBuffer);
             var vertices = _options.ExpandWrapUv ? s_verticesWrap : s_verticesNormal;
             _expandWrapUv = _options.ExpandWrapUv;
-            gl.BufferData(BufferTarget.ArrayBuffer, vertices, BufferUsage.StaticDraw);
+            gl.Buffers.BufferData(BufferTarget.ArrayBuffer, vertices, BufferUsage.StaticDraw);
 
-            _indexBuffer = gl.CreateBufferObject();
-            gl.BindBuffer(BufferTarget.ElementArrayBuffer, _indexBuffer);
-            gl.BufferData(BufferTarget.ElementArrayBuffer, s_indices, BufferUsage.StaticDraw);
+            _indexBuffer = gl.Buffers.CreateBufferObject();
+            gl.Buffers.BindBuffer(BufferTarget.ElementArrayBuffer, _indexBuffer);
+            gl.Buffers.BufferData(BufferTarget.ElementArrayBuffer, s_indices, BufferUsage.StaticDraw);
 
             try
             {
-                _vao = gl.CreateVertexArrayObject();
+                _vao = gl.VertexArrays.CreateVertexArrayObject();
                 _useVao = true;
-                gl.BindVertexArray(_vao);
+                gl.VertexArrays.BindVertexArray(_vao);
                 BindGeometry(gl);
             }
             catch (NotSupportedException)
@@ -145,14 +145,14 @@ namespace Demo8_SimpleTexture2D.Plugin
                 _vao = null;
             }
 
-            _texture = gl.CreateTextureObject();
-            gl.ActiveTexture(TextureUnit.Texture0);
-            gl.BindTexture(TextureTarget.Texture2D, _texture);
-            gl.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
+            _texture = gl.Textures.CreateTextureObject();
+            gl.Textures.ActiveTexture(TextureUnit.Texture0);
+            gl.Textures.BindTexture(TextureTarget.Texture2D, _texture);
+            gl.Textures.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
 
             if (!TryLoadExternalTexture(gl))
             {
-                gl.TexImage2D(
+                gl.Textures.TexImage2D(
                     TextureTarget.Texture2D,
                     level: 0,
                     internalFormat: TextureInternalFormat.Rgb,
@@ -165,14 +165,14 @@ namespace Demo8_SimpleTexture2D.Plugin
                 Console.WriteLine("SIMPLE_TEX_PATH 未设置或加载失败，使用内置 2x2 RGB 纹理。");
             }
 
-            gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)_options.MinFilter);
-            gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)_options.MagFilter);
-            gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)_options.WrapS);
-            gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)_options.WrapT);
+            gl.Textures.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)_options.MinFilter);
+            gl.Textures.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)_options.MagFilter);
+            gl.Textures.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)_options.WrapS);
+            gl.Textures.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)_options.WrapT);
             if (_options.GenerateMipmap)
-                gl.GenerateMipmap(TextureTarget.Texture2D);
+                gl.Textures.GenerateMipmap(TextureTarget.Texture2D);
 
-            gl.ClearColor(0f, 0f, 0f, 0f);
+            gl.State.ClearColor(0f, 0f, 0f, 0f);
             _initialized = true;
         }
 
@@ -203,7 +203,7 @@ namespace Demo8_SimpleTexture2D.Plugin
                 return false;
             }
 
-            gl.TexImage2D(
+            gl.Textures.TexImage2D(
                 TextureTarget.Texture2D,
                     level: 0,
                     internalFormat: TextureInternalFormat.Rgba,
@@ -225,19 +225,19 @@ namespace Demo8_SimpleTexture2D.Plugin
 
         private void BindGeometry(AngleGl gl)
         {
-            gl.BindBuffer(BufferTarget.ArrayBuffer, _vertexBuffer ?? throw new InvalidOperationException("Vertex buffer not initialized."));
-            gl.BindBuffer(BufferTarget.ElementArrayBuffer, _indexBuffer ?? throw new InvalidOperationException("Index buffer not initialized."));
-            gl.EnableVertexAttribArray(_positionLoc);
-            gl.EnableVertexAttribArray(_texCoordLoc);
-            gl.VertexAttribPointer(_positionLoc, 3, VertexAttribType.Float, normalized: false, stride: 5 * sizeof(float), offsetBytes: 0);
-            gl.VertexAttribPointer(_texCoordLoc, 2, VertexAttribType.Float, normalized: false, stride: 5 * sizeof(float), offsetBytes: 3 * sizeof(float));
+            gl.Buffers.BindBuffer(BufferTarget.ArrayBuffer, _vertexBuffer ?? throw new InvalidOperationException("Vertex buffer not initialized."));
+            gl.Buffers.BindBuffer(BufferTarget.ElementArrayBuffer, _indexBuffer ?? throw new InvalidOperationException("Index buffer not initialized."));
+            gl.VertexArrays.EnableVertexAttribArray(_positionLoc);
+            gl.VertexArrays.EnableVertexAttribArray(_texCoordLoc);
+            gl.VertexArrays.VertexAttribPointer(_positionLoc, 3, VertexAttribType.Float, normalized: false, stride: 5 * sizeof(float), offsetBytes: 0);
+            gl.VertexArrays.VertexAttribPointer(_texCoordLoc, 2, VertexAttribType.Float, normalized: false, stride: 5 * sizeof(float), offsetBytes: 3 * sizeof(float));
         }
 
         private void UpdateProgramBindings(AngleGl gl, AngleProgram program)
         {
-            _positionLoc = gl.GetAttribLocation(program, "a_position");
-            _texCoordLoc = gl.GetAttribLocation(program, "a_texCoord");
-            _samplerLoc = gl.GetUniformLocation(program, "s_texture");
+            _positionLoc = gl.Programs.GetAttribLocation(program, "a_position");
+            _texCoordLoc = gl.Programs.GetAttribLocation(program, "a_texCoord");
+            _samplerLoc = gl.Programs.GetUniformLocation(program, "s_texture");
             if (_positionLoc < 0 || _texCoordLoc < 0 || _samplerLoc < 0)
                 throw new InvalidOperationException("Failed to resolve shader bindings.");
 

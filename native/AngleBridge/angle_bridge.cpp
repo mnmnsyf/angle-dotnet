@@ -181,6 +181,21 @@ int AB_SwapBuffers(AB_Handle h) {
   return eglSwapBuffers(ctx->display, ctx->surface) ? 1 : 0;
 }
 
+static PFNEGLPOSTSUBBUFFERNVPROC g_postSubBufferNV = nullptr;
+
+int AB_PostSubBufferNV(AB_Handle h, int x, int y, int width, int height) {
+  auto* ctx = (AB_Ctx*)h;
+  if (!g_postSubBufferNV) {
+    g_postSubBufferNV = reinterpret_cast<PFNEGLPOSTSUBBUFFERNVPROC>(
+        eglGetProcAddress("eglPostSubBufferNV"));
+    if (!g_postSubBufferNV) {
+      return 0;
+    }
+  }
+
+  return g_postSubBufferNV(ctx->display, ctx->surface, x, y, width, height) ? 1 : 0;
+}
+
 static volatile uint64_t g_noop_sink = 0;
 
 void AB_NoOp() {

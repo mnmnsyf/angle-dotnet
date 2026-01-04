@@ -95,58 +95,58 @@ namespace Demo6_StencilOperations.Plugin
                 Console.Error.WriteLine(reloadError);
             }
 
-            gl.Viewport(0, 0, width, height);
-            gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit | ClearBufferMask.StencilBufferBit);
+            gl.State.Viewport(0, 0, width, height);
+            gl.State.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit | ClearBufferMask.StencilBufferBit);
 
-            gl.UseProgram(programReloader.Current);
+            gl.Programs.UseProgram(programReloader.Current);
 
             if (_useVao)
             {
-                gl.BindVertexArray(_vao ?? throw new InvalidOperationException("Vertex array not initialized."));
+                gl.VertexArrays.BindVertexArray(_vao ?? throw new InvalidOperationException("Vertex array not initialized."));
             }
             else
             {
                 BindGeometry(gl);
             }
 
-            gl.StencilMask(0xFF);
+            gl.State.StencilMask(0xFF);
 
             // Test 0
-            gl.StencilFunc(StencilFunction.Less, 0x7, 0x3);
-            gl.StencilOp(StencilOp.Replace, StencilOp.Decr, StencilOp.Decr);
-            gl.DrawElements(PrimitiveType.Triangles, 6, IndexElementType.UnsignedShort, s_indexOffsetsBytes[0]);
+            gl.State.StencilFunc(StencilFunction.Less, 0x7, 0x3);
+            gl.State.StencilOp(StencilOp.Replace, StencilOp.Decr, StencilOp.Decr);
+            gl.Draw.DrawElements(PrimitiveType.Triangles, 6, IndexElementType.UnsignedShort, s_indexOffsetsBytes[0]);
 
             // Test 1
-            gl.StencilFunc(StencilFunction.Greater, 0x3, 0x3);
-            gl.StencilOp(StencilOp.Keep, StencilOp.Decr, StencilOp.Keep);
-            gl.DrawElements(PrimitiveType.Triangles, 6, IndexElementType.UnsignedShort, s_indexOffsetsBytes[1]);
+            gl.State.StencilFunc(StencilFunction.Greater, 0x3, 0x3);
+            gl.State.StencilOp(StencilOp.Keep, StencilOp.Decr, StencilOp.Keep);
+            gl.Draw.DrawElements(PrimitiveType.Triangles, 6, IndexElementType.UnsignedShort, s_indexOffsetsBytes[1]);
 
             // Test 2
-            gl.StencilFunc(StencilFunction.Equal, 0x1, 0x3);
-            gl.StencilOp(StencilOp.Keep, StencilOp.Incr, StencilOp.Incr);
-            gl.DrawElements(PrimitiveType.Triangles, 6, IndexElementType.UnsignedShort, s_indexOffsetsBytes[2]);
+            gl.State.StencilFunc(StencilFunction.Equal, 0x1, 0x3);
+            gl.State.StencilOp(StencilOp.Keep, StencilOp.Incr, StencilOp.Incr);
+            gl.Draw.DrawElements(PrimitiveType.Triangles, 6, IndexElementType.UnsignedShort, s_indexOffsetsBytes[2]);
 
             // Test 3
-            gl.StencilFunc(StencilFunction.Equal, 0x2, 0x1);
-            gl.StencilOp(StencilOp.Invert, StencilOp.Keep, StencilOp.Keep);
-            gl.DrawElements(PrimitiveType.Triangles, 6, IndexElementType.UnsignedShort, s_indexOffsetsBytes[3]);
+            gl.State.StencilFunc(StencilFunction.Equal, 0x2, 0x1);
+            gl.State.StencilOp(StencilOp.Invert, StencilOp.Keep, StencilOp.Keep);
+            gl.Draw.DrawElements(PrimitiveType.Triangles, 6, IndexElementType.UnsignedShort, s_indexOffsetsBytes[3]);
 
             var stencilValues = new int[4] { 0x7, 0x0, 0x2, 0x0 };
-            var bits = gl.GetInteger(GetIntegerParameter.StencilBits);
+            var bits = gl.Caps.GetInteger(GetIntegerParameter.StencilBits);
             var mask = bits >= 1 && bits < 31 ? ((1 << bits) - 1) : unchecked((int)0xFF);
             stencilValues[3] = ~((mask & 0x1)) & 0xFF;
 
-            gl.StencilMask(0x0);
+            gl.State.StencilMask(0x0);
 
             var colorLoc = _colorLoc;
             for (var i = 0; i < stencilValues.Length; i++)
             {
-                gl.StencilFunc(StencilFunction.Equal, stencilValues[i], 0xFF);
-                gl.Uniform4f(colorLoc, s_colors[i, 0], s_colors[i, 1], s_colors[i, 2], s_colors[i, 3]);
-                gl.DrawElements(PrimitiveType.Triangles, 6, IndexElementType.UnsignedShort, s_indexOffsetsBytes[4]);
+                gl.State.StencilFunc(StencilFunction.Equal, stencilValues[i], 0xFF);
+                gl.Programs.Uniform4f(colorLoc, s_colors[i, 0], s_colors[i, 1], s_colors[i, 2], s_colors[i, 3]);
+                gl.Draw.DrawElements(PrimitiveType.Triangles, 6, IndexElementType.UnsignedShort, s_indexOffsetsBytes[4]);
             }
 
-            gl.StencilMask(0xFF);
+            gl.State.StencilMask(0xFF);
         }
 
         public void Dispose()
@@ -173,19 +173,19 @@ namespace Demo6_StencilOperations.Plugin
             reloader.Load(gl);
             UpdateProgramBindings(gl, reloader.Current);
 
-            _vertexBuffer = gl.CreateBufferObject();
-            gl.BindBuffer(BufferTarget.ArrayBuffer, _vertexBuffer);
-            gl.BufferData(BufferTarget.ArrayBuffer, s_vertices, BufferUsage.StaticDraw);
+            _vertexBuffer = gl.Buffers.CreateBufferObject();
+            gl.Buffers.BindBuffer(BufferTarget.ArrayBuffer, _vertexBuffer);
+            gl.Buffers.BufferData(BufferTarget.ArrayBuffer, s_vertices, BufferUsage.StaticDraw);
 
-            _indexBuffer = gl.CreateBufferObject();
-            gl.BindBuffer(BufferTarget.ElementArrayBuffer, _indexBuffer);
-            gl.BufferData(BufferTarget.ElementArrayBuffer, s_indices, BufferUsage.StaticDraw);
+            _indexBuffer = gl.Buffers.CreateBufferObject();
+            gl.Buffers.BindBuffer(BufferTarget.ElementArrayBuffer, _indexBuffer);
+            gl.Buffers.BufferData(BufferTarget.ElementArrayBuffer, s_indices, BufferUsage.StaticDraw);
 
             try
             {
-                _vao = gl.CreateVertexArrayObject();
+                _vao = gl.VertexArrays.CreateVertexArrayObject();
                 _useVao = true;
-                gl.BindVertexArray(_vao);
+                gl.VertexArrays.BindVertexArray(_vao);
                 BindGeometry(gl);
             }
             catch (NotSupportedException)
@@ -194,19 +194,19 @@ namespace Demo6_StencilOperations.Plugin
                 _vao = null;
             }
 
-            gl.ClearColor(0f, 0f, 0f, 1f);
-            gl.ClearStencil(0x1);
-            gl.ClearDepth(0.75f);
-            gl.Enable(EnableCap.DepthTest);
-            gl.Enable(EnableCap.StencilTest);
+            gl.State.ClearColor(0f, 0f, 0f, 1f);
+            gl.State.ClearStencil(0x1);
+            gl.State.ClearDepth(0.75f);
+            gl.State.Enable(EnableCap.DepthTest);
+            gl.State.Enable(EnableCap.StencilTest);
 
             _initialized = true;
         }
 
         private void UpdateProgramBindings(AngleGl gl, AngleProgram program)
         {
-            _positionLoc = gl.GetAttribLocation(program, "a_position");
-            _colorLoc = gl.GetUniformLocation(program, "u_color");
+            _positionLoc = gl.Programs.GetAttribLocation(program, "a_position");
+            _colorLoc = gl.Programs.GetUniformLocation(program, "u_color");
             if (_positionLoc < 0 || _colorLoc < 0)
                 throw new InvalidOperationException("Failed to resolve shader bindings.");
 
@@ -216,10 +216,10 @@ namespace Demo6_StencilOperations.Plugin
 
         private void BindGeometry(AngleGl gl)
         {
-            gl.BindBuffer(BufferTarget.ArrayBuffer, _vertexBuffer ?? throw new InvalidOperationException("Vertex buffer not initialized."));
-            gl.BindBuffer(BufferTarget.ElementArrayBuffer, _indexBuffer ?? throw new InvalidOperationException("Index buffer not initialized."));
-            gl.EnableVertexAttribArray(_positionLoc);
-            gl.VertexAttribPointer(_positionLoc, 3, VertexAttribType.Float, normalized: false, stride: 3 * sizeof(float), offsetBytes: 0);
+            gl.Buffers.BindBuffer(BufferTarget.ArrayBuffer, _vertexBuffer ?? throw new InvalidOperationException("Vertex buffer not initialized."));
+            gl.Buffers.BindBuffer(BufferTarget.ElementArrayBuffer, _indexBuffer ?? throw new InvalidOperationException("Index buffer not initialized."));
+            gl.VertexArrays.EnableVertexAttribArray(_positionLoc);
+            gl.VertexArrays.VertexAttribPointer(_positionLoc, 3, VertexAttribType.Float, normalized: false, stride: 3 * sizeof(float), offsetBytes: 0);
         }
 
         public void SetHostContext(RendererHostContext context)

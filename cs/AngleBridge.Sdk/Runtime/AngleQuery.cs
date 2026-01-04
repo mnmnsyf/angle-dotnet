@@ -35,7 +35,7 @@ namespace AngleBridge.Sdk.Runtime
                 return;
             }
 
-            _gl.DeleteQuery(_handle);
+            _gl.Queries.DeleteQuery(_handle);
             _handle = new GlQueryHandle(0);
         }
     }

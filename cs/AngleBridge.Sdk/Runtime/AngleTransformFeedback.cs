@@ -35,7 +35,7 @@ namespace AngleBridge.Sdk.Runtime
                 return;
             }
 
-            _gl.DeleteTransformFeedback(_handle);
+            _gl.TransformFeedback.DeleteTransformFeedback(_handle);
             _handle = new GlTransformFeedbackHandle(0);
         }
     }

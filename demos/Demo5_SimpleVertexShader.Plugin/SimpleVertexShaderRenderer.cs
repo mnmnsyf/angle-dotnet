@@ -130,11 +130,11 @@ namespace Demo5_SimpleVertexShader.Plugin
             }
             UpdateMatrices(gl, width, height);
 
-            gl.Viewport(0, 0, width, height);
-            gl.Clear(ClearBufferMask.ColorBufferBit);
-            gl.UseProgram(programReloader.Current);
-            gl.BindVertexArray(_vao ?? throw new InvalidOperationException("Vertex array not initialized."));
-            gl.DrawElements(PrimitiveType.Triangles, s_indices.Length, IndexElementType.UnsignedShort, 0);
+            gl.State.Viewport(0, 0, width, height);
+            gl.State.Clear(ClearBufferMask.ColorBufferBit);
+            gl.Programs.UseProgram(programReloader.Current);
+            gl.VertexArrays.BindVertexArray(_vao ?? throw new InvalidOperationException("Vertex array not initialized."));
+            gl.Draw.DrawElements(PrimitiveType.Triangles, s_indices.Length, IndexElementType.UnsignedShort, 0);
         }
 
         public void SetHostContext(RendererHostContext context)
@@ -175,24 +175,24 @@ namespace Demo5_SimpleVertexShader.Plugin
             programReloader.Load(gl);
             UpdateProgramBindings(gl, programReloader.Current);
 
-            _positionBuffer = gl.CreateBufferObject();
-            _texcoordBuffer = gl.CreateBufferObject();
-            _indexBuffer = gl.CreateBufferObject();
-            _vao = gl.CreateVertexArrayObject();
+            _positionBuffer = gl.Buffers.CreateBufferObject();
+            _texcoordBuffer = gl.Buffers.CreateBufferObject();
+            _indexBuffer = gl.Buffers.CreateBufferObject();
+            _vao = gl.VertexArrays.CreateVertexArrayObject();
 
-            gl.BindBuffer(BufferTarget.ArrayBuffer, _positionBuffer);
-            gl.BufferData(BufferTarget.ArrayBuffer, s_positions, BufferUsage.StaticDraw);
+            gl.Buffers.BindBuffer(BufferTarget.ArrayBuffer, _positionBuffer);
+            gl.Buffers.BufferData(BufferTarget.ArrayBuffer, s_positions, BufferUsage.StaticDraw);
 
-            gl.BindBuffer(BufferTarget.ArrayBuffer, _texcoordBuffer);
-            gl.BufferData(BufferTarget.ArrayBuffer, s_texcoords, BufferUsage.StaticDraw);
+            gl.Buffers.BindBuffer(BufferTarget.ArrayBuffer, _texcoordBuffer);
+            gl.Buffers.BufferData(BufferTarget.ArrayBuffer, s_texcoords, BufferUsage.StaticDraw);
 
-            gl.BindBuffer(BufferTarget.ElementArrayBuffer, _indexBuffer);
-            gl.BufferData(BufferTarget.ElementArrayBuffer, s_indices, BufferUsage.StaticDraw);
+            gl.Buffers.BindBuffer(BufferTarget.ElementArrayBuffer, _indexBuffer);
+            gl.Buffers.BufferData(BufferTarget.ElementArrayBuffer, s_indices, BufferUsage.StaticDraw);
             SetupGeometry(gl);
 
-            gl.ClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-            gl.CullFace(CullFaceMode.Back);
-            gl.Enable(EnableCap.CullFace);
+            gl.State.ClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+            gl.State.CullFace(CullFaceMode.Back);
+            gl.State.Enable(EnableCap.CullFace);
 
             _rotation = 45.0f;
             _initialized = true;
@@ -200,9 +200,9 @@ namespace Demo5_SimpleVertexShader.Plugin
 
         private void UpdateProgramBindings(AngleGl gl, AngleProgram program)
         {
-            _positionLoc = gl.GetAttribLocation(program, "a_position");
-            _texcoordLoc = gl.GetAttribLocation(program, "a_texcoord");
-            _mvpLoc = gl.GetUniformLocation(program, "u_mvpMatrix");
+            _positionLoc = gl.Programs.GetAttribLocation(program, "a_position");
+            _texcoordLoc = gl.Programs.GetAttribLocation(program, "a_texcoord");
+            _mvpLoc = gl.Programs.GetUniformLocation(program, "u_mvpMatrix");
 
             if (_positionLoc < 0 || _texcoordLoc < 0 || _mvpLoc < 0)
                 throw new InvalidOperationException("Failed to resolve shader attribute/uniform locations.");
@@ -218,17 +218,17 @@ namespace Demo5_SimpleVertexShader.Plugin
             var texcoordBuffer = _texcoordBuffer ?? throw new InvalidOperationException("Texcoord buffer not initialized.");
             var indexBuffer = _indexBuffer ?? throw new InvalidOperationException("Index buffer not initialized.");
 
-            gl.BindVertexArray(vao);
+            gl.VertexArrays.BindVertexArray(vao);
 
-            gl.BindBuffer(BufferTarget.ArrayBuffer, positionBuffer);
-            gl.VertexAttribPointer(_positionLoc, 3, VertexAttribType.Float, false, 0, 0);
-            gl.EnableVertexAttribArray(_positionLoc);
+            gl.Buffers.BindBuffer(BufferTarget.ArrayBuffer, positionBuffer);
+            gl.VertexArrays.VertexAttribPointer(_positionLoc, 3, VertexAttribType.Float, false, 0, 0);
+            gl.VertexArrays.EnableVertexAttribArray(_positionLoc);
 
-            gl.BindBuffer(BufferTarget.ArrayBuffer, texcoordBuffer);
-            gl.VertexAttribPointer(_texcoordLoc, 2, VertexAttribType.Float, false, 0, 0);
-            gl.EnableVertexAttribArray(_texcoordLoc);
+            gl.Buffers.BindBuffer(BufferTarget.ArrayBuffer, texcoordBuffer);
+            gl.VertexArrays.VertexAttribPointer(_texcoordLoc, 2, VertexAttribType.Float, false, 0, 0);
+            gl.VertexArrays.EnableVertexAttribArray(_texcoordLoc);
 
-            gl.BindBuffer(BufferTarget.ElementArrayBuffer, indexBuffer);
+            gl.Buffers.BindBuffer(BufferTarget.ElementArrayBuffer, indexBuffer);
         }
 
         private void UpdateMatrices(AngleGl gl, int width, int height)
@@ -247,8 +247,8 @@ namespace Demo5_SimpleVertexShader.Plugin
             var mvp = perspective * view * model;
 
             var programReloader = _programReloader ?? throw new InvalidOperationException("Program reloader not initialized.");
-            gl.UseProgram(programReloader.Current);
-            gl.UniformMatrix4fv(_mvpLoc, false, mvp.Data);
+            gl.Programs.UseProgram(programReloader.Current);
+            gl.Programs.UniformMatrix4fv(_mvpLoc, false, mvp.Data);
         }
 
         private static string[] BuildShaderRoots(RendererHostContext context)

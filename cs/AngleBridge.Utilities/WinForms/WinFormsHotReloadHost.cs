@@ -73,8 +73,12 @@ namespace AngleBridge.Utilities.WinForms
                     var height = window.Height;
 
                     onFrame?.Invoke(gl, width, height, dt, elapsed);
-                    reloader.Current.Draw(gl, width, height);
-                    device.Present();
+                    var renderer = reloader.Current;
+                    renderer.Draw(gl, width, height);
+                    if (renderer is IRendererWithPresent presenter)
+                        presenter.Present(device, width, height);
+                    else
+                        device.Present();
 
                     prevTime = elapsed;
                     frameCount++;

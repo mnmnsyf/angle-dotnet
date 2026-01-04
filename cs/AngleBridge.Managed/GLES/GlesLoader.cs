@@ -76,6 +76,18 @@ namespace AngleBridge.Managed.GLES
                 Gles._glVertexAttribPointer = LoadFunction<Gles.glVertexAttribPointer_t>("glVertexAttribPointer");
                 Gles._glDrawArrays = LoadFunction<Gles.glDrawArrays_t>("glDrawArrays");
                 Gles._glDrawElements = LoadFunction<Gles.glDrawElements_t>("glDrawElements");
+                Gles._glDrawBuffers = TryLoadFunction<Gles.glDrawBuffers_t>("glDrawBuffers");
+                if (Gles._glDrawBuffers == null)
+                    Gles._glDrawBuffers = TryLoadFunction<Gles.glDrawBuffers_t>("glDrawBuffersEXT");
+                Gles._glVertexAttribDivisorANGLE = TryLoadFunction<Gles.glVertexAttribDivisorANGLE_t>("glVertexAttribDivisor");
+                if (Gles._glVertexAttribDivisorANGLE == null)
+                    Gles._glVertexAttribDivisorANGLE = TryLoadFunction<Gles.glVertexAttribDivisorANGLE_t>("glVertexAttribDivisorANGLE");
+                Gles._glDrawArraysInstancedANGLE = TryLoadFunction<Gles.glDrawArraysInstancedANGLE_t>("glDrawArraysInstanced");
+                if (Gles._glDrawArraysInstancedANGLE == null)
+                    Gles._glDrawArraysInstancedANGLE = TryLoadFunction<Gles.glDrawArraysInstancedANGLE_t>("glDrawArraysInstancedANGLE");
+                Gles._glDrawElementsInstancedANGLE = TryLoadFunction<Gles.glDrawElementsInstancedANGLE_t>("glDrawElementsInstanced");
+                if (Gles._glDrawElementsInstancedANGLE == null)
+                    Gles._glDrawElementsInstancedANGLE = TryLoadFunction<Gles.glDrawElementsInstancedANGLE_t>("glDrawElementsInstancedANGLE");
 
                 Gles._glGenVertexArrays = TryLoadFunction<Gles.glGenVertexArrays_t>("glGenVertexArrays");
                 Gles._glBindVertexArray = TryLoadFunction<Gles.glBindVertexArray_t>("glBindVertexArray");
@@ -102,6 +114,7 @@ namespace AngleBridge.Managed.GLES
                 Gles._glTexParameteri = LoadFunction<Gles.glTexParameteri_t>("glTexParameteri");
                 Gles._glTexParameterf = LoadFunction<Gles.glTexParameterf_t>("glTexParameterf");
                 Gles._glTexImage2D = LoadFunction<Gles.glTexImage2D_t>("glTexImage2D");
+                Gles._glTexImage3D = TryLoadFunction<Gles.glTexImage3D_t>("glTexImage3D");
                 Gles._glPixelStorei = LoadFunction<Gles.glPixelStorei_t>("glPixelStorei");
                 Gles._glGenerateMipmap = LoadFunction<Gles.glGenerateMipmap_t>("glGenerateMipmap");
                 Gles._glCullFace = LoadFunction<Gles.glCullFace_t>("glCullFace");
@@ -109,6 +122,7 @@ namespace AngleBridge.Managed.GLES
                 Gles._glDeleteFramebuffers = LoadFunction<Gles.glDeleteFramebuffers_t>("glDeleteFramebuffers");
                 Gles._glBindFramebuffer = LoadFunction<Gles.glBindFramebuffer_t>("glBindFramebuffer");
                 Gles._glFramebufferTexture2D = LoadFunction<Gles.glFramebufferTexture2D_t>("glFramebufferTexture2D");
+                Gles._glFramebufferTextureMultiviewOVR = TryLoadFunction<Gles.glFramebufferTextureMultiviewOVR_t>("glFramebufferTextureMultiviewOVR");
                 Gles._glFramebufferRenderbuffer = LoadFunction<Gles.glFramebufferRenderbuffer_t>("glFramebufferRenderbuffer");
                 Gles._glCheckFramebufferStatus = LoadFunction<Gles.glCheckFramebufferStatus_t>("glCheckFramebufferStatus");
                 Gles._glGenRenderbuffers = LoadFunction<Gles.glGenRenderbuffers_t>("glGenRenderbuffers");

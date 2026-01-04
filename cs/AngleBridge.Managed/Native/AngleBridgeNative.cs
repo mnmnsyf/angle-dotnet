@@ -26,6 +26,9 @@ internal static class AngleBridgeNative
     internal static extern int AB_SwapBuffers(IntPtr ctx);
 
     [DllImport("AngleBridge", CallingConvention = CallingConvention.Cdecl)]
+    internal static extern int AB_PostSubBufferNV(IntPtr ctx, int x, int y, int width, int height);
+
+    [DllImport("AngleBridge", CallingConvention = CallingConvention.Cdecl)]
     internal static extern IntPtr AB_GetProcAddress([MarshalAs(UnmanagedType.LPStr)] string name);
 
     [DllImport("AngleBridge", CallingConvention = CallingConvention.Cdecl)]

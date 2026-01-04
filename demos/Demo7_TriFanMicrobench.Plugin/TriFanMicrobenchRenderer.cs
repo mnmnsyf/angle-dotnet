@@ -63,15 +63,15 @@ namespace Demo7_TriFanMicrobench.Plugin
                 Console.Error.WriteLine(reloadError);
             }
 
-            gl.Viewport(0, 0, width, height);
-            gl.Clear(ClearBufferMask.ColorBufferBit);
-            gl.UseProgram(programReloader.Current);
-            gl.EnableVertexAttribArray(_positionLoc);
+            gl.State.Viewport(0, 0, width, height);
+            gl.State.Clear(ClearBufferMask.ColorBufferBit);
+            gl.Programs.UseProgram(programReloader.Current);
+            gl.VertexArrays.EnableVertexAttribArray(_positionLoc);
 
             RunFanPass(gl);
 
             // 清除颜色，避免驱动端由于颜色覆盖率带来的缓存收益（与 ANGLE 原样例一致）
-            gl.Clear(ClearBufferMask.ColorBufferBit);
+            gl.State.Clear(ClearBufferMask.ColorBufferBit);
 
             RunTriPass(gl);
 
@@ -118,14 +118,14 @@ namespace Demo7_TriFanMicrobench.Plugin
 
             CreateBuffers(gl);
 
-            _gpuTimerAvailable = gl.IsDisjointTimerQueryAvailable;
+            _gpuTimerAvailable = gl.Queries.IsDisjointTimerQueryAvailable;
             if (_gpuTimerAvailable)
             {
-                _fanQuery = gl.CreateQueryObject();
-                _triQuery = gl.CreateQueryObject();
+                _fanQuery = gl.Queries.CreateQueryObject();
+                _triQuery = gl.Queries.CreateQueryObject();
             }
 
-            gl.ClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+            gl.State.ClearColor(0.0f, 0.0f, 0.0f, 0.0f);
             _initialized = true;
         }
 
@@ -190,14 +190,14 @@ namespace Demo7_TriFanMicrobench.Plugin
                     triTemp[v * 3 + 2] = 0.0f;
                 }
 
-                var fanBuf = gl.CreateBufferObject();
-                gl.BindBuffer(BufferTarget.ArrayBuffer, fanBuf);
-                gl.BufferData(BufferTarget.ArrayBuffer, fanTemp, BufferUsage.StaticDraw);
+                var fanBuf = gl.Buffers.CreateBufferObject();
+                gl.Buffers.BindBuffer(BufferTarget.ArrayBuffer, fanBuf);
+                gl.Buffers.BufferData(BufferTarget.ArrayBuffer, fanTemp, BufferUsage.StaticDraw);
                 _fanBuffers[i] = fanBuf;
 
-                var triBuf = gl.CreateBufferObject();
-                gl.BindBuffer(BufferTarget.ArrayBuffer, triBuf);
-                gl.BufferData(BufferTarget.ArrayBuffer, triTemp, BufferUsage.StaticDraw);
+                var triBuf = gl.Buffers.CreateBufferObject();
+                gl.Buffers.BindBuffer(BufferTarget.ArrayBuffer, triBuf);
+                gl.Buffers.BufferData(BufferTarget.ArrayBuffer, triTemp, BufferUsage.StaticDraw);
                 _triBuffers[i] = triBuf;
 
                 xOffset += 2 * HalfDim;
@@ -215,14 +215,14 @@ namespace Demo7_TriFanMicrobench.Plugin
 
             var fanQuery = _fanQuery;
             if (_gpuTimerAvailable && !_gpuDisjoint && fanQuery != null)
-                gl.BeginQuery(QueryTarget.TimeElapsed, fanQuery);
+                gl.Queries.BeginQuery(QueryTarget.TimeElapsed, fanQuery);
 
             _fanCpuTimer.Restart();
             for (var i = 0; i < _fanBuffers.Length; i++)
             {
-                gl.BindBuffer(BufferTarget.ArrayBuffer, _fanBuffers[i]);
-                gl.VertexAttribPointer(_positionLoc, 3, VertexAttribType.Float, false, 0, 0);
-                gl.DrawArrays(PrimitiveType.TriangleFan, 0, _numFanVerts);
+                gl.Buffers.BindBuffer(BufferTarget.ArrayBuffer, _fanBuffers[i]);
+                gl.VertexArrays.VertexAttribPointer(_positionLoc, 3, VertexAttribType.Float, false, 0, 0);
+                gl.Draw.DrawArrays(PrimitiveType.TriangleFan, 0, _numFanVerts);
             }
             _fanCpuTimer.Stop();
             _fanCpuTotalMs += _fanCpuTimer.Elapsed.TotalMilliseconds;
@@ -237,14 +237,14 @@ namespace Demo7_TriFanMicrobench.Plugin
 
             var triQuery = _triQuery;
             if (_gpuTimerAvailable && !_gpuDisjoint && triQuery != null)
-                gl.BeginQuery(QueryTarget.TimeElapsed, triQuery);
+                gl.Queries.BeginQuery(QueryTarget.TimeElapsed, triQuery);
 
             _triCpuTimer.Restart();
             for (var i = 0; i < _triBuffers.Length; i++)
             {
-                gl.BindBuffer(BufferTarget.ArrayBuffer, _triBuffers[i]);
-                gl.VertexAttribPointer(_positionLoc, 3, VertexAttribType.Float, false, 0, 0);
-                gl.DrawArrays(PrimitiveType.Triangles, 0, _numTriVerts);
+                gl.Buffers.BindBuffer(BufferTarget.ArrayBuffer, _triBuffers[i]);
+                gl.VertexArrays.VertexAttribPointer(_positionLoc, 3, VertexAttribType.Float, false, 0, 0);
+                gl.Draw.DrawArrays(PrimitiveType.Triangles, 0, _numTriVerts);
             }
             _triCpuTimer.Stop();
             _triCpuTotalMs += _triCpuTimer.Elapsed.TotalMilliseconds;
@@ -255,15 +255,15 @@ namespace Demo7_TriFanMicrobench.Plugin
 
         private void AccumulateGpuTime(AngleGl gl, AngleQuery query, ref ulong totalNs)
         {
-            gl.EndQuery(QueryTarget.TimeElapsed);
+            gl.Queries.EndQuery(QueryTarget.TimeElapsed);
 
             // 阻塞等待结果，确保输出可用且简单；与 CPU 计时无关
-            gl.Finish();
+            gl.Draw.Finish();
 
-            if (gl.TryGetQueryResult(query, out var ns))
+            if (gl.Queries.TryGetQueryResult(query, out var ns))
             {
                 totalNs += ns;
-                if (gl.TryGetGpuDisjoint(out var disjoint) && disjoint)
+                if (gl.Caps.TryGetGpuDisjoint(out var disjoint) && disjoint)
                     _gpuDisjoint = true;
             }
             else
@@ -343,7 +343,7 @@ namespace Demo7_TriFanMicrobench.Plugin
 
         private void UpdateProgramBindings(AngleGl gl, AngleProgram program)
         {
-            _positionLoc = gl.GetAttribLocation(program, "vPosition");
+            _positionLoc = gl.Programs.GetAttribLocation(program, "vPosition");
             if (_positionLoc < 0)
                 throw new InvalidOperationException("Failed to resolve attribute location.");
         }

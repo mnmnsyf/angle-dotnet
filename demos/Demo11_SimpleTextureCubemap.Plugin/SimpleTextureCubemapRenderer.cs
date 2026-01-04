@@ -42,23 +42,23 @@ namespace Demo11_SimpleTextureCubemap.Plugin
                 Console.Error.WriteLine(reloadError);
             }
 
-            gl.Viewport(0, 0, width, height);
-            gl.Clear(ClearBufferMask.ColorBufferBit);
-            gl.UseProgram(reloader.Current);
+            gl.State.Viewport(0, 0, width, height);
+            gl.State.Clear(ClearBufferMask.ColorBufferBit);
+            gl.Programs.UseProgram(reloader.Current);
 
-            gl.BindBuffer(BufferTarget.ArrayBuffer, _vertexBuffer ?? throw new InvalidOperationException("Vertex buffer not initialized."));
-            gl.BindBuffer(BufferTarget.ElementArrayBuffer, _indexBuffer ?? throw new InvalidOperationException("Index buffer not initialized."));
+            gl.Buffers.BindBuffer(BufferTarget.ArrayBuffer, _vertexBuffer ?? throw new InvalidOperationException("Vertex buffer not initialized."));
+            gl.Buffers.BindBuffer(BufferTarget.ElementArrayBuffer, _indexBuffer ?? throw new InvalidOperationException("Index buffer not initialized."));
 
-            gl.VertexAttribPointer(_positionLoc, 3, VertexAttribType.Float, false, 6 * sizeof(float), 0);
-            gl.VertexAttribPointer(_normalLoc, 3, VertexAttribType.Float, false, 6 * sizeof(float), 3 * sizeof(float));
-            gl.EnableVertexAttribArray(_positionLoc);
-            gl.EnableVertexAttribArray(_normalLoc);
+            gl.VertexArrays.VertexAttribPointer(_positionLoc, 3, VertexAttribType.Float, false, 6 * sizeof(float), 0);
+            gl.VertexArrays.VertexAttribPointer(_normalLoc, 3, VertexAttribType.Float, false, 6 * sizeof(float), 3 * sizeof(float));
+            gl.VertexArrays.EnableVertexAttribArray(_positionLoc);
+            gl.VertexArrays.EnableVertexAttribArray(_normalLoc);
 
-            gl.ActiveTexture(TextureUnit.Texture0);
-            gl.BindTexture(TextureTarget.TextureCubeMap, _texture ?? throw new InvalidOperationException("Texture not initialized."));
-            gl.Uniform1i(_samplerLoc, 0);
+            gl.Textures.ActiveTexture(TextureUnit.Texture0);
+            gl.Textures.BindTexture(TextureTarget.TextureCubeMap, _texture ?? throw new InvalidOperationException("Texture not initialized."));
+            gl.Programs.Uniform1i(_samplerLoc, 0);
 
-            gl.DrawElements(PrimitiveType.Triangles, _indexCount, IndexElementType.UnsignedShort, 0);
+            gl.Draw.DrawElements(PrimitiveType.Triangles, _indexCount, IndexElementType.UnsignedShort, 0);
         }
 
         public void Dispose()
@@ -88,34 +88,34 @@ namespace Demo11_SimpleTextureCubemap.Plugin
             CreateSphereGeometry(slices: 128, radius: 0.75f, out var vertices, out var indices);
             _indexCount = indices.Length;
 
-            _vertexBuffer = gl.CreateBufferObject();
-            gl.BindBuffer(BufferTarget.ArrayBuffer, _vertexBuffer);
-            gl.BufferData(BufferTarget.ArrayBuffer, vertices, BufferUsage.StaticDraw);
+            _vertexBuffer = gl.Buffers.CreateBufferObject();
+            gl.Buffers.BindBuffer(BufferTarget.ArrayBuffer, _vertexBuffer);
+            gl.Buffers.BufferData(BufferTarget.ArrayBuffer, vertices, BufferUsage.StaticDraw);
 
-            _indexBuffer = gl.CreateBufferObject();
-            gl.BindBuffer(BufferTarget.ElementArrayBuffer, _indexBuffer);
-            gl.BufferData(BufferTarget.ElementArrayBuffer, indices, BufferUsage.StaticDraw);
+            _indexBuffer = gl.Buffers.CreateBufferObject();
+            gl.Buffers.BindBuffer(BufferTarget.ElementArrayBuffer, _indexBuffer);
+            gl.Buffers.BufferData(BufferTarget.ElementArrayBuffer, indices, BufferUsage.StaticDraw);
 
-            _texture = gl.CreateTextureObject();
-            gl.ActiveTexture(TextureUnit.Texture0);
-            gl.BindTexture(TextureTarget.TextureCubeMap, _texture);
-            gl.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
+            _texture = gl.Textures.CreateTextureObject();
+            gl.Textures.ActiveTexture(TextureUnit.Texture0);
+            gl.Textures.BindTexture(TextureTarget.TextureCubeMap, _texture);
+            gl.Textures.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
             UploadCubemapFaces(gl);
-            gl.TexParameteri(TextureTarget.TextureCubeMap, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
-            gl.TexParameteri(TextureTarget.TextureCubeMap, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
+            gl.Textures.TexParameteri(TextureTarget.TextureCubeMap, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
+            gl.Textures.TexParameteri(TextureTarget.TextureCubeMap, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
 
-            gl.ClearColor(0f, 0f, 0f, 0f);
-            gl.CullFace(CullFaceMode.Back);
-            gl.Enable(EnableCap.CullFace);
+            gl.State.ClearColor(0f, 0f, 0f, 0f);
+            gl.State.CullFace(CullFaceMode.Back);
+            gl.State.Enable(EnableCap.CullFace);
 
             _initialized = true;
         }
 
         private void UpdateProgramBindings(AngleGl gl, AngleProgram program)
         {
-            _positionLoc = gl.GetAttribLocation(program, "a_position");
-            _normalLoc = gl.GetAttribLocation(program, "a_normal");
-            _samplerLoc = gl.GetUniformLocation(program, "s_texture");
+            _positionLoc = gl.Programs.GetAttribLocation(program, "a_position");
+            _normalLoc = gl.Programs.GetAttribLocation(program, "a_normal");
+            _samplerLoc = gl.Programs.GetUniformLocation(program, "s_texture");
             if (_positionLoc < 0 || _normalLoc < 0 || _samplerLoc < 0)
                 throw new InvalidOperationException("Failed to resolve shader bindings.");
         }
@@ -173,7 +173,7 @@ namespace Demo11_SimpleTextureCubemap.Plugin
 
             for (var i = 0; i < 6; i++)
             {
-                gl.TexImage2D(targets[i], 0, TextureInternalFormat.Rgb, 1, 1, 0, PixelFormat.Rgb, PixelType.UnsignedByte, pixels[i]);
+                gl.Textures.TexImage2D(targets[i], 0, TextureInternalFormat.Rgb, 1, 1, 0, PixelFormat.Rgb, PixelType.UnsignedByte, pixels[i]);
             }
         }
 

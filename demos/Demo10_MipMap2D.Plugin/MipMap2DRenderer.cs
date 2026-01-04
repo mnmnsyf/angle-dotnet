@@ -56,22 +56,22 @@ namespace Demo10_MipMap2D.Plugin
                 Console.Error.WriteLine(reloadError);
             }
 
-            gl.Viewport(0, 0, width, height);
-            gl.Clear(ClearBufferMask.ColorBufferBit);
-            gl.UseProgram(reloader.Current);
+            gl.State.Viewport(0, 0, width, height);
+            gl.State.Clear(ClearBufferMask.ColorBufferBit);
+            gl.Programs.UseProgram(reloader.Current);
 
             if (_useVao)
             {
-                gl.BindVertexArray(_vao ?? throw new InvalidOperationException("Vertex array not initialized."));
+                gl.VertexArrays.BindVertexArray(_vao ?? throw new InvalidOperationException("Vertex array not initialized."));
             }
             else
             {
                 BindGeometry(gl);
             }
 
-            gl.ActiveTexture(TextureUnit.Texture0);
-            gl.BindTexture(TextureTarget.Texture2D, _texture ?? throw new InvalidOperationException("Texture not initialized."));
-            gl.Uniform1i(_samplerLoc, 0);
+            gl.Textures.ActiveTexture(TextureUnit.Texture0);
+            gl.Textures.BindTexture(TextureTarget.Texture2D, _texture ?? throw new InvalidOperationException("Texture not initialized."));
+            gl.Programs.Uniform1i(_samplerLoc, 0);
 
             DrawQuad(gl, TextureMinFilter.Nearest, offset: -0.6f, setAniso: false);
             DrawQuad(gl, TextureMinFilter.LinearMipmapLinear, offset: 0f, setAniso: false);
@@ -104,19 +104,19 @@ namespace Demo10_MipMap2D.Plugin
             reloader.Load(gl);
             UpdateProgramBindings(gl, reloader.Current);
 
-            _vertexBuffer = gl.CreateBufferObject();
-            gl.BindBuffer(BufferTarget.ArrayBuffer, _vertexBuffer);
-            gl.BufferData(BufferTarget.ArrayBuffer, s_vertices, BufferUsage.StaticDraw);
+            _vertexBuffer = gl.Buffers.CreateBufferObject();
+            gl.Buffers.BindBuffer(BufferTarget.ArrayBuffer, _vertexBuffer);
+            gl.Buffers.BufferData(BufferTarget.ArrayBuffer, s_vertices, BufferUsage.StaticDraw);
 
-            _indexBuffer = gl.CreateBufferObject();
-            gl.BindBuffer(BufferTarget.ElementArrayBuffer, _indexBuffer);
-            gl.BufferData(BufferTarget.ElementArrayBuffer, s_indices, BufferUsage.StaticDraw);
+            _indexBuffer = gl.Buffers.CreateBufferObject();
+            gl.Buffers.BindBuffer(BufferTarget.ElementArrayBuffer, _indexBuffer);
+            gl.Buffers.BufferData(BufferTarget.ElementArrayBuffer, s_indices, BufferUsage.StaticDraw);
 
             try
             {
-                _vao = gl.CreateVertexArrayObject();
+                _vao = gl.VertexArrays.CreateVertexArrayObject();
                 _useVao = true;
-                gl.BindVertexArray(_vao);
+                gl.VertexArrays.BindVertexArray(_vao);
                 BindGeometry(gl);
             }
             catch (NotSupportedException)
@@ -125,38 +125,38 @@ namespace Demo10_MipMap2D.Plugin
                 _vao = null;
             }
 
-            _texture = gl.CreateTextureObject();
-            gl.ActiveTexture(TextureUnit.Texture0);
-            gl.BindTexture(TextureTarget.Texture2D, _texture);
-            gl.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
+            _texture = gl.Textures.CreateTextureObject();
+            gl.Textures.ActiveTexture(TextureUnit.Texture0);
+            gl.Textures.BindTexture(TextureTarget.Texture2D, _texture);
+            gl.Textures.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
             UploadMipChain(gl);
-            gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
-            gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
-            gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
+            gl.Textures.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
+            gl.Textures.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
+            gl.Textures.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
 
-            if (gl.TryGetFloat(GetFloatParameter.MaxTextureMaxAnisotropyExt, out var maxAniso) && maxAniso > 0f)
+            if (gl.Caps.TryGetFloat(GetFloatParameter.MaxTextureMaxAnisotropyExt, out var maxAniso) && maxAniso > 0f)
                 _maxAniso = maxAniso;
 
-            gl.ClearColor(0f, 0f, 0f, 0f);
+            gl.State.ClearColor(0f, 0f, 0f, 0f);
             _initialized = true;
         }
 
         private void BindGeometry(AngleGl gl)
         {
-            gl.BindBuffer(BufferTarget.ArrayBuffer, _vertexBuffer ?? throw new InvalidOperationException("Vertex buffer not initialized."));
-            gl.BindBuffer(BufferTarget.ElementArrayBuffer, _indexBuffer ?? throw new InvalidOperationException("Index buffer not initialized."));
-            gl.EnableVertexAttribArray(_positionLoc);
-            gl.EnableVertexAttribArray(_texCoordLoc);
-            gl.VertexAttribPointer(_positionLoc, 4, VertexAttribType.Float, false, 6 * sizeof(float), 0);
-            gl.VertexAttribPointer(_texCoordLoc, 2, VertexAttribType.Float, false, 6 * sizeof(float), 4 * sizeof(float));
+            gl.Buffers.BindBuffer(BufferTarget.ArrayBuffer, _vertexBuffer ?? throw new InvalidOperationException("Vertex buffer not initialized."));
+            gl.Buffers.BindBuffer(BufferTarget.ElementArrayBuffer, _indexBuffer ?? throw new InvalidOperationException("Index buffer not initialized."));
+            gl.VertexArrays.EnableVertexAttribArray(_positionLoc);
+            gl.VertexArrays.EnableVertexAttribArray(_texCoordLoc);
+            gl.VertexArrays.VertexAttribPointer(_positionLoc, 4, VertexAttribType.Float, false, 6 * sizeof(float), 0);
+            gl.VertexArrays.VertexAttribPointer(_texCoordLoc, 2, VertexAttribType.Float, false, 6 * sizeof(float), 4 * sizeof(float));
         }
 
         private void UpdateProgramBindings(AngleGl gl, AngleProgram program)
         {
-            _positionLoc = gl.GetAttribLocation(program, "a_position");
-            _texCoordLoc = gl.GetAttribLocation(program, "a_texCoord");
-            _samplerLoc = gl.GetUniformLocation(program, "s_texture");
-            _offsetLoc = gl.GetUniformLocation(program, "u_offset");
+            _positionLoc = gl.Programs.GetAttribLocation(program, "a_position");
+            _texCoordLoc = gl.Programs.GetAttribLocation(program, "a_texCoord");
+            _samplerLoc = gl.Programs.GetUniformLocation(program, "s_texture");
+            _offsetLoc = gl.Programs.GetUniformLocation(program, "u_offset");
             if (_positionLoc < 0 || _texCoordLoc < 0 || _samplerLoc < 0 || _offsetLoc < 0)
                 throw new InvalidOperationException("Failed to resolve shader bindings.");
 
@@ -195,21 +195,21 @@ namespace Demo10_MipMap2D.Plugin
 
         private void DrawQuad(AngleGl gl, TextureMinFilter minFilter, float offset, bool setAniso)
         {
-            gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)minFilter);
+            gl.Textures.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)minFilter);
             if (setAniso && _maxAniso > 1f)
             {
-                gl.TexParameterf(TextureTarget.Texture2D, TextureParameterName.TextureMaxAnisotropyExt, _maxAniso);
+                gl.Textures.TexParameterf(TextureTarget.Texture2D, TextureParameterName.TextureMaxAnisotropyExt, _maxAniso);
             }
             else if (setAniso)
             {
-                gl.TexParameterf(TextureTarget.Texture2D, TextureParameterName.TextureMaxAnisotropyExt, 1f);
+                gl.Textures.TexParameterf(TextureTarget.Texture2D, TextureParameterName.TextureMaxAnisotropyExt, 1f);
             }
 
-            gl.Uniform4f(_offsetLoc, offset, 0f, 0f, 0f);
-            gl.DrawElements(PrimitiveType.Triangles, s_indices.Length, IndexElementType.UnsignedShort, 0);
+            gl.Programs.Uniform4f(_offsetLoc, offset, 0f, 0f, 0f);
+            gl.Draw.DrawElements(PrimitiveType.Triangles, s_indices.Length, IndexElementType.UnsignedShort, 0);
 
             if (setAniso && _maxAniso > 1f)
-                gl.TexParameterf(TextureTarget.Texture2D, TextureParameterName.TextureMaxAnisotropyExt, 1f);
+                gl.Textures.TexParameterf(TextureTarget.Texture2D, TextureParameterName.TextureMaxAnisotropyExt, 1f);
         }
 
         private void UploadMipChain(AngleGl gl)
@@ -244,8 +244,8 @@ namespace Demo10_MipMap2D.Plugin
                 }
             }
 
-            gl.TexImage2D(TextureTarget.Texture2D, 0, TextureInternalFormat.Rgb, width, height, 0, PixelFormat.Rgb, PixelType.UnsignedByte, pixels);
-            gl.GenerateMipmap(TextureTarget.Texture2D);
+            gl.Textures.TexImage2D(TextureTarget.Texture2D, 0, TextureInternalFormat.Rgb, width, height, 0, PixelFormat.Rgb, PixelType.UnsignedByte, pixels);
+            gl.Textures.GenerateMipmap(TextureTarget.Texture2D);
         }
 
     }

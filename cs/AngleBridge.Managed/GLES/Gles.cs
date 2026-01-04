@@ -52,6 +52,9 @@ namespace AngleBridge.Managed.GLES
     public const uint GL_DRAW_FRAMEBUFFER = 0x8CA9;
     public const uint GL_RENDERBUFFER = 0x8D41;
     public const uint GL_COLOR_ATTACHMENT0 = 0x8CE0;
+    public const uint GL_COLOR_ATTACHMENT1 = 0x8CE1;
+    public const uint GL_COLOR_ATTACHMENT2 = 0x8CE2;
+    public const uint GL_COLOR_ATTACHMENT3 = 0x8CE3;
     public const uint GL_DEPTH_ATTACHMENT = 0x8D00;
     public const uint GL_STENCIL_ATTACHMENT = 0x8D20;
     public const uint GL_DEPTH_STENCIL_ATTACHMENT = 0x821A;
@@ -108,6 +111,7 @@ namespace AngleBridge.Managed.GLES
     public const uint GL_SYNC_FENCE = 0x9116;
     public const uint GL_SYNC_FLUSH_COMMANDS_BIT = 0x00000001;
     public const uint GL_TEXTURE_2D = 0x0DE1;
+    public const uint GL_TEXTURE_2D_ARRAY = 0x8C1A;
     public const uint GL_TEXTURE_CUBE_MAP = 0x8513;
     public const uint GL_TEXTURE_CUBE_MAP_POSITIVE_X = 0x8515;
     public const uint GL_TEXTURE_MIN_FILTER = 0x2801;
@@ -118,6 +122,7 @@ namespace AngleBridge.Managed.GLES
     public const uint GL_NEAREST_MIPMAP_NEAREST = 0x2700;
     public const uint GL_UNPACK_ALIGNMENT = 0x0CF5;
     public const uint GL_TEXTURE0 = 0x84C0;
+    public const uint GL_RGBA8 = 0x8058;
 
     internal static CallingConvention _platformCallingConvention;
 
@@ -165,6 +170,10 @@ namespace AngleBridge.Managed.GLES
     internal static glVertexAttribPointer_t? _glVertexAttribPointer;
     internal static glDrawArrays_t? _glDrawArrays;
     internal static glDrawElements_t? _glDrawElements;
+    internal static glDrawBuffers_t? _glDrawBuffers;
+    internal static glVertexAttribDivisorANGLE_t? _glVertexAttribDivisorANGLE;
+    internal static glDrawArraysInstancedANGLE_t? _glDrawArraysInstancedANGLE;
+    internal static glDrawElementsInstancedANGLE_t? _glDrawElementsInstancedANGLE;
 
     internal static glGenVertexArrays_t? _glGenVertexArrays;
     internal static glBindVertexArray_t? _glBindVertexArray;
@@ -193,6 +202,7 @@ namespace AngleBridge.Managed.GLES
     internal static glTexParameteri_t? _glTexParameteri;
     internal static glTexParameterf_t? _glTexParameterf;
     internal static glTexImage2D_t? _glTexImage2D;
+    internal static glTexImage3D_t? _glTexImage3D;
     internal static glActiveTexture_t? _glActiveTexture;
     internal static glPixelStorei_t? _glPixelStorei;
     internal static glGenerateMipmap_t? _glGenerateMipmap;
@@ -201,6 +211,7 @@ namespace AngleBridge.Managed.GLES
     internal static glDeleteFramebuffers_t? _glDeleteFramebuffers;
     internal static glBindFramebuffer_t? _glBindFramebuffer;
     internal static glFramebufferTexture2D_t? _glFramebufferTexture2D;
+    internal static glFramebufferTextureMultiviewOVR_t? _glFramebufferTextureMultiviewOVR;
     internal static glFramebufferRenderbuffer_t? _glFramebufferRenderbuffer;
     internal static glCheckFramebufferStatus_t? _glCheckFramebufferStatus;
     internal static glGenRenderbuffers_t? _glGenRenderbuffers;
@@ -468,6 +479,54 @@ namespace AngleBridge.Managed.GLES
         glDrawElements(mode, count, type, (IntPtr)offsetBytes);
     }
 
+    public static bool IsDrawBuffersAvailable => _glDrawBuffers != null;
+    public static bool IsMultiviewAvailable => _glFramebufferTextureMultiviewOVR != null && _glTexImage3D != null;
+
+    public static void DrawBuffers(ReadOnlySpan<uint> buffers)
+    {
+        var glDrawBuffers = _glDrawBuffers ?? throw NotSupported(nameof(_glDrawBuffers), "Draw buffers not available.");
+        if (buffers.Length == 0) throw new ArgumentException("buffers must not be empty.", nameof(buffers));
+        var raw = buffers.ToArray();
+        var handle = GCHandle.Alloc(raw, GCHandleType.Pinned);
+        try
+        {
+            glDrawBuffers(raw.Length, handle.AddrOfPinnedObject());
+        }
+        finally
+        {
+            handle.Free();
+        }
+    }
+
+    public static bool IsInstancedArraysAvailable =>
+        _glVertexAttribDivisorANGLE != null &&
+        _glDrawArraysInstancedANGLE != null &&
+        _glDrawElementsInstancedANGLE != null;
+
+    public static void VertexAttribDivisor(uint index, uint divisor)
+    {
+        var glVertexAttribDivisor = _glVertexAttribDivisorANGLE ?? throw NotSupported(nameof(_glVertexAttribDivisorANGLE), "Instanced arrays not available.");
+        glVertexAttribDivisor(index, divisor);
+    }
+
+    public static void DrawArraysInstanced(uint mode, int first, int count, int instanceCount)
+    {
+        var glDrawArraysInstanced = _glDrawArraysInstancedANGLE ?? throw NotSupported(nameof(_glDrawArraysInstancedANGLE), "Instanced arrays not available.");
+        glDrawArraysInstanced(mode, first, count, instanceCount);
+    }
+
+    public static void DrawElementsInstanced(uint mode, int count, uint type, int offsetBytes, int instanceCount)
+    {
+        var glDrawElementsInstanced = _glDrawElementsInstancedANGLE ?? throw NotSupported(nameof(_glDrawElementsInstancedANGLE), "Instanced arrays not available.");
+        glDrawElementsInstanced(mode, count, type, (IntPtr)offsetBytes, instanceCount);
+    }
+
+    public static void FramebufferTextureMultiviewOVR(uint target, uint attachment, uint texture, int level, int baseViewIndex, int numViews)
+    {
+        var glFramebufferTextureMultiviewOVR = _glFramebufferTextureMultiviewOVR ?? throw NotSupported(nameof(_glFramebufferTextureMultiviewOVR), "GL_OVR_multiview2 not available.");
+        glFramebufferTextureMultiviewOVR(target, attachment, texture, level, baseViewIndex, numViews);
+    }
+
     public static uint GenTexture()
     {
         var glGenTextures = _glGenTextures ?? throw NotLoaded(nameof(_glGenTextures));
@@ -507,6 +566,26 @@ namespace AngleBridge.Managed.GLES
         try
         {
             glTexImage2D(target, level, internalFormat, width, height, border, format, type, handle.AddrOfPinnedObject());
+        }
+        finally
+        {
+            handle.Free();
+        }
+    }
+
+    public static void TexImage3D(uint target, int level, int internalFormat, int width, int height, int depth, int border, uint format, uint type, byte[]? pixels)
+    {
+        var glTexImage3D = _glTexImage3D ?? throw NotSupported(nameof(_glTexImage3D), "TexImage3D requires GLES3.");
+        if (pixels == null || pixels.Length == 0)
+        {
+            glTexImage3D(target, level, internalFormat, width, height, depth, border, format, type, IntPtr.Zero);
+            return;
+        }
+
+        var handle = GCHandle.Alloc(pixels, GCHandleType.Pinned);
+        try
+        {
+            glTexImage3D(target, level, internalFormat, width, height, depth, border, format, type, handle.AddrOfPinnedObject());
         }
         finally
         {
@@ -1174,6 +1253,18 @@ namespace AngleBridge.Managed.GLES
     internal delegate void glDrawElements_t(uint mode, int count, uint type, IntPtr indices);
 
     [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void glDrawBuffers_t(int n, IntPtr bufs);
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void glVertexAttribDivisorANGLE_t(uint index, uint divisor);
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void glDrawArraysInstancedANGLE_t(uint mode, int first, int count, int primcount);
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void glDrawElementsInstancedANGLE_t(uint mode, int count, uint type, IntPtr indices, int primcount);
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
     internal delegate void glGenTextures_t(int n, out uint textures);
 
     [UnmanagedFunctionPointer(CallingConvention.Winapi)]
@@ -1193,6 +1284,9 @@ namespace AngleBridge.Managed.GLES
 
     [UnmanagedFunctionPointer(CallingConvention.Winapi)]
     internal delegate void glTexImage2D_t(uint target, int level, int internalformat, int width, int height, int border, uint format, uint type, IntPtr pixels);
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void glTexImage3D_t(uint target, int level, int internalformat, int width, int height, int depth, int border, uint format, uint type, IntPtr pixels);
 
     [UnmanagedFunctionPointer(CallingConvention.Winapi)]
     internal delegate void glPixelStorei_t(uint pname, int param);
@@ -1262,6 +1356,9 @@ namespace AngleBridge.Managed.GLES
 
     [UnmanagedFunctionPointer(CallingConvention.Winapi)]
     internal delegate void glFramebufferRenderbuffer_t(uint target, uint attachment, uint renderbufferTarget, uint renderbuffer);
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void glFramebufferTextureMultiviewOVR_t(uint target, uint attachment, uint texture, int level, int baseViewIndex, int numViews);
 
     [UnmanagedFunctionPointer(CallingConvention.Winapi)]
     internal delegate uint glCheckFramebufferStatus_t(uint target);

@@ -36,7 +36,7 @@ namespace AngleBridge.Sdk.Runtime
                 return;
             }
 
-            _gl.DeleteBuffer(_handle);
+            _gl.Buffers.DeleteBuffer(_handle);
             _handle = new GlBufferHandle(0);
         }
     }

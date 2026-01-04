@@ -13,8 +13,8 @@ dotnet build demos/Demo8_SimpleTexture2D.Plugin/Demo8_SimpleTexture2D.Plugin.csp
 dotnet run -c Debug --project demos/DemoHost.WinForms/DemoHost.WinForms.csproj -- --demo=8 --show
 
 # 使用外部 TGA
-dotnet run -c Debug --project demos/DemoHost.WinForms/DemoHost.WinForms.csproj -- --demo=8 --show --tex=path/to/texture.tga 
+dotnet run -c Debug --project demos/DemoHost.WinForms/DemoHost.WinForms.csproj -- --demo=8 --show --tex=demos/Demo8_SimpleTexture2D.Plugin/red_brick_diff_4k.tga
 
 # 仅在需要观察 wrap 时放大 UV（默认关闭）
-dotnet run -c Debug --project demos/DemoHost.WinForms/DemoHost.WinForms.csproj -- --demo=8 --show --tex-wrap-uv --tex-wrap-preset=clamp --tex-min=linear --tex-mag=linear
+dotnet run -c Debug --project demos/DemoHost.WinForms/DemoHost.WinForms.csproj -- --demo=8 --show --tex-wrap-uv --tex-wrap-preset=repeat --tex-min=linear --tex-mag=linear
 ```

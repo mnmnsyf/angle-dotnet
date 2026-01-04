@@ -35,7 +35,7 @@ namespace AngleBridge.Sdk.Runtime
                 return;
             }
 
-            _gl.DeleteSync(_handle);
+            _gl.Sync.DeleteSync(_handle);
             _handle = new GlSyncHandle(IntPtr.Zero);
         }
     }

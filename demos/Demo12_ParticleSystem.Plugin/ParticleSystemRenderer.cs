@@ -57,28 +57,28 @@ namespace Demo12_ParticleSystem.Plugin
             var dt = (float)(now - _prevTime);
             _prevTime = now;
 
-            gl.UseProgram(reloader.Current);
+            gl.Programs.UseProgram(reloader.Current);
             Step(gl, dt);
 
-            gl.Viewport(0, 0, width, height);
-            gl.Clear(ClearBufferMask.ColorBufferBit);
+            gl.State.Viewport(0, 0, width, height);
+            gl.State.Clear(ClearBufferMask.ColorBufferBit);
 
-            gl.BindBuffer(BufferTarget.ArrayBuffer, _particleBuffer ?? throw new InvalidOperationException("Particle buffer not initialized."));
-            gl.VertexAttribPointer(_lifetimeLoc, 1, VertexAttribType.Float, false, 7 * sizeof(float), 0);
-            gl.VertexAttribPointer(_startPositionLoc, 3, VertexAttribType.Float, false, 7 * sizeof(float), 1 * sizeof(float));
-            gl.VertexAttribPointer(_endPositionLoc, 3, VertexAttribType.Float, false, 7 * sizeof(float), 4 * sizeof(float));
-            gl.EnableVertexAttribArray(_lifetimeLoc);
-            gl.EnableVertexAttribArray(_startPositionLoc);
-            gl.EnableVertexAttribArray(_endPositionLoc);
+            gl.Buffers.BindBuffer(BufferTarget.ArrayBuffer, _particleBuffer ?? throw new InvalidOperationException("Particle buffer not initialized."));
+            gl.VertexArrays.VertexAttribPointer(_lifetimeLoc, 1, VertexAttribType.Float, false, 7 * sizeof(float), 0);
+            gl.VertexArrays.VertexAttribPointer(_startPositionLoc, 3, VertexAttribType.Float, false, 7 * sizeof(float), 1 * sizeof(float));
+            gl.VertexArrays.VertexAttribPointer(_endPositionLoc, 3, VertexAttribType.Float, false, 7 * sizeof(float), 4 * sizeof(float));
+            gl.VertexArrays.EnableVertexAttribArray(_lifetimeLoc);
+            gl.VertexArrays.EnableVertexAttribArray(_startPositionLoc);
+            gl.VertexArrays.EnableVertexAttribArray(_endPositionLoc);
 
-            gl.Enable(EnableCap.Blend);
-            gl.BlendFunc(BlendFactor.SrcAlpha, BlendFactor.One);
+            gl.State.Enable(EnableCap.Blend);
+            gl.State.BlendFunc(BlendFactor.SrcAlpha, BlendFactor.One);
 
-            gl.ActiveTexture(TextureUnit.Texture0);
-            gl.BindTexture(TextureTarget.Texture2D, _texture ?? throw new InvalidOperationException("Texture not initialized."));
-            gl.Uniform1i(_samplerLoc, 0);
+            gl.Textures.ActiveTexture(TextureUnit.Texture0);
+            gl.Textures.BindTexture(TextureTarget.Texture2D, _texture ?? throw new InvalidOperationException("Texture not initialized."));
+            gl.Programs.Uniform1i(_samplerLoc, 0);
 
-            gl.DrawArrays(PrimitiveType.Points, 0, ParticleCount);
+            gl.Draw.DrawArrays(PrimitiveType.Points, 0, ParticleCount);
         }
 
         public void Dispose()
@@ -102,21 +102,23 @@ namespace Demo12_ParticleSystem.Plugin
             reloader.Load(gl);
             UpdateProgramBindings(gl, reloader.Current);
 
-            _particleBuffer = gl.CreateBufferObject();
-            gl.BindBuffer(BufferTarget.ArrayBuffer, _particleBuffer);
-            gl.BufferData(BufferTarget.ArrayBuffer, CreateParticles(), BufferUsage.StaticDraw);
+            _particleBuffer = gl.Buffers.CreateBufferObject();
+            gl.Buffers.BindBuffer(BufferTarget.ArrayBuffer, _particleBuffer);
+            gl.Buffers.BufferData(BufferTarget.ArrayBuffer, CreateParticles(), BufferUsage.StaticDraw);
 
-            _texture = gl.CreateTextureObject();
-            gl.ActiveTexture(TextureUnit.Texture0);
-            gl.BindTexture(TextureTarget.Texture2D, _texture);
-            gl.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
+            _texture = gl.Textures.CreateTextureObject();
+            gl.Textures.ActiveTexture(TextureUnit.Texture0);
+            gl.Textures.BindTexture(TextureTarget.Texture2D, _texture);
+            gl.Textures.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
             UploadSmokeTexture(gl, size: 64);
-            gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
-            gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
-            gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
-            gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
+            gl.Textures.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
+            gl.Textures.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
+            gl.Textures.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
+            gl.Textures.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
 
-            gl.ClearColor(0f, 0f, 0f, 0f);
+            gl.State.ClearColor(0f, 0f, 0f, 0f);
+            
+            gl.Programs.UseProgram(reloader.Current);
             ResetEmitter(gl);
             _initialized = true;
         }
@@ -130,7 +132,7 @@ namespace Demo12_ParticleSystem.Plugin
                 ResetEmitter(gl);
             }
 
-            gl.Uniform1f(_timeLoc, _particleTime);
+            gl.Programs.Uniform1f(_timeLoc, _particleTime);
         }
 
         private void ResetEmitter(AngleGl gl)
@@ -138,12 +140,12 @@ namespace Demo12_ParticleSystem.Plugin
             var cx = NextFloat(-0.5f, 0.5f);
             var cy = NextFloat(-0.5f, 0.5f);
             var cz = NextFloat(-0.5f, 0.5f);
-            gl.Uniform3f(_centerPositionLoc, cx, cy, cz);
+            gl.Programs.Uniform3f(_centerPositionLoc, cx, cy, cz);
 
             var r = NextFloat(0.0f, 1.0f);
             var g = NextFloat(0.0f, 1.0f);
             var b = NextFloat(0.0f, 1.0f);
-            gl.Uniform4f(_colorLoc, r, g, b, 0.5f);
+            gl.Programs.Uniform4f(_colorLoc, r, g, b, 0.5f);
         }
 
         private float NextFloat(float min, float max)
@@ -206,18 +208,18 @@ namespace Demo12_ParticleSystem.Plugin
                 }
             }
 
-            gl.TexImage2D(TextureTarget.Texture2D, 0, TextureInternalFormat.Rgba, size, size, 0, PixelFormat.Rgba, PixelType.UnsignedByte, pixels);
+            gl.Textures.TexImage2D(TextureTarget.Texture2D, 0, TextureInternalFormat.Rgba, size, size, 0, PixelFormat.Rgba, PixelType.UnsignedByte, pixels);
         }
 
         private void UpdateProgramBindings(AngleGl gl, AngleProgram program)
         {
-            _lifetimeLoc = gl.GetAttribLocation(program, "a_lifetime");
-            _startPositionLoc = gl.GetAttribLocation(program, "a_startPosition");
-            _endPositionLoc = gl.GetAttribLocation(program, "a_endPosition");
-            _timeLoc = gl.GetUniformLocation(program, "u_time");
-            _centerPositionLoc = gl.GetUniformLocation(program, "u_centerPosition");
-            _colorLoc = gl.GetUniformLocation(program, "u_color");
-            _samplerLoc = gl.GetUniformLocation(program, "s_texture");
+            _lifetimeLoc = gl.Programs.GetAttribLocation(program, "a_lifetime");
+            _startPositionLoc = gl.Programs.GetAttribLocation(program, "a_startPosition");
+            _endPositionLoc = gl.Programs.GetAttribLocation(program, "a_endPosition");
+            _timeLoc = gl.Programs.GetUniformLocation(program, "u_time");
+            _centerPositionLoc = gl.Programs.GetUniformLocation(program, "u_centerPosition");
+            _colorLoc = gl.Programs.GetUniformLocation(program, "u_color");
+            _samplerLoc = gl.Programs.GetUniformLocation(program, "s_texture");
 
             if (_lifetimeLoc < 0 || _startPositionLoc < 0 || _endPositionLoc < 0 ||
                 _timeLoc < 0 || _centerPositionLoc < 0 || _colorLoc < 0 || _samplerLoc < 0)
@@ -254,4 +256,3 @@ namespace Demo12_ParticleSystem.Plugin
         }
     }
 }
-

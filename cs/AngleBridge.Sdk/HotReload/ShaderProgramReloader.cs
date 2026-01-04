@@ -168,17 +168,17 @@ namespace AngleBridge.Sdk.HotReload
             var vert = CompileShader(gl, ShaderType.VertexShader, NormalizeSource(vsSource, vertexPath), vertexPath);
             var frag = CompileShader(gl, ShaderType.FragmentShader, NormalizeSource(fsSource, fragmentPath), fragmentPath);
 
-            var program = gl.CreateProgramObject();
-            gl.AttachShader(program, vert);
-            gl.AttachShader(program, frag);
-            gl.LinkProgram(program);
+            var program = gl.Programs.CreateProgramObject();
+            gl.Programs.AttachShader(program, vert);
+            gl.Programs.AttachShader(program, frag);
+            gl.Programs.LinkProgram(program);
 
             vert.Dispose();
             frag.Dispose();
 
-            if (gl.GetProgramInt(program, ProgramParameter.LinkStatus) == 0)
+            if (gl.Programs.GetProgramInt(program, ProgramParameter.LinkStatus) == 0)
             {
-                var log = gl.GetProgramInfoLog(program);
+                var log = gl.Programs.GetProgramInfoLog(program);
                 program.Dispose();
                 throw new InvalidOperationException("Program link failed: " + log);
             }
@@ -188,13 +188,13 @@ namespace AngleBridge.Sdk.HotReload
 
         private static AngleShader CompileShader(AngleGl gl, ShaderType type, string source, string shaderPath)
         {
-            var shader = gl.CreateShaderObject(type);
-            gl.ShaderSource(shader, source);
-            gl.CompileShader(shader);
+            var shader = gl.Shaders.CreateShaderObject(type);
+            gl.Shaders.ShaderSource(shader, source);
+            gl.Shaders.CompileShader(shader);
 
-            if (gl.GetShaderInt(shader, ShaderParameter.CompileStatus) == 0)
+            if (gl.Shaders.GetShaderInt(shader, ShaderParameter.CompileStatus) == 0)
             {
-                var log = gl.GetShaderInfoLog(shader);
+                var log = gl.Shaders.GetShaderInfoLog(shader);
                 shader.Dispose();
                 throw new InvalidOperationException("Shader compile failed (" + shaderPath + "): " + log);
             }

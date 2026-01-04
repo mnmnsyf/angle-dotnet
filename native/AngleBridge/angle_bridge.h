@@ -41,6 +41,7 @@ AB_EXPORT const char* AB_GetGLString(int name);
 AB_EXPORT AB_Handle AB_CreateWindowContext(void* nativeWindow, int glesMajor);
 AB_EXPORT AB_Handle AB_CreateWindowContextEx(void* nativeWindow, int glesMajor, int backend, int deviceType, int swapInterval);
 AB_EXPORT int      AB_SwapBuffers(AB_Handle h);
+AB_EXPORT int      AB_PostSubBufferNV(AB_Handle h, int x, int y, int width, int height);
 AB_EXPORT void*    AB_GetProcAddress(const char* name);
 AB_EXPORT void     AB_NoOp();
 AB_EXPORT void     AB_NoOpN(int n);

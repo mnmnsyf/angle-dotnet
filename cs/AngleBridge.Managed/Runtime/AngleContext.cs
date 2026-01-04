@@ -49,6 +49,14 @@ namespace AngleBridge.Managed.Runtime
                 throw new InvalidOperationException("AB_SwapBuffers failed.");
         }
 
+        public void PostSubBufferNV(int x, int y, int width, int height)
+        {
+            var h = _handle;
+            if (h == IntPtr.Zero) throw new ObjectDisposedException(nameof(AngleContext));
+            if (global::AngleBridgeNative.AB_PostSubBufferNV(h, x, y, width, height) == 0)
+                throw new InvalidOperationException("AB_PostSubBufferNV failed.");
+        }
+
         public void Dispose()
         {
             Dispose(disposing: true);

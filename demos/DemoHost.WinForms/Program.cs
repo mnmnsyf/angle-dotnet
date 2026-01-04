@@ -51,8 +51,8 @@ namespace DemoHost.WinForms
         {
             Console.WriteLine("Usage: DemoHost.WinForms --demo=<demo> [options]");
             Console.WriteLine("   or: DemoHost.WinForms --plugin=<path> [options]");
-            Console.WriteLine("Demos: --demo=3 | --demo=4 | --demo=5 | --demo=6 | --demo=7 | --demo=8 | --demo=9 | --demo=10 | --demo=11 | --demo=12");
-            Console.WriteLine("       --demo=triangle | --demo=hello_triangle | --demo=simple_vertex_shader | --demo=stencil_operations | --demo=tri_fan_microbench | --demo=simple_texture_2d | --demo=multi_texture | --demo=mip_map_2d | --demo=simple_texture_cubemap | --demo=particle_system");
+            Console.WriteLine("Demos: --demo=3 | --demo=4 | --demo=5 | --demo=6 | --demo=7 | --demo=8 | --demo=9 | --demo=10 | --demo=11 | --demo=12 | --demo=13 | --demo=14 | --demo=15 | --demo=16 | --demo=17 | --demo=18");
+            Console.WriteLine("       --demo=triangle | --demo=hello_triangle | --demo=simple_vertex_shader | --demo=stencil_operations | --demo=tri_fan_microbench | --demo=simple_texture_2d | --demo=multi_texture | --demo=mip_map_2d | --demo=simple_texture_cubemap | --demo=particle_system | --demo=tex_redef_microbench | --demo=multiple_draw_buffers | --demo=simple_instancing | --demo=multiview | --demo=obj_model | --demo=post_sub_buffer");
             Console.WriteLine("       --list-demos");
             Console.WriteLine();
             WinFormsHostCli.PrintUsage("DemoHost.WinForms");
@@ -71,6 +71,12 @@ namespace DemoHost.WinForms
             Console.WriteLine(" 10 / mip_map_2d            -> demos/Demo10_MipMap2D.Plugin");
             Console.WriteLine(" 11 / simple_texture_cubemap-> demos/Demo11_SimpleTextureCubemap.Plugin");
             Console.WriteLine(" 12 / particle_system       -> demos/Demo12_ParticleSystem.Plugin");
+            Console.WriteLine(" 13 / tex_redef_microbench  -> demos/Demo13_TexRedefMicrobench.Plugin");
+            Console.WriteLine(" 14 / multiple_draw_buffers -> demos/Demo14_MultipleDrawBuffers.Plugin");
+            Console.WriteLine(" 15 / simple_instancing     -> demos/Demo15_SimpleInstancing.Plugin");
+            Console.WriteLine(" 16 / multiview             -> demos/Demo16_Multiview.Plugin");
+            Console.WriteLine(" 17 / obj_model             -> demos/Demo17_ObjModel.Plugin");
+            Console.WriteLine(" 18 / post_sub_buffer       -> demos/Demo18_PostSubBuffer.Plugin");
         }
 
         private static WinFormsHostOptions CreateDefaults(string? demo)
@@ -185,6 +191,72 @@ namespace DemoHost.WinForms
                 options.Visible = true;
                 options.GlesMajor = 2;
                 options.PluginPath = ResolvePluginPath("Demo12_ParticleSystem.Plugin.dll", "Demo12_ParticleSystem.Plugin");
+                return options;
+            }
+
+            if (d == "13" || d == "tex_redef_microbench" || d == "texredef" || d == "demo13")
+            {
+                options.Title = "TexRedefMicrobench";
+                options.Width = 1280;
+                options.Height = 1280;
+                options.Visible = true;
+                options.GlesMajor = 2;
+                options.PluginPath = ResolvePluginPath("Demo13_TexRedefMicrobench.Plugin.dll", "Demo13_TexRedefMicrobench.Plugin");
+                return options;
+            }
+
+            if (d == "14" || d == "multiple_draw_buffers" || d == "mdb" || d == "demo14")
+            {
+                options.Title = "MultipleDrawBuffers";
+                options.Width = 640;
+                options.Height = 480;
+                options.Visible = true;
+                options.GlesMajor = 2;
+                options.PluginPath = ResolvePluginPath("Demo14_MultipleDrawBuffers.Plugin.dll", "Demo14_MultipleDrawBuffers.Plugin");
+                return options;
+            }
+
+            if (d == "15" || d == "simple_instancing" || d == "instancing" || d == "demo15")
+            {
+                options.Title = "SimpleInstancing";
+                options.Width = 640;
+                options.Height = 480;
+                options.Visible = true;
+                options.GlesMajor = 2;
+                options.PluginPath = ResolvePluginPath("Demo15_SimpleInstancing.Plugin.dll", "Demo15_SimpleInstancing.Plugin");
+                return options;
+            }
+
+            if (d == "16" || d == "multiview" || d == "mv" || d == "demo16")
+            {
+                options.Title = "Multiview";
+                options.Width = 960;
+                options.Height = 480;
+                options.Visible = true;
+                options.GlesMajor = 3;
+                options.PluginPath = ResolvePluginPath("Demo16_Multiview.Plugin.dll", "Demo16_Multiview.Plugin");
+                return options;
+            }
+
+            if (d == "17" || d == "obj_model" || d == "obj" || d == "demo17")
+            {
+                options.Title = "ObjModel";
+                options.Width = 800;
+                options.Height = 600;
+                options.Visible = true;
+                options.GlesMajor = 3;
+                options.PluginPath = ResolvePluginPath("Demo17_ObjModel.Plugin.dll", "Demo17_ObjModel.Plugin");
+                return options;
+            }
+
+            if (d == "18" || d == "post_sub_buffer" || d == "postsubbuffer" || d == "demo18")
+            {
+                options.Title = "PostSubBuffer";
+                options.Width = 640;
+                options.Height = 480;
+                options.Visible = true;
+                options.GlesMajor = 3;
+                options.PluginPath = ResolvePluginPath("Demo18_PostSubBuffer.Plugin.dll", "Demo18_PostSubBuffer.Plugin");
                 return options;
             }
 

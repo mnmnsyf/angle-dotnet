@@ -45,14 +45,14 @@ namespace Demo4_HelloTriangle.Plugin
             if (!_initialized)
                 Initialize(gl);
 
-            gl.Viewport(0, 0, width, height);
-            gl.Clear(ClearBufferMask.ColorBufferBit);
+            gl.State.Viewport(0, 0, width, height);
+            gl.State.Clear(ClearBufferMask.ColorBufferBit);
 
-            gl.UseProgram(_program ?? throw new InvalidOperationException("Program not initialized."));
-            gl.BindBuffer(BufferTarget.ArrayBuffer, _vbo ?? throw new InvalidOperationException("Buffer not initialized."));
-            gl.VertexAttribPointer(_positionLoc, 3, VertexAttribType.Float, false, 0, 0);
-            gl.EnableVertexAttribArray(_positionLoc);
-            gl.DrawArrays(PrimitiveType.Triangles, 0, 3);
+            gl.Programs.UseProgram(_program ?? throw new InvalidOperationException("Program not initialized."));
+            gl.Buffers.BindBuffer(BufferTarget.ArrayBuffer, _vbo ?? throw new InvalidOperationException("Buffer not initialized."));
+            gl.VertexArrays.VertexAttribPointer(_positionLoc, 3, VertexAttribType.Float, false, 0, 0);
+            gl.VertexArrays.EnableVertexAttribArray(_positionLoc);
+            gl.Draw.DrawArrays(PrimitiveType.Triangles, 0, 3);
         }
 
         public void Dispose()
@@ -69,15 +69,15 @@ namespace Demo4_HelloTriangle.Plugin
         private void Initialize(AngleGl gl)
         {
             _program = CreateProgram(gl, VertexShaderSource, FragmentShaderSource);
-            _positionLoc = gl.GetAttribLocation(_program, "vPosition");
+            _positionLoc = gl.Programs.GetAttribLocation(_program, "vPosition");
             if (_positionLoc < 0)
                 throw new InvalidOperationException("Failed to resolve shader attribute location.");
 
-            _vbo = gl.CreateBufferObject();
-            gl.BindBuffer(BufferTarget.ArrayBuffer, _vbo);
-            gl.BufferData(BufferTarget.ArrayBuffer, s_vertices, BufferUsage.StaticDraw);
+            _vbo = gl.Buffers.CreateBufferObject();
+            gl.Buffers.BindBuffer(BufferTarget.ArrayBuffer, _vbo);
+            gl.Buffers.BufferData(BufferTarget.ArrayBuffer, s_vertices, BufferUsage.StaticDraw);
 
-            gl.ClearColor(0f, 0f, 0f, 1f);
+            gl.State.ClearColor(0f, 0f, 0f, 1f);
             _initialized = true;
         }
 
@@ -86,17 +86,17 @@ namespace Demo4_HelloTriangle.Plugin
             var vert = CompileShader(gl, ShaderType.VertexShader, vsSource);
             var frag = CompileShader(gl, ShaderType.FragmentShader, fsSource);
 
-            var program = gl.CreateProgramObject();
-            gl.AttachShader(program, vert);
-            gl.AttachShader(program, frag);
-            gl.LinkProgram(program);
+            var program = gl.Programs.CreateProgramObject();
+            gl.Programs.AttachShader(program, vert);
+            gl.Programs.AttachShader(program, frag);
+            gl.Programs.LinkProgram(program);
 
             vert.Dispose();
             frag.Dispose();
 
-            if (gl.GetProgramInt(program, ProgramParameter.LinkStatus) == 0)
+            if (gl.Programs.GetProgramInt(program, ProgramParameter.LinkStatus) == 0)
             {
-                var log = gl.GetProgramInfoLog(program);
+                var log = gl.Programs.GetProgramInfoLog(program);
                 program.Dispose();
                 throw new InvalidOperationException("Program link failed: " + log);
             }
@@ -106,13 +106,13 @@ namespace Demo4_HelloTriangle.Plugin
 
         private static AngleShader CompileShader(AngleGl gl, ShaderType type, string source)
         {
-            var shader = gl.CreateShaderObject(type);
-            gl.ShaderSource(shader, source);
-            gl.CompileShader(shader);
+            var shader = gl.Shaders.CreateShaderObject(type);
+            gl.Shaders.ShaderSource(shader, source);
+            gl.Shaders.CompileShader(shader);
 
-            if (gl.GetShaderInt(shader, ShaderParameter.CompileStatus) == 0)
+            if (gl.Shaders.GetShaderInt(shader, ShaderParameter.CompileStatus) == 0)
             {
-                var log = gl.GetShaderInfoLog(shader);
+                var log = gl.Shaders.GetShaderInfoLog(shader);
                 shader.Dispose();
                 throw new InvalidOperationException("Shader compile failed: " + log);
             }

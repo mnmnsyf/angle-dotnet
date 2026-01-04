@@ -97,7 +97,7 @@ namespace Demo3_Triangle.Offscreen
                     renderer.Draw(device.Gl, width, height);
                 }
 
-                device.Gl.Finish();
+                device.Gl.Draw.Finish();
 
                 var rgba = new byte[checked(width * height * 4)];
                 device.ReadPixelsRgba(0, 0, width, height, rgba, 0);
@@ -128,8 +128,8 @@ namespace Demo3_Triangle.Offscreen
                     var gpuUs = new double[frames];
                     for (var i = 0; i < gpuUs.Length; i++) gpuUs[i] = -1.0;
 
-                    var useGpuTimer = gl.IsDisjointTimerQueryAvailable && !noGpuTimer;
-                    var queries = useGpuTimer ? new[] { gl.CreateTimerQuery(), gl.CreateTimerQuery(), gl.CreateTimerQuery() } : Array.Empty<int>();
+                    var useGpuTimer = gl.Queries.IsDisjointTimerQueryAvailable && !noGpuTimer;
+                    var queries = useGpuTimer ? new[] { gl.Queries.CreateTimerQuery(), gl.Queries.CreateTimerQuery(), gl.Queries.CreateTimerQuery() } : Array.Empty<int>();
 
                     for (var i = 0; i < totalFrames; i++)
                     {
@@ -141,14 +141,14 @@ namespace Demo3_Triangle.Offscreen
                         }
 
                         var submitStart = Stopwatch.GetTimestamp();
-                        if (useGpuTimer) gl.BeginTimerQuery(queries[i % 3]);
+                        if (useGpuTimer) gl.Queries.BeginTimerQuery(queries[i % 3]);
 
                         for (var j = 0; j < work; j++)
                         {
                             renderer.Draw(gl, width, height);
                         }
 
-                        if (useGpuTimer) gl.EndTimerQuery();
+                        if (useGpuTimer) gl.Queries.EndTimerQuery();
                         var submitEnd = Stopwatch.GetTimestamp();
 
                         if (useGpuTimer && i >= 2)
@@ -168,12 +168,12 @@ namespace Demo3_Triangle.Offscreen
 
                     if (useGpuTimer)
                     {
-                        gl.Finish();
+                        gl.Draw.Finish();
                         TryReadGpuQuery(gl, queries, warmup, totalFrames - 3, gpuUs, force: true);
                         TryReadGpuQuery(gl, queries, warmup, totalFrames - 2, gpuUs, force: true);
                         TryReadGpuQuery(gl, queries, warmup, totalFrames - 1, gpuUs, force: true);
 
-                        for (var i = 0; i < queries.Length; i++) gl.DeleteTimerQuery(queries[i]);
+                        for (var i = 0; i < queries.Length; i++) gl.Queries.DeleteTimerQuery(queries[i]);
                     }
 
                     EnsureOutputDirectory(csvPath);
@@ -201,16 +201,16 @@ namespace Demo3_Triangle.Offscreen
             if (gpuUs[outIndex] >= 0.0) return;
 
             var queryId = queries[frameIndex % 3];
-            if (!gl.TryGetTimerQueryResultAvailable(queryId, out var available)) return;
+            if (!gl.Queries.TryGetTimerQueryResultAvailable(queryId, out var available)) return;
             if (!available && !force) return;
 
-            if (gl.TryGetGpuDisjoint(out var disjoint) && disjoint)
+            if (gl.Caps.TryGetGpuDisjoint(out var disjoint) && disjoint)
             {
                 gpuUs[outIndex] = -1.0;
                 return;
             }
 
-            if (gl.TryGetTimerQueryResult(queryId, out var ns))
+            if (gl.Queries.TryGetTimerQueryResult(queryId, out var ns))
             {
                 gpuUs[outIndex] = ns / 1000.0;
             }

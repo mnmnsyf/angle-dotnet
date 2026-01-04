@@ -35,7 +35,7 @@ namespace AngleBridge.Sdk.Runtime
                 return;
             }
 
-            _gl.DeleteSampler(_handle);
+            _gl.Samplers.DeleteSampler(_handle);
             _handle = new GlSamplerHandle(0);
         }
     }
