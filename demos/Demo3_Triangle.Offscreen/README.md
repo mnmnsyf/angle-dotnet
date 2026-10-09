@@ -1,21 +1,19 @@
-## Demo3_Triangle.Offscreen
+# Demo3_Triangle.Offscreen
 
-C# 离屏渲染：复用 `Demo3_Triangle.Plugin` 的渲染器画一帧三角形，`ReadPixels` 输出 PPM 图片（P6）。
+This directory contains the `Demo3_Triangle.Offscreen` sample for angle-dotnet. The sample demonstrates ANGLE/EGL and OpenGL ES integration through the managed SDK.
 
-### 运行（Windows）
+## Build
+
+From the repository root:
+
 ```powershell
-dotnet run -c Debug --project demos/Demo3_Triangle.Offscreen/Demo3_Triangle.Offscreen.csproj -- --out scripts/out/demo3_csharp.ppm --w 256 --h 256
+dotnet build demos/Demo3_Triangle.Offscreen/Demo3_Triangle.Offscreen.csproj -c Debug
 ```
 
-### 与 C++ 结果对比
-先运行 `demo3_native` 生成 `demo3_cpp.ppm`，再执行：
-```powershell
-python scripts/compare_PPM.py scripts/out/demo3_cpp.ppm scripts/out/demo3_csharp.ppm
-```
+If this project is a plugin, run it through the WinForms host after building the native ANGLE bridge and ANGLE runtime libraries.
 
-### 性能基准测试 (Benchmark)
-使用自动脚本一键对比 C# 与 C++ 的性能：
-```powershell
-python scripts/benchmark.py --work 100 --frames 1000
-```
-结果将输出到 `out/benchmark/summary.csv`。
+## Notes
+
+- Runtime behavior depends on the selected ANGLE backend and installed graphics driver.
+- Keep generated output and benchmark files outside source control.
+- See the root README for prerequisites and the complete build workflow.

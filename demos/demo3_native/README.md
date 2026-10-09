@@ -1,26 +1,19 @@
-## demo3_native
+# demo3_native
 
-纯 C++/ANGLE 离屏渲染：画一个与 Demo3 相同的三角形，并输出 PPM 图片（P6）。
+This directory contains the `demo3_native` sample for angle-dotnet. The sample demonstrates ANGLE/EGL and OpenGL ES integration through the managed SDK.
 
-### 编译（Windows）
+## Build
+
+From the repository root:
+
 ```powershell
-cmake --build --preset build-debug --target demo3_native
+dotnet build demos/demo3_native/demo3_native.csproj -c Debug
 ```
 
-### 运行（Windows）
-```powershell
-build/vs2022-debug/demos/demo3_native/Debug/demo3_native.exe --out scripts/out/demo3_cpp.ppm --w 256 --h 256
-```
+If this project is a plugin, run it through the WinForms host after building the native ANGLE bridge and ANGLE runtime libraries.
 
-### 与 C# 结果对比
-先运行 `Demo3_Triangle.Offscreen` 生成 `demo3_csharp.ppm`，再执行：
-```powershell
-python scripts/compare_PPM.py scripts/out/demo3_cpp.ppm scripts/out/demo3_csharp.ppm
-```
+## Notes
 
-### 性能基准测试 (Benchmark)
-推荐使用根目录下的自动脚本：
-```powershell
-python scripts/benchmark.py --work 100 --frames 1000
-```
-该脚本会自动编译 Release 版本并生成对比报告。
+- Runtime behavior depends on the selected ANGLE backend and installed graphics driver.
+- Keep generated output and benchmark files outside source control.
+- See the root README for prerequisites and the complete build workflow.

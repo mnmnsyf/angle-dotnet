@@ -13,7 +13,7 @@ namespace Demo7_TriFanMicrobench.Plugin
     {
         private const int Slices = 8;
         private const int Squares = 289;
-        private const float HalfDim = 0.0625f; // 与 ANGLE tri_fan_microbench 保持一致
+        private const float HalfDim = 0.0625f; // kept consistent with the ANGLE tri_fan_microbench sample
         private const float XMin = -1.0f;
         private const float XMax = 1.0f;
         private const float YMin = -1.0f;
@@ -70,7 +70,7 @@ namespace Demo7_TriFanMicrobench.Plugin
 
             RunFanPass(gl);
 
-            // 清除颜色，避免驱动端由于颜色覆盖率带来的缓存收益（与 ANGLE 原样例一致）
+            // Clear the color to avoid driver-side cache effects from color coverage, matching the ANGLE sample
             gl.State.Clear(ClearBufferMask.ColorBufferBit);
 
             RunTriPass(gl);
@@ -131,7 +131,7 @@ namespace Demo7_TriFanMicrobench.Plugin
 
         private void CreateBuffers(AngleGl gl)
         {
-            // TRIANGLE_FAN 顶点（中心 + 8 slices + 尾点闭合）
+            // TRIANGLE_FAN vertices (center + 8 slices + closing vertex)
             float[] fanVertices =
             {
                 0.0f,      0.0f,      0.0f,
@@ -146,7 +146,7 @@ namespace Demo7_TriFanMicrobench.Plugin
                 -HalfDim, -HalfDim,  0.0f,
             };
 
-            // TRIANGLES 顶点：将 fan 展开成 slices*3 的三角形
+            // TRIANGLES vertices: expand the fan into slices*3 triangles
             var numFanVertices = Slices + 2;
             var fanFloats = numFanVertices * 3;
             _numFanVerts = numFanVertices;
@@ -158,7 +158,7 @@ namespace Demo7_TriFanMicrobench.Plugin
             var triPtr = 0;
             for (var i = 0; i < Slices; i++)
             {
-                // 每个 slice：中心 + fan[i+1] + fan[i+2]
+                // Each slice: center + fan[i+1] + fan[i+2]
                 Array.Copy(fanVertices, 0, triVertices, triPtr, 3);
                 triPtr += 3;
                 Array.Copy(fanVertices, (i + 1) * 3, triVertices, triPtr, 3);
@@ -257,7 +257,7 @@ namespace Demo7_TriFanMicrobench.Plugin
         {
             gl.Queries.EndQuery(QueryTarget.TimeElapsed);
 
-            // 阻塞等待结果，确保输出可用且简单；与 CPU 计时无关
+            // Block until the result is available; this is independent of CPU timing
             gl.Draw.Finish();
 
             if (gl.Queries.TryGetQueryResult(query, out var ns))
@@ -328,7 +328,7 @@ namespace Demo7_TriFanMicrobench.Plugin
             Console.WriteLine(Row(values));
             Console.WriteLine(Border());
 
-            // 同步写入 out/tri_fan_microbench 下的 CSV（含表头）
+            // Write the CSV synchronously under out/tri_fan_microbench, including the header
             var outDir = Path.Combine(Directory.GetCurrentDirectory(), "out", "tri_fan_microbench");
             Directory.CreateDirectory(outDir);
             var fileName = string.Format("tri_fan_microbench_{0:yyyyMMdd_HHmmss}.csv", DateTime.UtcNow);
@@ -338,7 +338,7 @@ namespace Demo7_TriFanMicrobench.Plugin
                 string.Join(",", headers),
                 string.Join(",", values),
             });
-            Console.WriteLine("结果已写入: " + outPath);
+            Console.WriteLine("Results written to: " + outPath);
         }
 
         private void UpdateProgramBindings(AngleGl gl, AngleProgram program)

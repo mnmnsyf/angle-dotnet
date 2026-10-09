@@ -242,7 +242,7 @@ def main() -> int:
 
     if similarity >= float(args.min_similarity):
         print(
-            "PASS: 全部%d个像素中，有%d个像素在容差内（相似度=%.6f）"
+            "PASS: %d/%d pixels are within tolerance (similarity=%.6f)"
             % (pixels, within_tol_pixels, similarity)
         )
         return 0

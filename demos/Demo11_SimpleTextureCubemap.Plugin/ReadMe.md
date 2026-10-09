@@ -1,17 +1,19 @@
-## Demo11_SimpleTextureCubemap.Plugin
+# Demo11_SimpleTextureCubemap.Plugin
 
-复刻 ANGLE `simple_texture_cubemap` sample：在球体上用 `samplerCube` 按法线方向采样 cubemap。
+This directory contains the `Demo11_SimpleTextureCubemap.Plugin` sample for angle-dotnet. The sample demonstrates ANGLE/EGL and OpenGL ES integration through the managed SDK.
 
-实现参考：
-- `external/angle/samples/simple_texture_cubemap/SimpleTextureCubemap.cpp`
-- `external/angle/samples/sample_util/texture_utils.cpp`（`CreateSimpleTextureCubemap()`）
+## Build
 
-### 编译
+From the repository root:
+
 ```powershell
 dotnet build demos/Demo11_SimpleTextureCubemap.Plugin/Demo11_SimpleTextureCubemap.Plugin.csproj -c Debug
 ```
 
-### 运行（WinForms Host）
-```powershell
-dotnet run -c Debug --project demos/DemoHost.WinForms/DemoHost.WinForms.csproj -- --demo=11 --show
-```
+If this project is a plugin, run it through the WinForms host after building the native ANGLE bridge and ANGLE runtime libraries.
+
+## Notes
+
+- Runtime behavior depends on the selected ANGLE backend and installed graphics driver.
+- Keep generated output and benchmark files outside source control.
+- See the root README for prerequisites and the complete build workflow.

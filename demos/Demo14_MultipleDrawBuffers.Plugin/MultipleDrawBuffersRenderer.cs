@@ -164,7 +164,7 @@ namespace Demo14_MultipleDrawBuffers.Plugin
         private void Initialize(AngleGl gl)
         {
             if (!gl.Framebuffers.IsDrawBuffersAvailable)
-                throw new NotSupportedException("glDrawBuffers/glDrawBuffersEXT 不可用，无法运行 multiple_draw_buffers。");
+                throw new NotSupportedException("glDrawBuffers/glDrawBuffersEXT is unavailable; multiple_draw_buffers cannot run.");
 
             EnsureProgramReloaders();
             var mrtReloader = _mrtProgramReloader ?? throw new InvalidOperationException("MRT program reloader not initialized.");

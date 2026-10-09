@@ -1,13 +1,19 @@
-## Demo6_StencilOperations.Plugin
+# Demo6_StencilOperations.Plugin
 
-模板+深度测试组合示例（ES3，GLSL 位于 `Shaders/`，支持热重载）。
+This directory contains the `Demo6_StencilOperations.Plugin` sample for angle-dotnet. The sample demonstrates ANGLE/EGL and OpenGL ES integration through the managed SDK.
 
-### 编译
+## Build
+
+From the repository root:
+
 ```powershell
 dotnet build demos/Demo6_StencilOperations.Plugin/Demo6_StencilOperations.Plugin.csproj -c Debug
 ```
 
-### 运行（WinForms Host）
-```powershell
-dotnet run -c Debug --project demos/DemoHost.WinForms/DemoHost.WinForms.csproj -- --demo=6 --show
-```
+If this project is a plugin, run it through the WinForms host after building the native ANGLE bridge and ANGLE runtime libraries.
+
+## Notes
+
+- Runtime behavior depends on the selected ANGLE backend and installed graphics driver.
+- Keep generated output and benchmark files outside source control.
+- See the root README for prerequisites and the complete build workflow.

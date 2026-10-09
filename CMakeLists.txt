@@ -4,14 +4,14 @@ project(AngleSharpGLES LANGUAGES C CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# 在 configure 时传入（或者写进 CMakePresets.json 的 cacheVariables）：
-# -DANGLE_ROOT=... (external/angle 的路径)
-# -DANGLE_OUT=...  (你 autoninja 输出目录，比如 external/angle/out/Release)
+# Pass these values during configuration or define them in CMakePresets.json:
+# -DANGLE_ROOT=... (path to the ANGLE repository)
+# -DANGLE_OUT=...  (ANGLE GN/Ninja output directory, such as external/angle/out/Release)
 if(NOT DEFINED ANGLE_ROOT)
-  message(FATAL_ERROR "Please set -DANGLE_ROOT=... (path to angle repo root)")
+  message(FATAL_ERROR "Please set -DANGLE_ROOT=... (path to the ANGLE repository)")
 endif()
 if(NOT DEFINED ANGLE_OUT)
-  message(FATAL_ERROR "Please set -DANGLE_OUT=... (path to angle build output dir)")
+  message(FATAL_ERROR "Please set -DANGLE_OUT=... (path to the ANGLE build output directory)")
 endif()
 
 add_subdirectory(native/AngleBridge)

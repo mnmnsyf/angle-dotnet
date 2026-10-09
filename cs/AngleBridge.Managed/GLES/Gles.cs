@@ -4,7 +4,7 @@ using System.Text;
 
 namespace AngleBridge.Managed.GLES
 {
-    internal static class Gles
+    internal static partial class Gles
     {
     public const uint GL_COLOR_BUFFER_BIT = 0x00004000;
     public const uint GL_DEPTH_BUFFER_BIT = 0x00000100;

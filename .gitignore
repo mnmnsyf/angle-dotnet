@@ -1,21 +1,43 @@
-# build outputs
+# Build outputs
 /build*/
 out/
 **/bin/
 **/obj/
 
-# VS / VSCode
-.vscode/
-.vs/
-CMakeSettings.json
+# Native build and runtime outputs
+external/angle/out/
+*.dll
+*.exe
+*.pdb
+*.lib
+*.exp
+*.ilk
 
-# OS
+# Visual Studio / IDE
+.vs/
+.vscode/
+.idea/
+CMakeSettings.json
+*.user
+*.suo
+*.userprefs
+
+# .NET and test artifacts
+TestResults/
+*.trx
+*.log
+*.cache
+
+# OS files
 .DS_Store
 Thumbs.db
 
-# output files
+# Generated local outputs
 *.csv
+*.ppm
+*.pgm
+*.png
 
-# agent
+# Agent and local-only configuration
 .trae/
 AGENTS.md

@@ -115,7 +115,7 @@ namespace Demo15_SimpleInstancing.Plugin
         private void Initialize(AngleGl gl)
         {
             if (!gl.Draw.IsInstancedArraysAvailable)
-                throw new NotSupportedException("GL_ANGLE_instanced_arrays 不可用，无法运行 simple_instancing。");
+                throw new NotSupportedException("GL_ANGLE_instanced_arrays is unavailable; simple_instancing cannot run.");
 
             EnsureProgramReloader();
             var reloader = _programReloader ?? throw new InvalidOperationException("Program reloader not initialized.");

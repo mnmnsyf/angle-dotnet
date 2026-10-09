@@ -4,7 +4,7 @@ using System.Threading;
 
 namespace AngleBridge.Managed.GLES
 {
-    internal static class GlesLoader
+    internal static partial class GlesLoader
     {
         private const int GL_VERSION = 0x1F02;
 
@@ -167,6 +167,7 @@ namespace AngleBridge.Managed.GLES
                 if (Gles._glDebugMessageControl == null)
                     Gles._glDebugMessageControl = TryLoadFunction<Gles.glDebugMessageControl_t>("glDebugMessageControlKHR");
 
+                LoadGenerated();
                 Volatile.Write(ref _loaded, 1);
             }
         }

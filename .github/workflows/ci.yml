@@ -1,0 +1,95 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  managed:
+    name: Managed bindings and SDK
+    runs-on: windows-2022
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Run generator tests
+        shell: pwsh
+        run: python -m unittest discover -s scripts -p 'test_*.py' -v
+
+      - name: Restore managed projects
+        shell: pwsh
+        run: dotnet restore cs/AngleBridge.Sdk/AngleBridge.Sdk.csproj
+
+      - name: Regenerate GLES bindings
+        shell: pwsh
+        run: python scripts/gen_gles30_managed.py
+
+      - name: Verify generated files are clean
+        shell: pwsh
+        run: |
+          git diff --exit-code -- cs/AngleBridge.Managed/GLES/Generated
+          git diff --check
+
+      - name: Build managed projects (Debug)
+        shell: pwsh
+        run: |
+          $projects = Get-ChildItem cs,demos -Recurse -Filter *.csproj -File |
+            Where-Object { $_.FullName -notmatch '\\(bin|obj)\\' }
+          foreach ($project in $projects) {
+            dotnet build $project.FullName -c Debug --no-restore -m:1
+          }
+
+      - name: Build managed projects (Release)
+        shell: pwsh
+        run: |
+          $projects = Get-ChildItem cs,demos -Recurse -Filter *.csproj -File |
+            Where-Object { $_.FullName -notmatch '\\(bin|obj)\\' }
+          foreach ($project in $projects) {
+            dotnet build $project.FullName -c Release --no-restore -m:1
+          }
+
+  native:
+    name: Native bridge
+    runs-on: windows-2022
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Set up CMake
+        uses: lukka/get-cmake@latest
+
+      - name: Check ANGLE runtime artifacts
+        shell: pwsh
+        run: |
+          if (!(Test-Path external/angle/out/Release/libEGL.dll) -or
+              !(Test-Path external/angle/out/Release/libGLESv2.dll)) {
+            Write-Host "ANGLE runtime artifacts are not included in this repository."
+            Write-Host "Native build requires a separately prepared ANGLE output directory."
+            "ANGLE_RUNTIME_AVAILABLE=false" >> $env:GITHUB_ENV
+          } else {
+            "ANGLE_RUNTIME_AVAILABLE=true" >> $env:GITHUB_ENV
+          }
+
+      - name: Configure native bridge
+        if: env.ANGLE_RUNTIME_AVAILABLE == 'true'
+        run: cmake --preset vs2022-release
+
+      - name: Build native bridge
+        if: env.ANGLE_RUNTIME_AVAILABLE == 'true'
+        run: cmake --build --preset build-release --target AngleBridge
+
+      - name: Report native prerequisite
+        if: env.ANGLE_RUNTIME_AVAILABLE != 'true'
+        run: echo "Native ANGLE build skipped because ANGLE runtime artifacts are not vendored."

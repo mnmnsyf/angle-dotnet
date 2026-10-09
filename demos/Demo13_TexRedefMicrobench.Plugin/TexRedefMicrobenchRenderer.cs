@@ -179,7 +179,7 @@ namespace Demo13_TexRedefMicrobench.Plugin
             var resizePixels = _pixelsResize ?? throw new InvalidOperationException("Pixel data not initialized.");
             var newPixels = _pixelsNew ?? throw new InvalidOperationException("Pixel data not initialized.");
 
-            Console.WriteLine("tex_redef_microbench: 热身 {0} 帧后开始计时。", WarmupFrames);
+            Console.WriteLine("tex_redef_microbench: timing starts after {0} warm-up frames.", WarmupFrames);
 
             gl.Textures.BindTexture(TextureTarget.Texture2D, resizeTexture);
             var originalDraw = TimeDraw(gl);

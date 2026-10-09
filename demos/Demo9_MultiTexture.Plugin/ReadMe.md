@@ -1,17 +1,19 @@
-## Demo9_MultiTexture.Plugin
+# Demo9_MultiTexture.Plugin
 
-多纹理采样示例（ES3，两张纹理叠加，GLSL 位于 `Shaders/`，支持热重载）。默认用内置 2×2 RGBA 纹理，可加载 TGA。
+This directory contains the `Demo9_MultiTexture.Plugin` sample for angle-dotnet. The sample demonstrates ANGLE/EGL and OpenGL ES integration through the managed SDK.
 
-### 编译
+## Build
+
+From the repository root:
+
 ```powershell
 dotnet build demos/Demo9_MultiTexture.Plugin/Demo9_MultiTexture.Plugin.csproj -c Debug
 ```
 
-### 运行（WinForms Host）
-```powershell
-# 使用内置纹理
-dotnet run -c Debug --project demos/DemoHost.WinForms/DemoHost.WinForms.csproj -- --demo=9 --show
+If this project is a plugin, run it through the WinForms host after building the native ANGLE bridge and ANGLE runtime libraries.
 
-# 指定两张 TGA 纹理 + wrap/filter
-dotnet run -c Debug --project demos/DemoHost.WinForms/DemoHost.WinForms.csproj -- --demo=9 --show --tex0=demos/Demo9_MultiTexture.Plugin/basemap.tga --tex1=demos/Demo9_MultiTexture.Plugin/lightmap.tga --tex-wrap-preset=repeat --tex-min=linear_mipmap_linear --tex-mag=linear
-```
+## Notes
+
+- Runtime behavior depends on the selected ANGLE backend and installed graphics driver.
+- Keep generated output and benchmark files outside source control.
+- See the root README for prerequisites and the complete build workflow.

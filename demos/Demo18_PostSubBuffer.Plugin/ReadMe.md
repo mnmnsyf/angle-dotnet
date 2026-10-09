@@ -1,13 +1,19 @@
-## Demo18_PostSubBuffer.Plugin
+# Demo18_PostSubBuffer.Plugin
 
-复刻 ANGLE `post_sub_buffer` 示例：先全屏清蓝，再用 `eglPostSubBufferNV` 只更新中间矩形，保留外圈蓝色。
+This directory contains the `Demo18_PostSubBuffer.Plugin` sample for angle-dotnet. The sample demonstrates ANGLE/EGL and OpenGL ES integration through the managed SDK.
 
-### 编译
+## Build
+
+From the repository root:
+
 ```powershell
 dotnet build demos/Demo18_PostSubBuffer.Plugin/Demo18_PostSubBuffer.Plugin.csproj -c Debug
 ```
 
-### 运行（WinForms Host）
-```powershell
-dotnet run -c Debug --project demos/DemoHost.WinForms/DemoHost.WinForms.csproj -- --demo=18 --show
-```
+If this project is a plugin, run it through the WinForms host after building the native ANGLE bridge and ANGLE runtime libraries.
+
+## Notes
+
+- Runtime behavior depends on the selected ANGLE backend and installed graphics driver.
+- Keep generated output and benchmark files outside source control.
+- See the root README for prerequisites and the complete build workflow.

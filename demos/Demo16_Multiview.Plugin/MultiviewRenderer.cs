@@ -249,7 +249,7 @@ namespace Demo16_Multiview.Plugin
         private void Initialize(AngleGl gl, int width, int height)
         {
             if (!gl.Framebuffers.IsMultiviewAvailable)
-                throw new NotSupportedException("GL_OVR_multiview2 不可用，无法运行 multiview。");
+                throw new NotSupportedException("GL_OVR_multiview2 is unavailable; multiview cannot run.");
 
             EnsureProgramReloaders();
             _multiviewProgramReloader?.Load(gl);

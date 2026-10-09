@@ -1,15 +1,19 @@
-## Demo7_TriFanMicrobench.Plugin
+# Demo7_TriFanMicrobench.Plugin
 
-TRIANGLE_FAN vs TRIANGLES 微基准（ES2），输出 CPU/GPU 计时表格和 CSV，GLSL 位于 `Shaders/` 支持热重载。
+This directory contains the `Demo7_TriFanMicrobench.Plugin` sample for angle-dotnet. The sample demonstrates ANGLE/EGL and OpenGL ES integration through the managed SDK.
 
-### 编译
+## Build
+
+From the repository root:
+
 ```powershell
 dotnet build demos/Demo7_TriFanMicrobench.Plugin/Demo7_TriFanMicrobench.Plugin.csproj -c Debug
 ```
 
-### 运行（WinForms Host）
-```powershell
-dotnet run -c Debug --project demos/DemoHost.WinForms/DemoHost.WinForms.csproj -- --demo=7 --frames=300 --swap-interval=0
-```
+If this project is a plugin, run it through the WinForms host after building the native ANGLE bridge and ANGLE runtime libraries.
 
-说明：结束时打印表格并写入 `out/tri_fan_microbench/*.csv`。
+## Notes
+
+- Runtime behavior depends on the selected ANGLE backend and installed graphics driver.
+- Keep generated output and benchmark files outside source control.
+- See the root README for prerequisites and the complete build workflow.

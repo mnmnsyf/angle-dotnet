@@ -1,11 +1,19 @@
-## demo2_csharp
+# demo2_csharp
 
-最小 C# 验证：创建离屏 EGL/GLES 上下文并输出 `GL_VERSION`。
+This directory contains the `demo2_csharp` sample for angle-dotnet. The sample demonstrates ANGLE/EGL and OpenGL ES integration through the managed SDK.
 
-### 编译 / 运行（Windows）
+## Build
+
+From the repository root:
+
 ```powershell
-dotnet run -c Debug --project demos/demo2_csharp/demo2_csharp.csproj
+dotnet build demos/demo2_csharp/demo2_csharp.csproj -c Debug
 ```
 
-说明：如果输出目录缺少 `AngleBridge.dll` 或 ANGLE 运行时 DLL，请先按仓库说明构建 native（`AngleBridge` 目标），再重新运行。
+If this project is a plugin, run it through the WinForms host after building the native ANGLE bridge and ANGLE runtime libraries.
 
+## Notes
+
+- Runtime behavior depends on the selected ANGLE backend and installed graphics driver.
+- Keep generated output and benchmark files outside source control.
+- See the root README for prerequisites and the complete build workflow.

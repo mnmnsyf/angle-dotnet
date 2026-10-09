@@ -1,11 +1,19 @@
-## Demo3_Triangle.Plugin
+# Demo3_Triangle.Plugin
 
-Demo3 的渲染器插件（实现共享接口 `IRenderer`），用于 WinForms 热重载与离屏渲染复用。
+This directory contains the `Demo3_Triangle.Plugin` sample for angle-dotnet. The sample demonstrates ANGLE/EGL and OpenGL ES integration through the managed SDK.
 
-### 编译（Windows）
+## Build
+
+From the repository root:
+
 ```powershell
 dotnet build demos/Demo3_Triangle.Plugin/Demo3_Triangle.Plugin.csproj -c Debug
 ```
 
-说明：修改 `TriangleRenderer` 后重新编译该项目，WinForms 宿主会自动热重载。
+If this project is a plugin, run it through the WinForms host after building the native ANGLE bridge and ANGLE runtime libraries.
 
+## Notes
+
+- Runtime behavior depends on the selected ANGLE backend and installed graphics driver.
+- Keep generated output and benchmark files outside source control.
+- See the root README for prerequisites and the complete build workflow.

@@ -1,14 +1,19 @@
-## demo1_native
+# demo1_native
 
-最小原生验证：创建离屏 EGL/GLES 上下文并输出 `GL_VERSION`。
+This directory contains the `demo1_native` sample for angle-dotnet. The sample demonstrates ANGLE/EGL and OpenGL ES integration through the managed SDK.
 
-### 编译（Windows）
+## Build
+
+From the repository root:
+
 ```powershell
-cmake --build --preset build-debug --target demo1_native
+dotnet build demos/demo1_native/demo1_native.csproj -c Debug
 ```
 
-### 运行（Windows）
-```powershell
-build/vs2022-debug/demos/demo1_native/Debug/demo1_native.exe
-```
+If this project is a plugin, run it through the WinForms host after building the native ANGLE bridge and ANGLE runtime libraries.
 
+## Notes
+
+- Runtime behavior depends on the selected ANGLE backend and installed graphics driver.
+- Keep generated output and benchmark files outside source control.
+- See the root README for prerequisites and the complete build workflow.

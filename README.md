@@ -1,59 +1,191 @@
 # angle-dotnet
 
-基于 **ANGLE**（EGL + GLES）构建的 **.NET/C# OpenGL ES SDK** 仓库，用于在 .NET 中创建并使用 OpenGL ES 上下文（上屏/离屏）。
+A .NET/OpenGL ES SDK built on [ANGLE](https://chromium.googlesource.com/angle/angle/). The project provides a native EGL bridge, managed GLES bindings, a CLS-friendly SDK facade, optional utilities, and a collection of deterministic rendering demos.
 
-## 目标
-- 提供可复用的 .NET 库：通过 ANGLE 创建 OpenGL ES 上下文并进行渲染
-- 支持 **window surface（可 swap/present）** 与 **offscreen（可 readback）** 两条路径
-- 保持跨平台方向（取决于 ANGLE 支持的平台）
-- 以 demo 驱动：每个里程碑配套 demo/可对比输出用于验证行为
+## What this project provides
 
-## 托管层分层（建议用法）
+- Offscreen rendering with pixel readback.
+- Window-surface rendering with swap/present support.
+- ANGLE backend and device selection on Windows.
+- Dynamic GLES entry-point loading through `eglGetProcAddress`.
+- Generated GLES 3.0 managed bindings with reproducible output.
+- CLS-friendly, context-bound SDK types and disposable GPU resources.
+- WinForms sample hosting and collectible AssemblyLoadContext hot reload.
+- Texture, shader, framebuffer, sampler, query, sync, and transform-feedback helpers.
+- C++/C# offscreen comparison using PPM output.
+- Rendering demos covering shaders, textures, mipmaps, cubemaps, stencil/depth, instancing, multiview, multiple render targets, post-sub-buffer updates, and more.
 
-- `cs/AngleBridge.Managed`（绑定层）
-  - P/Invoke 调用 `AngleBridge.dll` + 动态加载 GLES 入口（`GlesLoader` + `Gles`）。
-  - 不以 CLS 友好为目标，视为内部实现细节。
-- `cs/AngleBridge.Sdk`（SDK 层，CLS 友好）
-  - `[assembly: CLSCompliant(true)]`
-  - `AngleDevice`：持有 ANGLE/EGL context + surface（window/offscreen），强制线程亲和性，提供 present/readback。
-  - `AngleGl`：上下文绑定的 GLES facade，使用 `enum : int` + `int` 句柄包装（避免在 public API 暴露 `uint`）。
-  - 资源对象：`AngleShader` / `AngleProgram` / `AngleBuffer` / `AngleVertexArray` / `AngleTexture`（均为 `IDisposable`，不暴露 raw handle）。
-- `cs/AngleBridge.Utilities`（可选）
-  - sample runner 框架（`SampleApplication`）+ 窗口/事件抽象（`ISampleWindow`）。
-  - TGA/纹理辅助工具（供 samples 复用）。
-- `cs/AngleBridge.Utilities/WinForms`（Windows 可选实现）
-  - `WinFormsSampleWindow`：`ISampleWindow` 的 WinForms 实现。
-  - `WinFormsHotReloadHost` + `WinFormsHostCli`：可复用 WinForms Host + CLI，用于加载可热重载的 renderer 插件。
+## Repository layout
 
-## 线程模型
+| Path | Description |
+| --- | --- |
+| `native/AngleBridge` | Native ANGLE/EGL bridge DLL. |
+| `cs/AngleBridge.Managed` | Internal P/Invoke and dynamically loaded GLES bindings. |
+| `cs/AngleBridge.Sdk` | Public CLS-friendly .NET SDK facade. |
+| `cs/AngleBridge.Utilities` | Optional sample runner and texture utilities. |
+| `cs/AngleBridge.Utilities/WinForms` | Windows Forms window and hot-reload host. |
+| `demos/` | Native, offscreen, WinForms, and plugin-based demos. |
+| `scripts/` | Binding generation, image comparison, and benchmark scripts. |
+| `docs/` | Architecture, profiling, and sample coverage documentation. |
+| `external/angle` | ANGLE Git submodule. |
 
-`AngleDevice` 是 **线程亲和** 的：所有 `AngleDevice`/`AngleGl` 调用必须发生在创建它的线程上（EGL context 规则）。
+## Requirements
 
-## 快速上手（离屏）
+- Windows 10/11 x64 for the native bridge and WinForms samples.
+- .NET SDK 9.0.318 or a compatible .NET 9 SDK.
+- CMake 3.20 or newer.
+- Visual Studio 2022 with the C++ desktop workload.
+- Python 3.9 or newer for generator tests and validation scripts.
+- A separately built ANGLE runtime (`libEGL.dll` and `libGLESv2.dll`) for native execution.
+
+The managed projects target `net9.0`. The WinForms host targets `net9.0-windows`.
+
+## Clone and initialize dependencies
+
+```powershell
+git clone https://github.com/<your-account>/angle-dotnet.git
+cd angle-dotnet
+git submodule update --init --recursive
+```
+
+The ANGLE submodule is intentionally kept separate because ANGLE is a large upstream project with its own build system and dependencies.
+
+## Build ANGLE
+
+Build ANGLE using ANGLE's documented GN/Ninja workflow. A typical Windows build is:
+
+```powershell
+cd external/angle
+python scripts/bootstrap.py
+python scripts/gn.py gen out/Release --args="is_debug=false angle_assert_always_on=false"
+autoninja -C out/Release libEGL libGLESv2
+cd ../..
+```
+
+The exact ANGLE build arguments depend on the graphics backends and SDKs installed on the machine.
+
+## Build the native bridge
+
+The repository contains Visual Studio CMake presets:
+
+```powershell
+cmake --preset vs2022-debug
+cmake --build --preset build-debug --target AngleBridge
+
+cmake --preset vs2022-release
+cmake --build --preset build-release --target AngleBridge
+```
+
+The presets expect ANGLE libraries under `external/angle/out/Debug` or `external/angle/out/Release`.
+
+## Build all managed projects
+
+```powershell
+$projects = Get-ChildItem cs,demos -Recurse -Filter *.csproj -File |
+  Where-Object { $_.FullName -notmatch '\\(bin|obj)\\' }
+
+foreach ($project in $projects) {
+  dotnet build $project.FullName -c Debug --no-restore
+}
+```
+
+Or build the primary SDK projects directly:
+
+```powershell
+dotnet build cs/AngleBridge.Managed/AngleBridge.Managed.csproj -c Release
+dotnet build cs/AngleBridge.Sdk/AngleBridge.Sdk.csproj -c Release
+dotnet build cs/AngleBridge.Utilities/AngleBridge.Utilities.csproj -c Release
+```
+
+## Quick start: offscreen rendering
 
 ```csharp
 using AngleBridge.Sdk.Runtime;
 
-using (var device = AngleDevice.CreateOffscreen(256, 256, new AngleDeviceOptions { GlesMajor = 3 }))
+using (var device = AngleDevice.CreateOffscreen(
+    256,
+    256,
+    new AngleDeviceOptions { GlesMajor = 3 }))
 {
     var gl = device.Gl;
-    // 渲染...
-    gl.Finish();
+    gl.Draw.Finish();
 
     var rgba = new byte[256 * 256 * 4];
     device.ReadPixelsRgba(0, 0, 256, 256, rgba, 0);
 }
 ```
 
-## 运行 Demo（WinForms Host）
+`AngleDevice` and its associated `AngleGl` instance are thread-affine. All operations must execute on the thread that created the EGL context.
+
+## Run the demos
+
+Run the WinForms host with a selected demo:
 
 ```powershell
-# 启动 DemoHost（示例：Demo5 simple_vertex_shader）
 dotnet run -c Debug --project demos/DemoHost.WinForms/DemoHost.WinForms.csproj -- --demo=5 --show
-
-# 选择 ANGLE 后端/设备/交换间隔（示例）
-dotnet run -c Debug --project demos/DemoHost.WinForms/DemoHost.WinForms.csproj -- --demo=5 --show --use-angle=d3d11 --swap-interval=0
 ```
 
-## 性能分析
-- ETW（WPA/PerfView）：`docs/profiling_etw.md`
+Select an ANGLE backend and disable vsync:
+
+```powershell
+dotnet run -c Debug --project demos/DemoHost.WinForms/DemoHost.WinForms.csproj -- `
+  --demo=5 --show --use-angle=d3d11 --swap-interval=0
+```
+
+Run the offscreen demo:
+
+```powershell
+dotnet run -c Debug --project demos/Demo3_Triangle.Offscreen/Demo3_Triangle.Offscreen.csproj -- `
+  --out $env:TEMP\angle-dotnet-demo3.ppm --w 256 --h 256
+```
+
+Compare two PPM/PGM/PNG images:
+
+```powershell
+python scripts/compare_PPM.py image-a.ppm image-b.ppm
+```
+
+## Generate GLES bindings
+
+The generator reads Khronos `gl.xml`, reuses existing hand-maintained delegate signatures, and emits the generated GLES 3.0 files:
+
+```powershell
+python scripts/gen_gles30_managed.py
+python -m unittest discover -s scripts -p 'test_*.py' -v
+```
+
+The generator preserves existing `ref`, `out`, and `in` modifiers and is idempotent for both the default and custom output directories.
+
+## Validation
+
+The project uses deterministic validation where possible:
+
+```powershell
+python -m unittest discover -s scripts -p 'test_*.py' -v
+cmake --build --preset build-debug --target AngleBridge
+```
+
+The offscreen C# and C++ demos can emit matching PPM images for byte-level comparison. See `docs/samples_matrix.md` for the current demo and ANGLE sample coverage.
+
+## Profiling
+
+ETW/WPA/PerfView guidance is available in [`docs/profiling_etw.md`](docs/profiling_etw.md).
+
+## Current limitations
+
+- The native bridge currently targets Windows and does not expose the full EGL object model.
+- Multiple EGL surfaces, shared contexts, and arbitrary `eglMakeCurrent` switching are not yet modeled by the public API.
+- The WinForms window backend is Windows-specific.
+- ANGLE must be built separately; this repository does not vendor ANGLE build outputs.
+- The generated bindings intentionally keep general pointer parameters as `IntPtr`; callers are responsible for native memory lifetime and layout.
+- Some utility APIs remain available for compatibility and are marked obsolete in favor of the newer grouped SDK APIs.
+
+## Contributing
+
+See [`CONTRIBUTING.md`](CONTRIBUTING.md). All public documentation, issues, and pull requests should use English.
+
+## License
+
+This project is licensed under the MIT License. See [`LICENSE`](LICENSE).
+
+ANGLE and its third-party dependencies remain subject to their respective upstream licenses. See the ANGLE submodule and its third-party license files for details.

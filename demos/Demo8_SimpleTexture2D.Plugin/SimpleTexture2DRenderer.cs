@@ -36,7 +36,7 @@ namespace Demo8_SimpleTexture2D.Plugin
 
         private static readonly float[] s_verticesWrap =
         {
-            // posX, posY, posZ,        u,    v   (UV 扩大到 [-0.5, 1.5]，便于观察 wrap)
+            // posX, posY, posZ,        u,    v   (UV expanded to [-0.5, 1.5] to make wrapping visible)
             -0.5f,  0.5f, 0.0f,   -0.5f, -0.5f,
             -0.5f, -0.5f, 0.0f,   -0.5f,  1.5f,
              0.5f, -0.5f, 0.0f,    1.5f,  1.5f,
@@ -45,7 +45,7 @@ namespace Demo8_SimpleTexture2D.Plugin
 
         private static readonly ushort[] s_indices = { 0, 1, 2, 0, 2, 3 };
 
-        // 2x2 RGB 与 ANGLE 原版保持一致：红、绿、蓝、黄
+        // 2x2 RGB texture matching the ANGLE sample: red, green, blue, yellow
         private static readonly byte[] s_textureData =
         {
             255, 0,   0,
@@ -162,7 +162,7 @@ namespace Demo8_SimpleTexture2D.Plugin
                     format: PixelFormat.Rgb,
                     type: PixelType.UnsignedByte,
                     pixels: s_textureData);
-                Console.WriteLine("SIMPLE_TEX_PATH 未设置或加载失败，使用内置 2x2 RGB 纹理。");
+                Console.WriteLine("SIMPLE_TEX_PATH is unset or failed to load; using the built-in 2x2 RGB texture.");
             }
 
             gl.Textures.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)_options.MinFilter);
@@ -187,19 +187,19 @@ namespace Demo8_SimpleTexture2D.Plugin
                 var fullPath = Path.GetFullPath(path);
                 if (!File.Exists(fullPath))
                 {
-                Console.Error.WriteLine("SIMPLE_TEX_PATH 指向的文件不存在: " + fullPath);
+                Console.Error.WriteLine("SIMPLE_TEX_PATH does not exist: " + fullPath);
                 return false;
             }
 
             if (!fullPath.EndsWith(".tga", StringComparison.OrdinalIgnoreCase))
             {
-                Console.Error.WriteLine("仅支持 TGA 文件： " + fullPath);
+                Console.Error.WriteLine("Only TGA files are supported: " + fullPath);
                 return false;
             }
 
             if (!TgaImage.TryLoad(fullPath, out var image) || image == null)
             {
-                Console.Error.WriteLine("TGA 加载失败: " + fullPath);
+                Console.Error.WriteLine("TGA load failed: " + fullPath);
                 return false;
             }
 
@@ -213,12 +213,12 @@ namespace Demo8_SimpleTexture2D.Plugin
                 format: PixelFormat.Rgba,
                 type: PixelType.UnsignedByte,
                 pixels: image.Rgba);
-                Console.WriteLine("已加载外部纹理: " + fullPath);
+                Console.WriteLine("Loaded external texture: " + fullPath);
                 return true;
             }
             catch (Exception ex)
             {
-                Console.Error.WriteLine("加载外部纹理发生异常: " + ex.Message);
+                Console.Error.WriteLine("Exception while loading external texture: " + ex.Message);
                 return false;
             }
         }

@@ -1,13 +1,19 @@
-## Demo4_HelloTriangle.Plugin
+# Demo4_HelloTriangle.Plugin
 
-最小 Hello Triangle 插件（ES2），供 WinForms 宿主加载。
+This directory contains the `Demo4_HelloTriangle.Plugin` sample for angle-dotnet. The sample demonstrates ANGLE/EGL and OpenGL ES integration through the managed SDK.
 
-### 编译
+## Build
+
+From the repository root:
+
 ```powershell
 dotnet build demos/Demo4_HelloTriangle.Plugin/Demo4_HelloTriangle.Plugin.csproj -c Debug
 ```
 
-### 运行（WinForms Host）
-```powershell
-dotnet run -c Debug --project demos/DemoHost.WinForms/DemoHost.WinForms.csproj -- --demo=4 --show
-```
+If this project is a plugin, run it through the WinForms host after building the native ANGLE bridge and ANGLE runtime libraries.
+
+## Notes
+
+- Runtime behavior depends on the selected ANGLE backend and installed graphics driver.
+- Keep generated output and benchmark files outside source control.
+- See the root README for prerequisites and the complete build workflow.

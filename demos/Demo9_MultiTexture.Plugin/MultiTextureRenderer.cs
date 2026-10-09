@@ -164,7 +164,7 @@ namespace Demo9_MultiTexture.Plugin
                     Console.WriteLine((isLight ? "light" : "base") + " texture loaded: " + fullPath);
                     return;
                 }
-                Console.Error.WriteLine("纹理加载失败（需 TGA）: " + fullPath + "，使用内置纹理。");
+                Console.Error.WriteLine("Texture load failed (TGA required): " + fullPath + "; using the built-in texture.");
             }
 
             var pixels = isLight ? BuiltInLightTexture() : BuiltInBaseTexture();
@@ -274,7 +274,7 @@ namespace Demo9_MultiTexture.Plugin
 
         private static (int width, int height, byte[] data) BuiltInBaseTexture()
         {
-            // 简单 2x2 RGBA：红、绿、蓝、白
+            // Simple 2x2 RGBA texture: red, green, blue, white
             return (2, 2, new byte[]
             {
                 255, 0,   0,   255,
@@ -286,7 +286,7 @@ namespace Demo9_MultiTexture.Plugin
 
         private static (int width, int height, byte[] data) BuiltInLightTexture()
         {
-            // 2x2 RGBA：浅灰+亮度渐变，用于乘法光照
+            // 2x2 RGBA texture: light gray with a brightness gradient for multiplicative lighting
             return (2, 2, new byte[]
             {
                 192, 192, 192, 255,
